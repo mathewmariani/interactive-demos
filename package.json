@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "cmake": "cmake --preset Release -B build && cmake --build build --preset Release",
+    "emsdk": "git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate --embedded latest && cd ..",
+    "build": "ts-node resources/build.ts"
+  },
+  "dependencies": {
+    "glob": "^10.3.10",
+    "highlight.js": "^11.9.0",
+    "markdown-it": "^13.0.1",
+    "markdown-it-highlightjs": "^4.0.1",
+    "mustache": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^13.0.7",
+    "@types/mustache": "^4.2.5"
+  }
+}
