@@ -5,5 +5,6 @@ export const SYMLINK_SRC = 'build/Release';
 export const SYMLINK_DST = 'public/modules';
 
 export const HomeLink = (): string => '/';
+export const MinesweeperLink = (): string => 'minesweeper';
 export const TicTacToeLink = (): string => 'tictactoe';
 export const BreadthFirstSearchLink = (): string => 'breadthfirstsearch';
