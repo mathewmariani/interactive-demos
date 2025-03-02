@@ -1,0 +1,18 @@
+---
+import Footer from "../components/Footer.astro";
+import Meta from "../components/Meta.astro";
+---
+
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<Meta />
+	</head>
+
+	<body class="container" id="top">
+		<main>
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>
+<style></style>

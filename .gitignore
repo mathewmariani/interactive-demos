@@ -8,7 +8,15 @@
 
 # build output
 build/
-website/
+dist/
+
+# symlinks
+public/modules
+*.symlink
+
+# intermediate files
+.cache/
+.astro/
 
 # Dependency directories
 node_modules/

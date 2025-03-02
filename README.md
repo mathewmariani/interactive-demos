@@ -1,23 +1,24 @@
-# Artificial Intelligence for Games (GPR340)
+# interactive-demos
 
 [![Build](/../../actions/workflows/main.yml/badge.svg)](/../../actions/workflows/main.yml)
 
-This adaptation of GPR-340 is a work in progress.
+Interactive demos inspired by Amit Patel from [RedBlobGames](https://www.redblobgames.com/).
 
-The syllabus for this course was developed by Alexandre Tolstenko ([@tolstenko](https://github.com/tolstenko)).
+## How to Build
 
+This project is built using Emscripten, and it is expected that `$EMSDK` exists on the `PATH`.
 
-## Repository Layout
+```
+# builds emscripten module
+> git clone https://github.com/mathewmariani/interactive-demos
+> cd interactive-demos
+> cmake --preset Release
+> cmake --build --preset Release
 
-*   `assignments/` – Assignment template and assets.
-*   `build/` - Intermediate files and other build output. 
-*   `resources/` – Scripts and resources used for building the website.
-
-
-## Contributing
-
-To maintain alignment with the syllabus, pull requests adding additional subjects and/or material to the course will likely not be merged. However, bug reports and bug fixes are welcome.
-
+# dev. environment
+> npm install
+> npm run dev
+```
 
 ## License
 

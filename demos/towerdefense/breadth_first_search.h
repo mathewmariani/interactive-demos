@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grid_world.h"
+#include "datastructures/grid_world.h"
 
 #include <map>
 #include <utility>

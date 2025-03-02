@@ -1,12 +1,20 @@
 #include <emscripten/bind.h>
 
-#include "grid_location.h"
-#include "grid_world.h"
-#include "breadthfirst_search.h"
+#include "datastructures/grid_location.h"
+#include "datastructures/grid_world.h"
+
+#include "towerdefense/astar_search.h"
+#include "towerdefense/breadth_first_search.h"
+#include "towerdefense/dijkstra_search.h"
+#include "towerdefense/greedy_search.h"
+
+#include "tictactoe/bot.h"
+#include "tictactoe/tictactoe.h"
 
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
 
+// mantra: I would rather write bindings in c++ than confusing javascript
 EMSCRIPTEN_BINDINGS(my_module)
 {
     emscripten::register_vector<grid_location<int>>("std::vector<grid_location<int>>");
@@ -31,5 +39,26 @@ EMSCRIPTEN_BINDINGS(my_module)
         .function("toggleWall", &grid_world::toggleWall)
         .function("isWall", &grid_world::isWall);
 
+    // tower defense algorithms
     emscripten::function("BreadthFirstSearch", &BreadthFirstSearch);
+
+    emscripten::function("AStarSearch", &AStarSearch);
+    emscripten::function("DijkstraSearch", &DijkstraSearch);
+    emscripten::function("GreedySearch", &GreedySearch);
+}
+
+EMSCRIPTEN_BINDINGS(TicTacToe)
+{
+    emscripten::class_<TicTacToe::Board>("TicTacToe")
+        .constructor<>()
+        .function("reset", &TicTacToe::Board::reset)
+        .function("has_winner", &TicTacToe::Board::has_winner)
+        .function("is_complete", &TicTacToe::Board::is_complete)
+        .function("get", &TicTacToe::Board::get)
+        .function("set", &TicTacToe::Board::set);
+
+    emscripten::class_<TicTacToe::Bot>("Bot")
+        .constructor<TicTacToe::Board *, int>()
+        .function("random_move", &TicTacToe::Bot::random_move)
+        .function("best_move", &TicTacToe::Bot::best_move);
 }

@@ -38,6 +38,5 @@
 		"unordered_map": "cpp",
 		"atomic": "cpp",
 		"utility": "cpp"
-	},
-	"cmake.sourceDirectory": "/Users/matmariani/Projects/gpr-docs"
+	}
 }

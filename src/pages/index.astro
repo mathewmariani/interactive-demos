@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Page.astro";
+import { TicTacToeLink, BreadthFirstSearchLink } from "../consts";
+---
+
+<Layout>
+	<h1>Interactive Demos</h1>
+	<ul class="list">
+		<li><a href={TicTacToeLink()}>TicTacToe Bot (minimax)</a></li>
+		<li><a href={BreadthFirstSearchLink()}>Breadth First Search</a></li>
+	</ul>
+</Layout>
+
+<style></style>

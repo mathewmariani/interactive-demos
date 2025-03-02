@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Page.astro";
+---
+
+<Layout>
+	<h1>Breadfirst Search</h1>
+	<figure id="diagram1">
+		<svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
+			<rect
+				v-for="loc in locations"
+				:class="'cell ' + classFor(loc)"
+				:x="loc.x"
+				:y="loc.y"
+				:width="1"
+				:height="1"
+				@click="toggleWall(loc)"></rect>
+			<drag-handle v-model="centerPosition" color="yellow" :size="0.5"
+			></drag-handle>
+			<drag-handle v-model="goalPosition" color="red" :size="0.5"></drag-handle>
+		</svg>
+		<p>
+			Time: <input
+				v-model.number="stepLimit"
+				type="range"
+				min="0"
+				:max="getWidth * getHeight"
+			/>
+		</p>
+	</figure>
+
+	Click to toggle walls.
+
+	<script type="module" src="/minimax/breadthfirstsearch.js"></script>
+</Layout>
+<style>
+	.cell {
+		fill: hsl(60, 10%, 90%);
+		stroke: hsl(60, 0%, 100%);
+		stroke-width: 0.02px;
+	}
+
+	.wall {
+		fill: hsl(30, 20%, 40%);
+		stroke: hsl(30, 50%, 40%);
+	}
+
+	.explored {
+		fill: hsl(45, 20%, 70%);
+	}
+
+	.frontier {
+		fill: hsl(220, 50%, 70%);
+	}
+</style>
