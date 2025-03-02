@@ -1,6 +1,10 @@
 ---
 import Layout from "../layouts/Page.astro";
-import { TicTacToeLink, BreadthFirstSearchLink } from "../consts";
+import {
+	MinesweeperLink,
+	TicTacToeLink,
+	BreadthFirstSearchLink,
+} from "../consts";
 ---
 
 <Layout>
@@ -16,7 +20,8 @@ import { TicTacToeLink, BreadthFirstSearchLink } from "../consts";
 	</p>
 
 	<ul class="list">
-		<li><a href={TicTacToeLink()}>TicTacToe Bot (minimax)</a></li>
+		<li><a href={MinesweeperLink()}>Minesweeper</a></li>
+		<li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>
 		<li><a href={BreadthFirstSearchLink()}>Breadth First Search</a></li>
 	</ul>
 </Layout>
