@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Page.astro";
-import Minesweeper from "../components/Minesweeper.astro";
+import Minesweeper from "../components/Minesweeper.vue";
 ---
 
 <Layout>
@@ -13,5 +13,5 @@ import Minesweeper from "../components/Minesweeper.astro";
     cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
     non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
   </p>
-  <Minesweeper />
+  <Minesweeper client:only="react" />
 </Layout>

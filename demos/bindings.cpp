@@ -70,6 +70,8 @@ EMSCRIPTEN_BINDINGS(Minesweeper)
     emscripten::class_<Minesweeper::Board>("Minesweeper")
         .constructor<>()
         .function("reset", &Minesweeper::Board::Reset)
+        .function("getMineCount", &Minesweeper::Board::GetMineCount)
+        .function("isMine", &Minesweeper::Board::IsMine)
         .function("get", &Minesweeper::Board::Get)
         .function("set", &Minesweeper::Board::Set);
 }
