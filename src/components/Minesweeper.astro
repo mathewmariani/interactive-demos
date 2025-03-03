@@ -1,0 +1,39 @@
+---
+
+---
+
+<figure id="diagram1">
+  <main class="d-flex justify-content-center">
+    <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
+      <g v-for="loc in locations" @click="set(loc)">
+        <rect class="cell" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
+
+        <text
+          text-anchor="middle"
+          :font-size="0.45"
+          :x="(loc.x + 0.5)"
+          :y="(loc.y + 0.5)"
+          :dy="0.15"
+        >
+          {8}
+        </text>
+      </g>
+    </svg>
+  </main>
+  <style>
+    .cell {
+      fill: #a2d149;
+      stroke: hsl(60, 0%, 100%);
+      stroke-width: 0.02px;
+    }
+
+    svg {
+      max-width: 512px;
+      max-height: 512px;
+      width: 100%; /* Optional: Makes it responsive */
+      height: auto;
+    }
+  </style>
+</figure>
+
+<script type="module" src="/interactive-demos/minesweeper.js"></script>

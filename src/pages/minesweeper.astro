@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Page.astro";
+import Minesweeper from "../components/Minesweeper.astro";
 ---
 
 <Layout>
@@ -12,35 +13,5 @@ import Layout from "../layouts/Page.astro";
     cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
     non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
   </p>
-
-  <figure id="diagram1">
-    <main class="d-flex justify-content-center">
-      <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
-        <g
-          v-for="loc in locations"
-          :key="`${loc.x}-${loc.y}`"
-          @click="set(loc)"
-        >
-          <rect class="cell" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
-        </g>
-      </svg>
-    </main>
-  </figure>
-
-  <script type="module" src="/interactive-demos/minesweeper.js"></script>
+  <Minesweeper />
 </Layout>
-
-<style>
-  .cell {
-    fill: #a2d149;
-    stroke: hsl(60, 0%, 100%);
-    stroke-width: 0.02px;
-  }
-
-  svg {
-    max-width: 512px;
-    max-height: 512px;
-    width: 100%; /* Optional: Makes it responsive */
-    height: auto;
-  }
-</style>
