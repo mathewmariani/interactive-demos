@@ -66,31 +66,31 @@ export default {
       this.board.reset()
     },
     explore(location) {
-      if (this.board.isMine(location.x, location.y)) {
+      if (this.board.isMine(location)) {
         console.log('Game Over!')
       }
 
-        // let count = this.board.getMineCount(location.x, location.y)
+        // let count = this.board.getMineCount(location)
         // if (count > 0) {
         //   console.log('Location clicked:', location)
         //   return;
         // }
         // console.log('Cascade event:', location)
         console.log('Location clicked:', location)
-        this.board.explore(location.x, location.y)
+        this.board.explore(location)
         this.$forceUpdate()
     },
     getMineCount(location) {
-      return this.board.getMineCount(location.x, location.y)
+      return this.board.getMineCount(location)
     },
     isMine(location) {
-      return this.board.isMine(location.x, location.y)
+      return this.board.isMine(location)
     },
     isExplored(location) {
-      return this.board.isExplored(location.x, location.y)
+      return this.board.isExplored(location)
     },
     classFor(location) {
-      return this.board.isExplored(location.x, location.y) ? "explored" : "";
+      return this.board.isExplored(location) ? "explored" : "";
     },
   }
 };

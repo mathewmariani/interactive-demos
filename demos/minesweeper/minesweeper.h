@@ -7,9 +7,16 @@
 
 namespace Minesweeper
 {
+
+static constexpr int kDefaultCell = 0x0000;
 static constexpr int kWidth = 10;
 static constexpr int kHeight = 8;
 static constexpr int kMines = 10;
+
+// cell data is stored as a uint8_t.
+// * 4-high bits stores the type
+// * 4-low bits stores the mine count
+using CellData = uint8_t;
 
 enum class CellType : uint8_t
 {
@@ -21,12 +28,12 @@ enum class CellType : uint8_t
 
 inline CellType operator&(CellType lhs, CellType rhs)
 {
-    return static_cast<CellType>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+    return static_cast<CellType>(static_cast<CellData>(lhs) & static_cast<CellData>(rhs));
 }
 
 inline CellType operator|(CellType lhs, CellType rhs)
 {
-    return static_cast<CellType>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    return static_cast<CellType>(static_cast<CellData>(lhs) | static_cast<CellData>(rhs));
 }
 
 inline CellType& operator|=(CellType& lhs, CellType rhs)
@@ -35,22 +42,22 @@ inline CellType& operator|=(CellType& lhs, CellType rhs)
     return lhs;
 }
 
-inline CellType GetType(uint8_t value)
+inline CellType GetType(CellData value)
 {
     return static_cast<CellType>(value >> 4);
 }
 
-inline void SetType(uint8_t& value, CellType type)
+inline void SetType(CellData& value, CellType type)
 {
-    value |= (static_cast<uint8_t>(type) << 4);
+    value |= (static_cast<CellData>(type) << 4);
 }
 
-inline uint8_t GetCount(uint8_t value)
+inline CellData GetCount(CellData value)
 {
     return value & 0x0F; // Get the lower 4 bits
 }
 
-inline void SetCount(uint8_t& value, uint8_t count)
+inline void SetCount(CellData& value, CellData count)
 {
     count &= 0x0F;                  // Ensure count fits in the lower 4 bits
     value = (value & 0xF0) | count; // Set the lower 4 bits
@@ -63,10 +70,9 @@ class Board
 
     void Reset()
     {
-        // Clear the board (0 represents empty)
         for (auto& row : data)
         {
-            row.fill(0x0000);
+            row.fill(kDefaultCell);
         }
 
         // Set up random number generation for placing mines
@@ -123,26 +129,27 @@ class Board
         }
     }
 
-    uint8_t Get(int x, int y) const { return data[x][y]; }
-    void Set(int x, int y, int value) { data[x][y] = value; }
+    CellData Get(const grid_location<int>& location) const { return data[location.x][location.y]; }
+    void Set(const grid_location<int>& location, int value) { data[location.x][location.y] = value; }
 
-    void Flag(int x, int y) { SetType(data[x][y], CellType::Flag); }
-    void Explore(int x, int y)
+    void Flag(const grid_location<int>& location) { SetType(data[location.x][location.y], CellType::Flag); }
+    void Explore(const grid_location<int>& location)
     {
-        if (IsFlag(x, y))
+        if (IsFlag(location))
         {
             return;
         }
-        SetType(data[x][y], CellType::Explored);
+        SetType(data[location.x][location.y], CellType::Explored);
     }
 
-    uint8_t GetMineCount(int x, int y) const { return GetCount(data[x][y]); }
+    uint8_t GetMineCount(const grid_location<int>& location) const { return GetCount(data[location.x][location.y]); }
 
-    bool IsMine(int x, int y) const { return (GetType(data[x][y]) & CellType::Mine) != CellType::Empty; }
-    bool IsExplored(int x, int y) const { return (GetType(data[x][y]) & CellType::Explored) != CellType::Empty; }
-    bool IsFlag(int x, int y) const { return (GetType(data[x][y]) & CellType::Flag) != CellType::Empty; }
+    bool IsMine(const grid_location<int>& location) const { return (GetType(data[location.x][location.y]) & CellType::Mine) != CellType::Empty; }
+    bool IsExplored(const grid_location<int>& location) const { return (GetType(data[location.x][location.y]) & CellType::Explored) != CellType::Empty; }
+    bool IsFlag(const grid_location<int>& location) const { return (GetType(data[location.x][location.y]) & CellType::Flag) != CellType::Empty; }
 
   private:
-    std::array<std::array<uint8_t, kHeight>, kWidth> data;
+    std::array<std::array<CellData, kHeight>, kWidth> data;
 };
+
 } // namespace Minesweeper
