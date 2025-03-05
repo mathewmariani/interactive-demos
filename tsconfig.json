@@ -8,5 +8,8 @@
     "dist",
     "assignments",
     "build"
-  ]
+  ],
+  "compilerOptions": {
+    "jsx": "preserve"
+  }
 }
