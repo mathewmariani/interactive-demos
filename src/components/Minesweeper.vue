@@ -96,7 +96,7 @@ export default {
         return;
       }
 
-      this.board.flag(location)
+      this.board.toggleFlag(location)
       if (this.board.checkWin()) {
         this.has_won = true
         this.gameover = true
