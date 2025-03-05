@@ -12,6 +12,7 @@ dist/
 
 # symlinks
 public/modules
+src/modules
 *.symlink
 
 # intermediate files
