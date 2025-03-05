@@ -13,20 +13,36 @@ static constexpr int kMines = 10;
 
 enum class CellType : uint8_t
 {
-    Empty = 0,
-    Mine = 1,
-    Explored = 2,
+    Empty = 0,           // 0b0000
+    Flag = (1 << 0),     // 0b0001
+    Mine = (1 << 1),     // 0b0010
+    Explored = (1 << 2), // 0b0100
 };
 
-inline uint8_t GetType(uint8_t value)
+inline CellType operator&(CellType lhs, CellType rhs)
 {
-    return value >> 4;
+    return static_cast<CellType>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
 
-inline void SetType(uint8_t& value, uint8_t type)
+inline CellType operator|(CellType lhs, CellType rhs)
 {
-    type &= 0x0F;                         // Ensure only lower 4 bits are used
-    value = (value & 0x0F) | (type << 4); // Set the upper 4 bits
+    return static_cast<CellType>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+}
+
+inline CellType& operator|=(CellType& lhs, CellType rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
+}
+
+inline CellType GetType(uint8_t value)
+{
+    return static_cast<CellType>(value >> 4);
+}
+
+inline void SetType(uint8_t& value, CellType type)
+{
+    value |= (static_cast<uint8_t>(type) << 4);
 }
 
 inline uint8_t GetCount(uint8_t value)
@@ -67,9 +83,9 @@ class Board
             {
                 x = distX(gen);
                 y = distY(gen);
-                if (GetType(data[x][y]) == (uint8_t)CellType::Empty)
+                if (GetType(data[x][y]) == CellType::Empty)
                 {
-                    SetType(data[x][y], (uint8_t)CellType::Mine);
+                    SetType(data[x][y], CellType::Mine);
                     break;
                 }
             }
@@ -81,7 +97,7 @@ class Board
             for (auto x = 0; x < kWidth; x++)
             {
                 // If the current cell is a mine, skip counting
-                if (GetType(data[x][y]) == (uint8_t)CellType::Mine)
+                if (GetType(data[x][y]) == CellType::Mine)
                     continue;
 
                 uint8_t count = 0;
@@ -94,7 +110,7 @@ class Board
                         // Ensure we're within bounds
                         auto nx = x + dx;
                         auto ny = y + dy;
-                        if (nx >= 0 && nx < kWidth && ny >= 0 && ny < kHeight && GetType(data[nx][ny]) == (uint8_t)CellType::Mine)
+                        if (nx >= 0 && nx < kWidth && ny >= 0 && ny < kHeight && GetType(data[nx][ny]) == CellType::Mine)
                         {
                             count++;
                         }
@@ -110,12 +126,21 @@ class Board
     uint8_t Get(int x, int y) const { return data[x][y]; }
     void Set(int x, int y, int value) { data[x][y] = value; }
 
-    void Explore(int x, int y) { SetType(data[x][y], (uint8_t)CellType::Explored); }
+    void Flag(int x, int y) { SetType(data[x][y], CellType::Flag); }
+    void Explore(int x, int y)
+    {
+        if (IsFlag(x, y))
+        {
+            return;
+        }
+        SetType(data[x][y], CellType::Explored);
+    }
 
     uint8_t GetMineCount(int x, int y) const { return GetCount(data[x][y]); }
 
-    bool IsMine(int x, int y) const { return GetType(data[x][y]) == (uint8_t)CellType::Mine; }
-    bool IsExplored(int x, int y) const { return GetType(data[x][y]) == (uint8_t)CellType::Explored; }
+    bool IsMine(int x, int y) const { return (GetType(data[x][y]) & CellType::Mine) != CellType::Empty; }
+    bool IsExplored(int x, int y) const { return (GetType(data[x][y]) & CellType::Explored) != CellType::Empty; }
+    bool IsFlag(int x, int y) const { return (GetType(data[x][y]) & CellType::Flag) != CellType::Empty; }
 
   private:
     std::array<std::array<uint8_t, kHeight>, kWidth> data;

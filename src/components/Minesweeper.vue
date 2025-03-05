@@ -8,7 +8,7 @@
         <g v-for="loc in locations" @click="explore(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
           <text
-            v-if="isExplored(loc)"
+            v-if="isExplored(loc) && !isMine(loc)"
             text-anchor="middle"
             :font-size="0.45"
             :x="loc.x + 0.5"
@@ -19,7 +19,7 @@
           </text>
 
           <circle
-            v-if="isMine(loc)"
+            v-if="isExplored(loc) && isMine(loc)"
             :cx="loc.x + 0.5"
             :cy="loc.y + 0.5"
             r="0.25"
@@ -69,8 +69,7 @@ export default {
       if (this.board.isMine(location.x, location.y)) {
         console.log('Game Over!')
       }
-      else
-      {
+
         // let count = this.board.getMineCount(location.x, location.y)
         // if (count > 0) {
         //   console.log('Location clicked:', location)
@@ -79,8 +78,7 @@ export default {
         // console.log('Cascade event:', location)
         console.log('Location clicked:', location)
         this.board.explore(location.x, location.y)
-      }
-      this.$forceUpdate()
+        this.$forceUpdate()
     },
     getMineCount(location) {
       return this.board.getMineCount(location.x, location.y)
