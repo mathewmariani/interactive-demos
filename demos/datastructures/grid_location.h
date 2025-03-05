@@ -5,45 +5,45 @@
 template <typename T>
 struct grid_location
 {
-  static grid_location<T> NorthWest;
-  static grid_location<T> North;
-  static grid_location<T> NorthEast;
-  static grid_location<T> East;
-  static grid_location<T> SouthEast;
-  static grid_location<T> South;
-  static grid_location<T> SouthWest;
-  static grid_location<T> West;
+    static grid_location<T> NorthWest;
+    static grid_location<T> North;
+    static grid_location<T> NorthEast;
+    static grid_location<T> East;
+    static grid_location<T> SouthEast;
+    static grid_location<T> South;
+    static grid_location<T> SouthWest;
+    static grid_location<T> West;
 
-  static std::array<grid_location<T>, 8> MooresNeighborhood;
-  static std::array<grid_location<T>, 4> VonNewmanNeighborhood;
+    static std::array<grid_location<T>, 8> MooresNeighborhood;
+    static std::array<grid_location<T>, 4> VonNewmanNeighborhood;
 
-  T x, y;
-  grid_location() : x(0), y(0) {}
-  grid_location(T x_, T y_) : x(x_), y(y_) {}
-  grid_location(const grid_location &) = default;
-  grid_location(grid_location &&) = default;
-  grid_location<T> operator+(const grid_location<T> &rhs) const
-  {
-    return {x + rhs.x, y + rhs.y};
-  }
-  grid_location<T> operator-(const grid_location<T> &rhs) const
-  {
-    return {x - rhs.x, y - rhs.y};
-  }
-  grid_location<T> &operator=(const grid_location<T> &rhs)
-  {
-    x = rhs.x;
-    y = rhs.y;
-    return (*this);
-  };
-  bool operator<(const grid_location &other) const
-  {
-    return x < other.x || (x == other.x && y < other.y);
-  }
-  bool operator==(const grid_location &other) const
-  {
-    return (x == other.x && y == other.y);
-  }
+    T x, y;
+    grid_location() : x(0), y(0) {}
+    grid_location(T x_, T y_) : x(x_), y(y_) {}
+    grid_location(const grid_location&) = default;
+    grid_location(grid_location&&) = default;
+    grid_location<T> operator+(const grid_location<T>& rhs) const
+    {
+        return {x + rhs.x, y + rhs.y};
+    }
+    grid_location<T> operator-(const grid_location<T>& rhs) const
+    {
+        return {x - rhs.x, y - rhs.y};
+    }
+    grid_location<T>& operator=(const grid_location<T>& rhs)
+    {
+        x = rhs.x;
+        y = rhs.y;
+        return (*this);
+    };
+    bool operator<(const grid_location& other) const
+    {
+        return x < other.x || (x == other.x && y < other.y);
+    }
+    bool operator==(const grid_location& other) const
+    {
+        return (x == other.x && y == other.y);
+    }
 };
 
 template <typename T>
@@ -89,8 +89,8 @@ template class grid_location<float>;
 template <>
 struct std::hash<grid_location<int>>
 {
-  std::size_t operator()(const grid_location<int> &location) const noexcept
-  {
-    return std::hash<int>()(location.x ^ (location.y << 16));
-  }
+    std::size_t operator()(const grid_location<int>& location) const noexcept
+    {
+        return std::hash<int>()(location.x ^ (location.y << 16));
+    }
 };

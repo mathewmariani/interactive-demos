@@ -60,7 +60,7 @@ EMSCRIPTEN_BINDINGS(TicTacToe)
         .function("set", &TicTacToe::Board::set);
 
     emscripten::class_<TicTacToe::Bot>("Bot")
-        .constructor<TicTacToe::Board *, int>()
+        .constructor<TicTacToe::Board*, int>()
         .function("random_move", &TicTacToe::Bot::random_move)
         .function("best_move", &TicTacToe::Bot::best_move);
 }
@@ -71,6 +71,8 @@ EMSCRIPTEN_BINDINGS(Minesweeper)
         .constructor<>()
         .function("reset", &Minesweeper::Board::Reset)
         .function("getMineCount", &Minesweeper::Board::GetMineCount)
+        .function("explore", &Minesweeper::Board::Explore)
+        .function("isExplored", &Minesweeper::Board::IsExplored)
         .function("isMine", &Minesweeper::Board::IsMine)
         .function("get", &Minesweeper::Board::Get)
         .function("set", &Minesweeper::Board::Set);
