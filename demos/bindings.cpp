@@ -72,8 +72,9 @@ EMSCRIPTEN_BINDINGS(Minesweeper)
         .function("reset", &Minesweeper::Board::Reset)
         .function("getMineCount", &Minesweeper::Board::GetMineCount)
         .function("explore", &Minesweeper::Board::Explore)
+        .function("flag", &Minesweeper::Board::Flag)
         .function("isExplored", &Minesweeper::Board::IsExplored)
+        .function("isFlag", &Minesweeper::Board::IsFlag)
         .function("isMine", &Minesweeper::Board::IsMine)
-        .function("get", &Minesweeper::Board::Get)
-        .function("set", &Minesweeper::Board::Set);
+        .function("checkWin", &Minesweeper::Board::CheckWin);
 }

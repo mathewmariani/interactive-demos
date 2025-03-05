@@ -1,11 +1,12 @@
 <template>
-  <button type="button" class="btn btn-primary mb-4" v-on:click.native="reset">
-    Reset
-  </button>
+  
   <figure id="diagram1">
-    <main class="d-flex justify-content-center">
-      <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`">
-        <g v-for="loc in locations" @click="explore(loc)">
+    <div class="d-flex flex-column align-items-center">
+      <button type="button" class="btn btn-primary btn-lg btn-block mb-4" v-on:click.native="reset">
+        {{ getStatus }}
+      </button>
+      <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent="handleRightClick">
+        <g v-for="loc in locations" @click.left="explore(loc)" @click.right="flag(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
           <text
             v-if="isExplored(loc) && !isMine(loc)"
@@ -24,9 +25,26 @@
             :cy="loc.y + 0.5"
             r="0.25"
             fill="rgb(229, 74, 58)"></circle>
+
+            <g
+            v-if="isFlag(loc)"
+            stroke="rgb(51, 151, 217)"
+            stroke-width="0.1"
+          >
+            <line
+              :x1="loc.x + 0.2"
+              :y1="loc.y + 0.2"
+              :x2="loc.x + 0.8"
+              :y2="loc.y + 0.8"></line>
+            <line
+              :x1="loc.x + 0.2"
+              :y1="loc.y + 0.8"
+              :x2="loc.x + 0.8"
+              :y2="loc.y + 0.2"></line>
+          </g>
         </g>
       </svg>
-    </main>
+    </div>
   </figure>
 </template>
 
@@ -42,6 +60,8 @@ export default {
   data: () => ({
     gridWorld: shallowReactive(gridWorld),
     board: shallowReactive(board),
+    gameover: false,
+    has_won: false,
   }),
   computed: {
     getWidth() {
@@ -59,35 +79,58 @@ export default {
       }
       return result
     },
+    getStatus() {
+      return this.gameover ? (this.has_won ? "😎" : "😵") : "🙂"
+    }
   },
   methods: {
     reset() {
-      console.log('reset clicked:', location)
       this.board.reset()
+      this.gameover = false;
+      this.has_won = false;
+      this.$forceUpdate()
     },
-    explore(location) {
-      if (this.board.isMine(location)) {
-        console.log('Game Over!')
+    flag(location) {
+      if (this.gameover || this.board.isExplored(location)) {
+        console.log("here")
+        return;
       }
 
-        // let count = this.board.getMineCount(location)
-        // if (count > 0) {
-        //   console.log('Location clicked:', location)
-        //   return;
-        // }
-        // console.log('Cascade event:', location)
-        console.log('Location clicked:', location)
-        this.board.explore(location)
-        this.$forceUpdate()
+      this.board.flag(location)
+      if (this.board.checkWin()) {
+        this.has_won = true
+        this.gameover = true
+      }
+      this.$forceUpdate()
+    },
+    explore(location) {
+      if (this.gameover) {
+        return;
+      }
+
+      this.board.explore(location)
+
+      if (this.board.isMine(location)) {
+        this.gameover = true
+      }
+      else if (this.board.checkWin()) {
+        this.has_won = true
+        this.gameover = true
+      }
+      this.$forceUpdate()
     },
     getMineCount(location) {
-      return this.board.getMineCount(location)
+      let n = this.board.getMineCount(location)
+      return n == 0 ? "" : n
     },
     isMine(location) {
       return this.board.isMine(location)
     },
     isExplored(location) {
       return this.board.isExplored(location)
+    },
+    isFlag(location) {
+      return this.board.isFlag(location)
     },
     classFor(location) {
       return this.board.isExplored(location) ? "explored" : "";

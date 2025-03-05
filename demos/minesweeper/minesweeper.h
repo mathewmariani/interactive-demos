@@ -26,6 +26,11 @@ enum class CellType : uint8_t
     Explored = (1 << 2), // 0b0100
 };
 
+inline CellType operator~(CellType type)
+{
+    return static_cast<CellType>(~static_cast<std::underlying_type_t<CellType>>(type));
+}
+
 inline CellType operator&(CellType lhs, CellType rhs)
 {
     return static_cast<CellType>(static_cast<CellData>(lhs) & static_cast<CellData>(rhs));
@@ -36,10 +41,14 @@ inline CellType operator|(CellType lhs, CellType rhs)
     return static_cast<CellType>(static_cast<CellData>(lhs) | static_cast<CellData>(rhs));
 }
 
+inline CellType operator^(CellType lhs, CellType rhs)
+{
+    return static_cast<CellType>(static_cast<CellData>(lhs) ^ static_cast<CellData>(rhs));
+}
+
 inline CellType& operator|=(CellType& lhs, CellType rhs)
 {
-    lhs = lhs | rhs;
-    return lhs;
+    return lhs = lhs | rhs;
 }
 
 inline CellType GetType(CellData value)
@@ -68,6 +77,13 @@ class Board
   public:
     Board() { Reset(); }
 
+  private:
+    auto InRange(const grid_location<int>& location) const
+    {
+        return 0 <= location.x && location.x < kWidth && 0 <= location.y && location.y < kHeight;
+    }
+
+  public:
     void Reset()
     {
         for (auto& row : data)
@@ -132,14 +148,49 @@ class Board
     CellData Get(const grid_location<int>& location) const { return data[location.x][location.y]; }
     void Set(const grid_location<int>& location, int value) { data[location.x][location.y] = value; }
 
-    void Flag(const grid_location<int>& location) { SetType(data[location.x][location.y], CellType::Flag); }
+    void Flag(const grid_location<int>& location)
+    {
+        auto& cell = data[location.x][location.y];
+
+        // Get the current type of the cell
+        auto currentType = GetType(cell);
+
+        // Check if the flag is already set
+        if (IsFlag(location))
+        {
+            // Remove the flag if it's already set
+            SetType(cell, static_cast<CellType>(GetType(cell) & ~CellType::Flag));
+        }
+        else
+        {
+            // Set the flag if it's not already set
+            SetType(cell, static_cast<CellType>(GetType(cell) | CellType::Flag));
+        }
+    }
     void Explore(const grid_location<int>& location)
     {
-        if (IsFlag(location))
+        if (IsFlag(location) || IsExplored(location))
         {
             return;
         }
         SetType(data[location.x][location.y], CellType::Explored);
+
+        if (IsMine(location))
+        {
+            return;
+        }
+
+        if (GetMineCount(location) == 0)
+        {
+            for (const auto& t : location.MooresNeighborhood)
+            {
+                const auto n = t + location;
+                if (InRange(n))
+                {
+                    Explore(n);
+                }
+            }
+        }
     }
 
     uint8_t GetMineCount(const grid_location<int>& location) const { return GetCount(data[location.x][location.y]); }
@@ -148,8 +199,30 @@ class Board
     bool IsExplored(const grid_location<int>& location) const { return (GetType(data[location.x][location.y]) & CellType::Explored) != CellType::Empty; }
     bool IsFlag(const grid_location<int>& location) const { return (GetType(data[location.x][location.y]) & CellType::Flag) != CellType::Empty; }
 
+    bool CheckWin()
+    {
+        for (auto x = 0; x < kWidth; ++x)
+        {
+            for (auto y = 0; y < kHeight; ++y)
+            {
+                const grid_location<int>& location{x, y};
+                if (IsMine(location) && !IsFlag(location))
+                {
+                    return false;
+                }
+
+                if (!IsMine(location) && !IsExplored(location))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
   private:
     std::array<std::array<CellData, kHeight>, kWidth> data;
+    std::map<grid_location<int>, int> grid;
 };
 
 } // namespace Minesweeper
