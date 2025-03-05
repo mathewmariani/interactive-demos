@@ -6,9 +6,9 @@
     <main class="d-flex justify-content-center">
       <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`">
         <g v-for="loc in locations" @click="explore(loc)">
-          <rect class="cell" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
-          
+          <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
           <text
+            v-if="isExplored(loc)"
             text-anchor="middle"
             :font-size="0.45"
             :x="loc.x + 0.5"
@@ -62,17 +62,37 @@ export default {
   },
   methods: {
     reset() {
-      console.log('reset clicked:', location);
+      console.log('reset clicked:', location)
       this.board.reset()
     },
     explore(location) {
-      console.log('Location clicked:', location);
+      if (this.board.isMine(location.x, location.y)) {
+        console.log('Game Over!')
+      }
+      else
+      {
+        // let count = this.board.getMineCount(location.x, location.y)
+        // if (count > 0) {
+        //   console.log('Location clicked:', location)
+        //   return;
+        // }
+        // console.log('Cascade event:', location)
+        console.log('Location clicked:', location)
+        this.board.explore(location.x, location.y)
+      }
+      this.$forceUpdate()
     },
     getMineCount(location) {
       return this.board.getMineCount(location.x, location.y)
     },
     isMine(location) {
       return this.board.isMine(location.x, location.y)
+    },
+    isExplored(location) {
+      return this.board.isExplored(location.x, location.y)
+    },
+    classFor(location) {
+      return this.board.isExplored(location.x, location.y) ? "explored" : "";
     },
   }
 };
@@ -83,6 +103,10 @@ export default {
   fill: #a2d149;
   stroke: hsl(60, 0%, 100%);
   stroke-width: 0.02px;
+}
+
+.explored {
+  fill: hsl(45, 20%, 70%);
 }
 
 svg {
