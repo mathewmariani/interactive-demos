@@ -26,9 +26,21 @@ struct grid_location
     {
         return {x + rhs.x, y + rhs.y};
     }
+    grid_location<T>& operator+=(const grid_location<T>& rhs)
+    {
+        x = x + rhs.x;
+        y = y + rhs.y;
+        return *this;
+    }
     grid_location<T> operator-(const grid_location<T>& rhs) const
     {
         return {x - rhs.x, y - rhs.y};
+    }
+    grid_location<T>& operator-=(const grid_location<T>& rhs)
+    {
+        x = x - rhs.x;
+        y = y - rhs.y;
+        return *this;
     }
     grid_location<T>& operator=(const grid_location<T>& rhs)
     {

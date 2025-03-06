@@ -12,6 +12,7 @@
 #include "tictactoe/tictactoe.h"
 
 #include "minesweeper/minesweeper.h"
+#include "life/life.h"
 
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
@@ -77,4 +78,17 @@ EMSCRIPTEN_BINDINGS(Minesweeper)
         .function("isFlag", &Minesweeper::Board::IsFlag)
         .function("isMine", &Minesweeper::Board::IsMine)
         .function("checkWin", &Minesweeper::Board::CheckWin);
+}
+
+EMSCRIPTEN_BINDINGS(Life)
+{
+    emscripten::class_<Life::World>("Life")
+        .constructor<>()
+        .function("reset", &Life::World::Reset)
+        .function("clear", &Life::World::Clear)
+        .function("step", &Life::World::Step)
+        .function("toggle", &Life::World::Toggle)
+        .function("isAlive", &Life::World::IsAlive)
+        .function("isDead", &Life::World::IsDead)
+        .function("countNeighbors", &Life::World::CountNeighbors);
 }
