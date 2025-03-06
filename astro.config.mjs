@@ -13,10 +13,5 @@ export default defineConfig({
     resolve: {
       preserveSymlinks: true,
     },
-    build: {
-      rollupOptions: {
-        external: ['/modules/demos.js']
-      },
-    },
   },
 });
