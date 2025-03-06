@@ -1,4 +1,3 @@
-<!-- minesweeper.vue -->
 <template>
   <figure id="diagram1">
     <div class="d-flex flex-column align-items-center">
@@ -15,6 +14,8 @@
             :x="loc.x + 0.5"
             :y="loc.y + 0.5"
             :dy="0.15"
+            :fill="getNumberColor(getMineCount(loc))"
+            font-weight="bolder"
           >
             {{ getMineCount(loc) }}
           </text>
@@ -36,96 +37,99 @@
 </template>
 
 <script>
-import { shallowReactive, onMounted } from 'vue';
-import Module from '../modules/demos.js';
+import { shallowReactive } from 'vue';
+import Module from '../modules/demos.js'
+const wasmModule = await Module()
+
+let gridWorld = new wasmModule.GridWorld(10, 8)
+let board = new wasmModule.Minesweeper()
 
 export default {
-  setup() {
-    const state = shallowReactive({
-      gridWorld: null,
-      board: null,
-      gameover: false,
-      has_won: false,
-    });
-
-    onMounted(async () => {
-      try {
-        const wasmModule = await Module();
-        state.gridWorld = new wasmModule.GridWorld(10, 8);
-        state.board = new wasmModule.Minesweeper();
-      } catch (e) {
-        console.error('Failed to load WebAssembly:', e);
-      }
-    });
-
-    return {
-      state,
-    };
-  },
+  data: () => ({
+    gridWorld: shallowReactive(gridWorld),
+    board: shallowReactive(board),
+    gameover: false,
+    has_won: false,
+  }),
   computed: {
     getWidth() {
-      return this.state.gridWorld?.width_readonly || 0;
+      return this.gridWorld?.width_readonly || 0;
     },
     getHeight() {
-      return this.state.gridWorld?.height_readonly || 0;
+      return this.gridWorld?.height_readonly || 0;
     },
     locations() {
-      if (!this.state.gridWorld) return [];
-      const keys = this.state.gridWorld.locations().keys();
+      if (!this.gridWorld) return [];
+      const keys = this.gridWorld.locations().keys();
       return Array.from({ length: keys.size() }, (_, i) => keys.get(i));
     },
     getStatus() {
-      return this.state.gameover ? (this.state.has_won ? "😎" : "😵") : "🙂";
+      return this.gameover ? (this.has_won ? "😎" : "😵") : "🙂";
     },
   },
   methods: {
     reset() {
-      if (!this.state.board) {
+      if (!this.board) {
         return;
       }
-      this.state.board.reset();
-      this.state.gameover = false;
-      this.state.has_won = false;
+      this.board.reset();
+      this.gameover = false;
+      this.has_won = false;
       this.$forceUpdate();
     },
     flag(location) {
-      if (!this.state.board || this.state.gameover || this.state.board.isExplored(location)) {
+      if (!this.board || this.gameover || this.board.isExplored(location)) {
         return;
       }
-      this.state.board.toggleFlag(location);
-      if (this.state.board.checkWin()) {
-        this.state.has_won = true;
-        this.state.gameover = true;
+      this.board.toggleFlag(location);
+      if (this.board.checkWin()) {
+        this.has_won = true;
+        this.gameover = true;
       }
       this.$forceUpdate();
     },
     explore(location) {
-      if (!this.state.board || this.state.gameover) {
+      if (!this.board || this.gameover) {
         return;
       }
-      this.state.board.explore(location);
-      if (this.state.board.isMine(location)) {
-        this.state.gameover = true;
-      } else if (this.state.board.checkWin()) {
-        this.state.has_won = true;
-        this.state.gameover = true;
+      this.board.explore(location);
+      if (this.board.isMine(location)) {
+        this.gameover = true;
+      } else if (this.board.checkWin()) {
+        this.has_won = true;
+        this.gameover = true;
       }
       this.$forceUpdate();
     },
     getMineCount(location) {
-      return this.state.board?.getMineCount(location) || "";
+      return this.board?.getMineCount(location) || "";
     },
     isMine(location) {
-      return this.state.board?.isMine(location) || false;
+      return this.board?.isMine(location) || false;
     },
     isExplored(location) {
-      return this.state.board?.isExplored(location) || false;
+      return this.board?.isExplored(location) || false;
     },
     isFlag(location) {
-      return this.state.board?.isFlag(location) || false;
+      return this.board?.isFlag(location) || false;
     },
     classFor(location) {
-      return this.state.board?.isExplored(location) ? "explored" : "";
+      let checkered = ((location.x + location.y) % 2 === 0) ? "dark" : "light";
+      let explored = this.board?.isExplored(location) ? "explored" : "";
+      return `${explored} ${checkered}`.trim();
+    },
+    getNumberColor(count) {
+      const colorMap = {
+        1: '#0000FF', // Blue
+        2: '#008000', // Green
+        3: '#FF0000', // Red
+        4: '#000080', // Dark Blue
+        5: '#800000', // Maroon
+        6: '#008080', // Teal
+        7: '#000000', // Black
+        8: '#808080', // Gray
+      };
+      return colorMap[count] || '#000000';
     },
   },
 };
@@ -133,18 +137,32 @@ export default {
 
 <style scoped>
 .cell {
-  fill: #a2d149;
-  stroke: hsl(60, 0%, 100%);
+  stroke: #ffffff;
   stroke-width: 0.02px;
   transition: fill 0.2s ease;
 }
-.explored {
-  fill: hsl(45, 20%, 70%);
+
+.light {
+  fill: #A7D948;
 }
+
+.dark {
+  fill: #8ECC39;
+}
+
+.light.explored {
+  fill: #E5C29F;
+}
+
+.dark.explored {
+  fill: #D7B899;
+}
+
 .cell:hover:not(.explored) {
-  fill: #b8e663; /* Lighter green on hover for unexplored cells */
-  cursor: pointer; /* Indicates the cell is clickable */
+  fill: #b8e663;
+  cursor: pointer;
 }
+
 svg {
   max-width: 512px;
   max-height: 512px;
