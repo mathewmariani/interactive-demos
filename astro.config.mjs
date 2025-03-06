@@ -13,5 +13,8 @@ export default defineConfig({
     resolve: {
       preserveSymlinks: true,
     },
+    optimizeDeps: {
+      exclude: ['modules/demos'],
+    }
   },
 });
