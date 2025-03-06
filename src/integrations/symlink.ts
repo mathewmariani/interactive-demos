@@ -6,7 +6,6 @@ import path from 'path';
 export const symlinkIntegration = () => {
   const symlinks = [
     { source: SYMLINK_SRC, target: SYMLINK_DST },
-    // { source: SYMLINK_SRC, target: "public/modules" },
   ] as const;
 
   let integration: AstroIntegration = {
