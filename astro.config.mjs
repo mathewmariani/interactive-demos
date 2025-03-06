@@ -7,8 +7,9 @@ import vue from '@astrojs/vue';
 // https://astro.build/config
 export default defineConfig({
   integrations: [symlinkIntegration(), vue()],
+  output: 'static',
   site: 'https://www.mathewmariani.com/',
-  base: '/interactive-demos/',
+  base: '/interactive-demos',
   vite: {
     resolve: {
       preserveSymlinks: true,
