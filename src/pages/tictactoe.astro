@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Page.astro";
-import TicTacToe from "../components/TicTacToe.vue";
+import TicTacToeComponent from "../components/TicTacToe.vue";
 ---
 
 <Layout>
@@ -13,5 +13,5 @@ import TicTacToe from "../components/TicTacToe.vue";
     evaluating each move’s outcome, Minimax ensures the AI always selects the
     best possible move, making it nearly unbeatable.
   </p>
-  <TicTacToe client:only="vue" />
+  <TicTacToeComponent client:load />
 </Layout>

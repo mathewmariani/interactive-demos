@@ -1,9 +1,9 @@
 ---
 import Layout from "../layouts/Page.astro";
-import BreadthFirstSearch from "../components/BreadthFirstSearch.vue";
+import BreadthFirstSearchComponent from "../components/BreadthFirstSearch.vue";
 ---
 
 <Layout>
 	<h1>Breadth First Search</h1>
-	<BreadthFirstSearch client:only="vue" />
+	<BreadthFirstSearchComponent client:load />
 </Layout>
