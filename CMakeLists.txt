@@ -14,6 +14,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     target_link_options(demos PRIVATE
         -lembind
         -sWASM=1
+        -sEXPORT_NAME="Module"
         -sALLOW_MEMORY_GROWTH=1
         -sBINARYEN_ASYNC_COMPILATION=0
         -sENVIRONMENT=web
