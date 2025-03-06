@@ -1,9 +1,10 @@
 ---
 import Layout from "../layouts/Page.astro";
 import {
+	BreadthFirstSearchLink,
+	JohnConwayLifeLink,
 	MinesweeperLink,
 	TicTacToeLink,
-	BreadthFirstSearchLink,
 } from "../consts";
 ---
 
@@ -20,6 +21,7 @@ import {
 	</p>
 
 	<ul class="list">
+		<li><a href={JohnConwayLifeLink()}>John Conway's Life</a></li>
 		<li><a href={MinesweeperLink()}>Minesweeper</a></li>
 		<li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>
 		<li><a href={BreadthFirstSearchLink()}>Breadth First Search</a></li>

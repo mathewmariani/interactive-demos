@@ -8,7 +8,9 @@ project(demos)
 if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
 
-    add_executable(demos demos/bindings.cpp)
+    add_executable(demos
+        demos/bindings.cpp
+        demos/life/life.cpp)
     target_include_directories(demos PUBLIC demos)
 
     target_link_options(demos PRIVATE
