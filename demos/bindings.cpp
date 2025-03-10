@@ -3,6 +3,8 @@
 #include "datastructures/grid_location.h"
 #include "datastructures/grid_world.h"
 
+#include "dungeon/dungeon.h"
+
 #include "towerdefense/astar_search.h"
 #include "towerdefense/breadth_first_search.h"
 #include "towerdefense/dijkstra_search.h"
@@ -11,8 +13,8 @@
 #include "tictactoe/bot.h"
 #include "tictactoe/tictactoe.h"
 
-#include "minesweeper/minesweeper.h"
 #include "life/life.h"
+#include "minesweeper/minesweeper.h"
 
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
@@ -90,5 +92,18 @@ EMSCRIPTEN_BINDINGS(Life)
         .function("toggle", &Life::World::Toggle)
         .function("isAlive", &Life::World::IsAlive)
         .function("isDead", &Life::World::IsDead)
+        .function("countNeighbors", &Life::World::CountNeighbors);
+}
+
+EMSCRIPTEN_BINDINGS(DungeonGenerator)
+{
+    emscripten::class_<Dungeon::World>("DungeonGenerator")
+        .constructor<>()
+        .function("isSpawn", &Dungeon::World::IsSpawn)
+        .function("isNormal", &Dungeon::World::IsNormal)
+        .function("isItem", &Dungeon::World::IsItem)
+        .function("isShop", &Dungeon::World::IsShop)
+        .function("isSecret", &Dungeon::World::IsSecret)
+        .function("isBoss", &Dungeon::World::IsBoss)
         .function("countNeighbors", &Life::World::CountNeighbors);
 }
