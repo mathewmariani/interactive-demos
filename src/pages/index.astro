@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Page.astro";
 import {
+	DungeonGeneratorLink,
 	BreadthFirstSearchLink,
 	JohnConwayLifeLink,
 	MinesweeperLink,
@@ -31,6 +32,7 @@ const WebAssemblyLink = "https://astro.build/";
 	</p>
 
 	<ul class="list">
+		<li><a href={DungeonGeneratorLink()}>Dungeon Generator</a></li>
 		<li><a href={JohnConwayLifeLink()}>John Conway's Life</a></li>
 		<li><a href={MinesweeperLink()}>Minesweeper</a></li>
 		<li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>

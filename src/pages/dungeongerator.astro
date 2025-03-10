@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Page.astro";
+import DungeonGeneratorComponent from "../components/DungeonGenerator.vue";
+---
+
+<Layout>
+    <h1>Dungeon Generator</h1>
+    <p>
+        Dungeon Generator inspired by The Binding of Isaac.
+    </p>
+    <DungeonGeneratorComponent client:load />
+</Layout>
