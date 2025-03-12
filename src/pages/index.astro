@@ -6,18 +6,28 @@ import {
 	MinesweeperLink,
 	TicTacToeLink,
 } from "../consts";
+
+const AstroLink = "https://astro.build/";
+const VueJSLink = "https://astro.build/";
+const WebAssemblyLink = "https://astro.build/";
 ---
 
 <Layout>
 	<h1>Hey! 👋</h1>
 	<p class="lead">
-		Here's a collection of projects, assignments, and examples I've created as a
-		programming teacher. These weren't originally made for the web, so I've been
-		experimenting with new tech, inspired by Amit Patel's Redblobgames.
+		A collection of small demos I created over the years as a teacher. They
+		weren’t originally made for the web, so I've been experimenting with new
+		technologies.
 	</p>
 	<p class="lead">
 		It's a work in progress — adapting them into interactive online versions
 		takes time!
+	</p>
+	<p class="lead">Wondering how these are built 🛠️</p>
+	<p class="lead">
+		It's C++ compiled to <a href={WebAssemblyLink}>WebAssembly</a>
+		, with <a href={VueJSLink}>VueJS</a> for interfacing, and all statically-generated
+		using <a href={AstroLink}>Astro</a>.
 	</p>
 
 	<ul class="list">
