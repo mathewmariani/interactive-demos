@@ -17,6 +17,7 @@ enum class RoomType : uint8_t
     Item,
     Shop,
     Secret,
+    SuperSecret,
     Boss,
     Count,
 
@@ -30,6 +31,7 @@ class World
     World();
     ~World() = default;
 
+    void Clear(void);
     void Generate(void);
 
     bool IsSpawn(const grid_location<int>& location) const;
@@ -37,13 +39,16 @@ class World
     bool IsItem(const grid_location<int>& location) const;
     bool IsShop(const grid_location<int>& location) const;
     bool IsSecret(const grid_location<int>& location) const;
+    bool IsSuperSecret(const grid_location<int>& location) const;
     bool IsBoss(const grid_location<int>& location) const;
 
     int CountNeighbors(const grid_location<int>& location) const;
 
   private:
     bool Step(void);
-    void Visit(const grid_location<int>& location, const RoomType type);
+    bool Visit(const grid_location<int>& location, const RoomType type);
+
+    const grid_location<int> RandomEndRoom();
 
   private:
     std::map<grid_location<int>, RoomType> rooms;
@@ -52,6 +57,7 @@ class World
     std::vector<grid_location<int>> endings;
 
     bool started = false;
+    bool special = false;
     int count = 0;
     int max = 15;
     int min = 7;

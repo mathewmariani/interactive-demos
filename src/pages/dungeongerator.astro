@@ -1,12 +1,17 @@
 ---
 import Layout from "../layouts/Page.astro";
 import DungeonGeneratorComponent from "../components/DungeonGenerator.vue";
+
+const BindingOfIsaacLink =
+    "https://store.steampowered.com/app/113200/The_Binding_of_Isaac/";
 ---
 
 <Layout>
     <h1>Dungeon Generator</h1>
     <p>
-        Dungeon Generator inspired by The Binding of Isaac.
+        Dungeon Generator inspired by <a href={BindingOfIsaacLink}
+            >The Binding of Isaac</a
+        >.
     </p>
     <DungeonGeneratorComponent client:load />
 </Layout>
