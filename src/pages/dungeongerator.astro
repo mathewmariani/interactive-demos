@@ -1,0 +1,21 @@
+---
+import Layout from "../layouts/Page.astro";
+import DungeonGeneratorComponent from "../components/DungeonGenerator.vue";
+
+const BindingOfIsaacLink =
+    "https://store.steampowered.com/app/113200/The_Binding_of_Isaac/";
+---
+
+<Layout>
+    <h1>Dungeon Generator</h1>
+    <p>
+        <a href={BindingOfIsaacLink}>The Binding of Isaac</a> uses a procedural dungeon
+        generation system based on a predefined set of rules to create unique floor
+        layouts while maintaining a structured gameplay experience. Each floor (or
+        Dungeon) is generated on a grid, with rooms connected via doors. The generation
+        follows a branching structure rather than pure randomness, ensuring a balanced
+        experience. Certain rooms (Start Room, Boss Room, Treasure Room, Shop, etc.)
+        follow specific rules to encourage exploration.
+    </p>
+    <DungeonGeneratorComponent client:load />
+</Layout>
