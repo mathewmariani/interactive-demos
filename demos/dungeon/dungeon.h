@@ -7,8 +7,8 @@
 namespace Dungeon
 {
 
-static constexpr int kWidth = 10;
-static constexpr int kHeight = 8;
+static constexpr int kWidth = 11;
+static constexpr int kHeight = 11;
 
 enum class RoomType : uint8_t
 {
@@ -52,12 +52,10 @@ class World
 
   private:
     std::map<grid_location<int>, RoomType> rooms;
-    std::vector<grid_location<int>> layout;
     std::vector<grid_location<int>> queue;
     std::vector<grid_location<int>> endings;
 
     bool started = false;
-    bool special = false;
     int count = 0;
     int max = 15;
     int min = 7;

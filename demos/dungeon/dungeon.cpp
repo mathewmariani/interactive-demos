@@ -12,11 +12,9 @@ World::World()
 void World::Clear(void)
 {
     rooms = {};
-    layout = {};
     queue = {};
     endings = {};
     started = false;
-    special = false;
     count = 0;
     max = 15;
     min = 7;
@@ -46,13 +44,6 @@ void World::Generate(void)
 
 bool World::Step(void)
 {
-    if (!started)
-    {
-        printf("starting\n");
-        started = true;
-        Visit({5, 5}, RoomType::Spawn);
-        return false;
-    }
     if (!queue.empty())
     {
         auto location = queue.front();
@@ -61,8 +52,13 @@ bool World::Step(void)
         auto flag = false;
         for (const auto& dt : location.VonNewmanNeighborhood)
         {
-            // auto loc = dt + location;
-            flag = Visit(dt + location, RoomType::Normal) || flag;
+            auto loc = dt + location;
+            if (loc.x < 0 && loc.x > kWidth && loc.y < 0 && loc.y > kHeight)
+            {
+                continue;
+            }
+
+            flag = Visit(loc, RoomType::Normal) || flag;
         }
 
         if (!flag)
