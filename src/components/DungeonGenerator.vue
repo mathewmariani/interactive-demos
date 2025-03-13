@@ -45,7 +45,6 @@ export default {
     },
   },
   methods: {
-    countNeighbors(location) { return 0 },
     classFor(location) {
       let isRoom = this.isSpawn(location) || this.isItem(location) || this.isShop(location) || this.isSecret(location) || this.isBoss(location) || this.isNormal(location);
       return isRoom ? "room" : "empty";
