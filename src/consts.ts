@@ -7,6 +7,7 @@ export const SYMLINK_DST = 'src/modules';
 export const HomeLink = (): string => '/';
 
 // demo links
+export const ChessLink = (): string => 'chess';
 export const BreadthFirstSearchLink = (): string => 'breadthfirstsearch';
 export const DungeonGeneratorLink = (): string => 'dungeongerator';
 export const JohnConwayLifeLink = (): string => 'johnconwaylife';

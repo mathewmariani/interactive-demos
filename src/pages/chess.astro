@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Page.astro";
+import ChessComponent from "../components/vue/Chess.vue";
+---
+
+<Layout>
+    <h1 class="display-4">Chess</h1>
+    <div class="highlight"></div>
+
+    <p>It's chess, baby !</p>
+    <ChessComponent client:load />
+</Layout>

@@ -3,6 +3,8 @@
 #include "datastructures/grid_location.h"
 #include "datastructures/grid_world.h"
 
+#include "chess/chess.h"
+
 #include "dungeon/dungeon.h"
 
 #include "towerdefense/astar_search.h"
@@ -109,4 +111,25 @@ EMSCRIPTEN_BINDINGS(DungeonGenerator)
         .function("isSuperSecret", &Dungeon::World::IsSuperSecret)
         .function("isBoss", &Dungeon::World::IsBoss)
         .function("countNeighbors", &Life::World::CountNeighbors);
+}
+
+EMSCRIPTEN_BINDINGS(ChessModule)
+{
+    emscripten::enum_<Chess::Piece>("Piece")
+        .value("None", Chess::Piece::None)
+        .value("King", Chess::Piece::King)
+        .value("Pawn", Chess::Piece::Pawn)
+        .value("Knight", Chess::Piece::Knight)
+        .value("Bishop", Chess::Piece::Bishop)
+        .value("Rook", Chess::Piece::Rook)
+        .value("Queen", Chess::Piece::Queen)
+        .value("White", Chess::Piece::White)
+        .value("Black", Chess::Piece::Black);
+
+    emscripten::class_<Chess::Chess>("Chess")
+        .constructor<>()
+        .function("get_board", &Chess::Chess::GetBoard)
+        .function("move", &Chess::Chess::Move);
+
+    emscripten::register_vector<uint8_t>("VectorUint8");
 }
