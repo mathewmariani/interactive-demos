@@ -2,8 +2,11 @@
 
 #include <array>
 #include <cctype>
+#include <cstdio>
 #include <string>
 #include <vector>
+
+#include "piece.h"
 
 namespace Chess
 {
@@ -11,19 +14,7 @@ namespace Chess
 static constexpr int kWidth = 8;
 static constexpr int kHeight = 8;
 
-enum Piece : uint8_t
-{
-    None = 0,
-    King = 1,
-    Pawn = 2,
-    Knight = 3,
-    Bishop = 4,
-    Rook = 5,
-    Queen = 6,
-
-    White = 8,
-    Black = 16,
-};
+using Bitboard = uint64_t;
 
 struct Move
 {
@@ -54,14 +45,56 @@ class Chess
         return std::vector<uint8_t>(board, board + 64);
     }
 
+    Bitboard GetRooks() const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
+    Bitboard GetBishops() const { return bishops[kWhiteIndex] | bishops[kBlackIndex]; }
+    Bitboard GetQueens() const { return queens[kWhiteIndex] | queens[kBlackIndex]; }
+    Bitboard GetKnights() const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
+    Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
+    Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
+
     void Move(int from, int to)
     {
         if (from == to)
             return;
         if (from < 0 || from >= 64 || to < 0 || to >= 64)
             throw std::out_of_range("Move indices out of range");
-        board[to] = board[from];
-        board[from] = Piece::None;
+
+        Piece piece = board[from];
+        PieceType type = GetPieceType(piece);
+        PieceColor color = GetPieceColor(piece);
+
+        board[to] = piece;
+        board[from] = PieceType::None;
+
+        switch (type)
+        {
+        case PieceType::King:
+            kings[color] &= ~(1ULL << from);
+            kings[color] |= (1ULL << to);
+            break;
+        case PieceType::Pawn:
+            pawns[color] &= ~(1ULL << from);
+            pawns[color] |= (1ULL << to);
+            break;
+        case PieceType::Knight:
+            knights[color] &= ~(1ULL << from);
+            knights[color] |= (1ULL << to);
+            break;
+        case PieceType::Bishop:
+            bishops[color] &= ~(1ULL << from);
+            bishops[color] |= (1ULL << to);
+            break;
+        case PieceType::Rook:
+            rooks[color] &= ~(1ULL << from);
+            rooks[color] |= (1ULL << to);
+            break;
+        case PieceType::Queen:
+            queens[color] &= ~(1ULL << from);
+            queens[color] |= (1ULL << to);
+            break;
+        default:
+            break;
+        }
     }
 
     void loadFromFEN(const std::string& fen)
@@ -69,7 +102,7 @@ class Chess
         // Clear the board first
         for (auto i = 0; i < 64; i++)
         {
-            board[i] = Piece::None;
+            board[i] = PieceType::None;
         }
 
         auto index = 0; // from 0 (a8) to 63 (h1)
@@ -90,43 +123,89 @@ class Chess
                 int emptyCount = c - '0';
                 for (int j = 0; j < emptyCount; ++j)
                 {
-                    board[index++] = Piece::None; // empty square
+                    board[index++] = PieceType::None; // empty square
                 }
             }
             else
             {
-                auto color = std::isupper(c) ? Piece::White : Piece::Black;
                 auto lower = std::tolower(c);
-                auto piece = Piece::None;
+                auto type = PieceType::None;
+                auto color = std::isupper(c) ? PieceColor::White : PieceColor::Black;
 
                 switch (lower)
                 {
                 case 'k':
-                    piece = Piece::King;
+                    type = PieceType::King;
                     break;
                 case 'p':
-                    piece = Piece::Pawn;
+                    type = PieceType::Pawn;
                     break;
                 case 'n':
-                    piece = Piece::Knight;
+                    type = PieceType::Knight;
                     break;
                 case 'b':
-                    piece = Piece::Bishop;
+                    type = PieceType::Bishop;
                     break;
                 case 'r':
-                    piece = Piece::Rook;
+                    type = PieceType::Rook;
                     break;
                 case 'q':
-                    piece = Piece::Queen;
+                    type = PieceType::Queen;
                     break;
                 default:
-                    piece = Piece::None;
+                    type = PieceType::None;
                     break;
                 }
-                board[index++] = color | piece;
+
+                auto piece = MakePiece(color, type);
+                AddPiece(piece, index++);
             }
         }
     }
+
+    void AddPiece(Piece piece, int square)
+    {
+        if (piece == PieceType::None)
+        {
+            return;
+        }
+
+        board[square] = piece;
+
+        auto type = GetPieceType(piece);
+        auto color = GetPieceColor(piece);
+        switch (type)
+        {
+        case PieceType::None:
+            break;
+        case PieceType::King:
+            kings[color] |= (1ULL << square);
+            break;
+        case PieceType::Pawn:
+            pawns[color] |= (1ULL << square);
+            break;
+        case PieceType::Knight:
+            knights[color] |= (1ULL << square);
+            break;
+        case PieceType::Bishop:
+            bishops[color] |= (1ULL << square);
+            break;
+        case PieceType::Rook:
+            rooks[color] |= (1ULL << square);
+            break;
+        case PieceType::Queen:
+            queens[color] |= (1ULL << square);
+            break;
+        }
+    }
+
+  private:
+    Bitboard rooks[2];
+    Bitboard bishops[2];
+    Bitboard queens[2];
+    Bitboard knights[2];
+    Bitboard pawns[2];
+    Bitboard kings[2];
 };
 
 } // namespace Chess

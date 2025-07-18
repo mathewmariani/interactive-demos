@@ -7,8 +7,23 @@
                 <rect v-for="square in squares" :key="square.name" :x="square.x" :y="square.y" width="1" height="1"
                     :class="square.color" />
 
-                <!-- Pieces -->
+                <!-- Pieces and highlights -->
                 <template v-for="square in squares" :key="square.name + '-piece'">
+
+                    <!-- Only highlight if toggle is on for piece type -->
+                    <rect v-if="square.isRook" v-show="showRooks" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(84, 160, 255, 0.85)" />
+                    <rect v-if="square.isBishop" v-show="showBishops" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(255, 215, 84, 0.85)" />
+                    <rect v-if="square.isQueen" v-show="showQueens" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(186, 85, 211, 0.85)" />
+                    <rect v-if="square.isKnight" v-show="showKnights" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(50, 205, 50, 0.85)" />
+                    <rect v-if="square.isPawn" v-show="showPawns" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(255, 107, 107, 0.85)" />
+                    <rect v-if="square.isKing" v-show="showKings" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(255, 140, 0, 0.85)" />
+
                     <g v-if="square && square.piece" :transform="getPieceTransform(square)"
                         @pointerdown="startDrag(square, $event)" style="cursor: grab;">
                         <component :is="pieceMap[square.piece]" :x="square.x" :y="square.y"
@@ -19,15 +34,45 @@
                 <!-- debug -->
                 <text v-for="square in squares" :key="square.name + '-debug'" :x="square.x + 0.05" :y="square.y + 0.95"
                     font-size="0.2" fill="red">
-                    {{ square.piece || '' }}
+                    {{ square.piece || "" }}
                 </text>
             </svg>
         </div>
+
+        <!-- New toggle form -->
+        <div class="mt-3">
+            <h2>Bitboards</h2>
+            <div class="form-check">
+                <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
+                <label for="showRooks" class="form-check-label">Show Rooks</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showBishops" class="form-check-input" v-model="showBishops" />
+                <label for="showBishops" class="form-check-label">Show Bishops</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showQueens" class="form-check-input" v-model="showQueens" />
+                <label for="showQueens" class="form-check-label">Show Queens</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showKnights" class="form-check-input" v-model="showKnights" />
+                <label for="showKnights" class="form-check-label">Show Knights</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showPawns" class="form-check-input" v-model="showPawns" />
+                <label for="showPawns" class="form-check-label">Show Pawns</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showKings" class="form-check-input" v-model="showKings" />
+                <label for="showKings" class="form-check-label">Show Kings</label>
+            </div>
+        </div>
+
     </figure>
 </template>
 
 <script>
-import { shallowReactive, markRaw, reactive, ref } from "vue";
+import { shallowReactive, markRaw, reactive } from "vue";
 import Module from "../../modules/demos.js";
 
 import WhitePawn from "./WhitePawn.vue";
@@ -45,30 +90,30 @@ import BlackQueen from "./BlackQueen.vue";
 import BlackKing from "./BlackKing.vue";
 
 export const pieceMap = {
-    "8_1": markRaw(WhiteKing),
-    "8_2": markRaw(WhitePawn),
-    "8_3": markRaw(WhiteKnight),
-    "8_4": markRaw(WhiteBishop),
-    "8_5": markRaw(WhiteRook),
-    "8_6": markRaw(WhiteQueen),
+    "0_1": markRaw(WhiteKing),
+    "0_2": markRaw(WhitePawn),
+    "0_3": markRaw(WhiteKnight),
+    "0_4": markRaw(WhiteBishop),
+    "0_5": markRaw(WhiteRook),
+    "0_6": markRaw(WhiteQueen),
 
-    "16_1": markRaw(BlackKing),
-    "16_2": markRaw(BlackPawn),
-    "16_3": markRaw(BlackKnight),
-    "16_4": markRaw(BlackBishop),
-    "16_5": markRaw(BlackRook),
-    "16_6": markRaw(BlackQueen),
+    "8_1": markRaw(BlackKing),
+    "8_2": markRaw(BlackPawn),
+    "8_3": markRaw(BlackKnight),
+    "8_4": markRaw(BlackBishop),
+    "8_5": markRaw(BlackRook),
+    "8_6": markRaw(BlackQueen),
 };
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const boardSize = 8;
 
 function squareNameToIndex(name) {
-    const fileChar = name[0];               // 'e'
-    const rankChar = parseInt(name[1]);    // 2
+    const fileChar = name[0]; // 'e'
+    const rankChar = parseInt(name[1]); // 2
 
-    const file = FILES.indexOf(fileChar);  // 4 for 'e'
-    const rank = 8 - rankChar;              // ranks count down from 8 at top
+    const file = FILES.indexOf(fileChar); // 4 for 'e'
+    const rank = 8 - rankChar; // ranks count down from 8 at top
 
     if (file === -1 || rank < 0 || rank > 7) {
         throw new Error(`Invalid square name: ${name}`);
@@ -86,7 +131,13 @@ export default {
             dragStartPos: null,
             dragPositions: reactive({}),
             pieceMap,
-            boardVersion: 0,  // reactive counter
+            boardVersion: 0, // reactive counter
+            showRooks: true,
+            showBishops: true,
+            showQueens: true,
+            showKnights: true,
+            showPawns: true,
+            showKings: true,
         };
     },
     async beforeCreate() {
@@ -98,6 +149,12 @@ export default {
             this.boardVersion;
             if (!this.engine) return [];
             const vec = this.engine.get_board();
+            const rookBits = this.engine.get_rooks();
+            const bishopBits = this.engine.get_bishops();
+            const queenBits = this.engine.get_queens();
+            const knightBits = this.engine.get_knights();
+            const pawnBits = this.engine.get_pawns();
+            const kingBits = this.engine.get_kings();
             const squares = [];
             for (let rank = 8; rank >= 1; rank--) {
                 for (let file = 0; file < 8; file++) {
@@ -106,12 +163,21 @@ export default {
                     const piece = val & 0b111;
                     const color = val & 0b11000;
                     const pieceKey = piece === 0 ? null : `${color}_${piece}`;
+
                     squares.push({
                         name: `${FILES[file]}${rank}`,
                         x: file,
                         y: 8 - rank,
                         color: (file + rank) % 2 === 0 ? "light" : "dark",
                         piece: pieceKey,
+
+                        // only highlight if corresponding toggle is true
+                        isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== 0n,
+                        isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== 0n,
+                        isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== 0n,
+                        isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== 0n,
+                        isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== 0n,
+                        isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== 0n,
                     });
                 }
             }
@@ -157,7 +223,7 @@ export default {
 
             this.engine.move(draggingIndex, newIndex);
             this.boardVersion++;
-            this.$forceUpdate();  // Force Vue to re-render squares
+            this.$forceUpdate(); // Force Vue to re-render squares
 
             delete this.dragPositions[this.draggingSquare];
             this.draggingSquare = null;
@@ -165,14 +231,8 @@ export default {
             this.dragStartPos = null;
         },
         getPieceTransform(square) {
-            // If dragging, offset the piece by dragPositions:
             const offset = this.dragPositions[square.name] || { x: 0, y: 0 };
-
-            // Because pieces are scaled by 1/45, we translate before scaling:
-            // Move piece by (square.x + offset.x, square.y + offset.y)
-            // Then scale down
-            return `translate(${square.x + offset.x} ${square.y + offset.y}) scale(${1 / 45
-                })`;
+            return `translate(${square.x + offset.x} ${square.y + offset.y}) scale(${1 / 45})`;
         },
         handlePieceMove(squareName, newPos) {
             console.log("Piece moved from", squareName, "to", newPos);

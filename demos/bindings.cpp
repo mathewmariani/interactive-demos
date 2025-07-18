@@ -115,21 +115,30 @@ EMSCRIPTEN_BINDINGS(DungeonGenerator)
 
 EMSCRIPTEN_BINDINGS(ChessModule)
 {
-    emscripten::enum_<Chess::Piece>("Piece")
-        .value("None", Chess::Piece::None)
-        .value("King", Chess::Piece::King)
-        .value("Pawn", Chess::Piece::Pawn)
-        .value("Knight", Chess::Piece::Knight)
-        .value("Bishop", Chess::Piece::Bishop)
-        .value("Rook", Chess::Piece::Rook)
-        .value("Queen", Chess::Piece::Queen)
-        .value("White", Chess::Piece::White)
-        .value("Black", Chess::Piece::Black);
+    emscripten::enum_<Chess::PieceType>("PieceType")
+        .value("None", Chess::PieceType::None)
+        .value("King", Chess::PieceType::King)
+        .value("Pawn", Chess::PieceType::Pawn)
+        .value("Knight", Chess::PieceType::Knight)
+        .value("Bishop", Chess::PieceType::Bishop)
+        .value("Rook", Chess::PieceType::Rook)
+        .value("Queen", Chess::PieceType::Queen);
+
+    emscripten::enum_<Chess::PieceColor>("PieceColor")
+        .value("White", Chess::PieceColor::White)
+        .value("Black", Chess::PieceColor::Black);
 
     emscripten::class_<Chess::Chess>("Chess")
         .constructor<>()
         .function("get_board", &Chess::Chess::GetBoard)
+        .function("get_rooks", &Chess::Chess::GetRooks)
+        .function("get_bishops", &Chess::Chess::GetBishops)
+        .function("get_queens", &Chess::Chess::GetQueens)
+        .function("get_knights", &Chess::Chess::GetKnights)
+        .function("get_pawns", &Chess::Chess::GetPawns)
+        .function("get_kings", &Chess::Chess::GetKings)
         .function("move", &Chess::Chess::Move);
 
     emscripten::register_vector<uint8_t>("VectorUint8");
+    emscripten::register_vector<int>("VectorInt");
 }
