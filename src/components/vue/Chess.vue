@@ -7,13 +7,13 @@
             </div>
             <svg ref="svgRef" viewBox="0 0 8 8" width="512" height="512" @pointermove="onPointerMove"
                 @pointerup="onPointerUp" @pointercancel="onPointerUp">
-                <!-- Board squares -->
-                <rect v-for="square in squares" :key="square.name" :x="square.x" :y="square.y" width="1" height="1"
-                    :class="square.color" />
+                <!-- squares -->
+                <g v-for="square in squares">
+                    <rect :key="square.name" :x="square.x" :y="square.y" width="1" height="1" :class="square.color" />
+                </g>
 
-                <!-- Pieces and highlights -->
-                <template v-for="square in squares" :key="square.name + '-piece'">
-
+                <!-- highlights -->
+                <template v-for="square in squares" :key="square.name + '-highlight'">
                     <!-- Only highlight if toggle is on for piece type -->
                     <rect v-if="square.isRook" v-show="showRooks" :x="square.x" :y="square.y" width="1" height="1"
                         fill="rgba(84, 160, 255, 0.85)" />
@@ -27,11 +27,26 @@
                         fill="rgba(255, 107, 107, 0.85)" />
                     <rect v-if="square.isKing" v-show="showKings" :x="square.x" :y="square.y" width="1" height="1"
                         fill="rgba(255, 140, 0, 0.85)" />
+                </template>
 
-                    <g v-if="square && square.piece" :transform="getPieceTransform(square)"
-                        @pointerdown="startDrag(square, $event)" style="cursor: grab;">
-                        <component :is="pieceMap[square.piece]" :x="square.x" :y="square.y"
-                            @move="handlePieceMove(square.name, $event)" />
+                <!-- pieces -->
+                <template v-for="square in squares" :key="square.name + '-piece'">
+                    <g v-if="square && square.piece && square.name !== draggingSquare" :key="square.name + '-piece'"
+                        :transform="getPieceTransform(square)">
+                        <component :is="pieceMap[square.piece]" />
+                    </g>
+
+                    <!-- interaction -->
+                    <rect v-if="square && square.piece" :key="square.name + '-hover'" :x="square.x" :y="square.y"
+                        width="1" height="1" fill="transparent" :style="{ cursor: getPieceCursor(square) }"
+                        @pointerdown="startDrag(square, $event)" />
+                </template>
+
+                <!-- dragged -->
+                <template v-for="square in squares">
+                    <g v-if="square && square.piece && square.name === draggingSquare" :key="square.name + '-dragging'"
+                        :transform="getPieceTransform(square)">
+                        <component :is="pieceMap[square.piece]" />
                     </g>
                 </template>
 
@@ -189,6 +204,10 @@ export default {
         },
     },
     methods: {
+        getPieceCursor(square) {
+            if (!square || !square.piece) return 'default';
+            return this.draggingSquare === square.name ? 'grabbing' : 'grab';
+        },
         onReset() {
             this.engine.reset();
             this.boardVersion++;
@@ -208,41 +227,51 @@ export default {
         },
         startDrag(square, event) {
             event.preventDefault();
+            const pointer = this.svgPoint(event);
+
             this.draggingSquare = square.name;
-            this.dragStartPointer = this.svgPoint(event);
-            this.dragStartPos = { x: square.x, y: square.y };
-            this.dragPositions[square.name] = { x: 0, y: 0 };
+            this.dragStartSquare = square;
+
+            this.dragPositions[square.name] = {
+                x: pointer.x - (square.x + 0.5),
+                y: pointer.y - (square.y + 0.5),
+            };
+
             event.target.setPointerCapture(event.pointerId);
         },
         onPointerMove(event) {
             if (!this.draggingSquare) return;
-            const currentPointer = this.svgPoint(event);
-            const startPointer = this.dragStartPointer;
-            const offsetX = currentPointer.x - startPointer.x;
-            const offsetY = currentPointer.y - startPointer.y;
-            this.dragPositions[this.draggingSquare] = { x: offsetX, y: offsetY };
+
+            const pointer = this.svgPoint(event);
+            const square = this.dragStartSquare;
+            if (!square) return;
+
+            this.dragPositions[this.draggingSquare] = {
+                x: pointer.x - (square.x + 0.5),
+                y: pointer.y - (square.y + 0.5),
+            };
         },
         onPointerUp(event) {
             if (!this.draggingSquare) return;
 
-            // Snap to nearest square:
-            const pos = this.dragPositions[this.draggingSquare];
-            const newX = Math.min(boardSize - 1, Math.max(0, Math.round(this.dragStartPos.x + pos.x)));
-            const newY = Math.min(boardSize - 1, Math.max(0, Math.round(this.dragStartPos.y + pos.y)));
+            const pointer = this.svgPoint(event);
+
+            // Nearest square index:
+            const newX = Math.min(boardSize - 1, Math.max(0, Math.floor(pointer.x)));
+            const newY = Math.min(boardSize - 1, Math.max(0, Math.floor(pointer.y)));
 
             const draggingIndex = squareNameToIndex(this.draggingSquare);
             const newIndex = newY * 8 + newX;
 
-            console.log(`Moved ${draggingIndex} to board index: ${newIndex}`);
+            console.log(`Moved ${draggingIndex} to ${newIndex}`);
 
             this.engine.move(draggingIndex, newIndex);
             this.boardVersion++;
-            this.$forceUpdate(); // Force Vue to re-render squares
+            this.$forceUpdate();
 
             delete this.dragPositions[this.draggingSquare];
             this.draggingSquare = null;
-            this.dragStartPointer = null;
-            this.dragStartPos = null;
+            this.dragStartSquare = null;
         },
         getPieceTransform(square) {
             const offset = this.dragPositions[square.name] || { x: 0, y: 0 };
