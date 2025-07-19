@@ -6,13 +6,6 @@ namespace Chess
 static constexpr const int kWhiteIndex = 0;
 static constexpr const int kBlackIndex = 1;
 
-static constexpr const char kPawn = 'p';
-static constexpr const char kKnight = 'n';
-static constexpr const char kBishop = 'b';
-static constexpr const char kRook = 'r';
-static constexpr const char kQueen = 'q';
-static constexpr const char kKing = 'k';
-
 static constexpr const uint8_t kPieceTypeMask = 0b00000111;
 static constexpr const uint8_t kPieceColorMask = 0b00001000;
 
