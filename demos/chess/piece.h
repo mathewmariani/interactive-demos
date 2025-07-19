@@ -18,38 +18,6 @@ static constexpr const uint8_t kPieceColorMask = 0b00001000;
 
 using Piece = uint8_t;
 
-struct PieceList
-{
-    std::vector<int> occupied;
-    std::vector<int> map;
-    int count;
-
-    void Add(int square)
-    {
-        occupied[count] = square;
-        map[square] = count;
-        count++;
-    }
-
-    void Remove(int square)
-    {
-        int index = map[square];
-        occupied[index] = occupied[count - 1];
-        map[occupied[index]] = index;
-        count--;
-    }
-
-    int operator[](int index) const
-    {
-        return occupied[index];
-    }
-
-    int& operator[](int index)
-    {
-        return occupied[index];
-    }
-};
-
 enum PieceColor : uint8_t
 {
     White = 0,
@@ -71,7 +39,7 @@ constexpr Piece MakePiece(PieceColor c, PieceType t)
 {
     if (t == PieceType::None)
     {
-        return 0;
+        return PieceType::None;
     }
     return (c << 3) | t;
 }

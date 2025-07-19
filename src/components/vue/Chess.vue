@@ -1,6 +1,10 @@
 <template>
     <figure id="diagram1">
         <div class="d-flex flex-column align-items-center">
+            <div class="btn-group mb-3" role="group" aria-label="Reset and Clear">
+                <button type="button" class="btn btn-primary" @click="onReset">Reset</button>
+                <button type="button" class="btn btn-primary" @click="onClear">Clear</button>
+            </div>
             <svg ref="svgRef" viewBox="0 0 8 8" width="512" height="512" @pointermove="onPointerMove"
                 @pointerup="onPointerUp" @pointercancel="onPointerUp">
                 <!-- Board squares -->
@@ -185,6 +189,16 @@ export default {
         },
     },
     methods: {
+        onReset() {
+            this.engine.reset();
+            this.boardVersion++;
+            this.$forceUpdate();
+        },
+        onClear() {
+            this.engine.clear();
+            this.boardVersion++;
+            this.$forceUpdate();
+        },
         svgPoint(event) {
             const svg = this.$refs.svgRef;
             let pt = svg.createSVGPoint();

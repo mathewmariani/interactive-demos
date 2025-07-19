@@ -1,6 +1,7 @@
 #pragma once
 
 #include "piece.h"
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,13 @@ class Board
         {
             squares[i] = PieceType::None;
         }
+
+        std::fill(std::begin(rooks), std::end(rooks), 0ULL);
+        std::fill(std::begin(bishops), std::end(bishops), 0ULL);
+        std::fill(std::begin(queens), std::end(queens), 0ULL);
+        std::fill(std::begin(knights), std::end(knights), 0ULL);
+        std::fill(std::begin(pawns), std::end(pawns), 0ULL);
+        std::fill(std::begin(kings), std::end(kings), 0ULL);
     }
 
     void AddPiece(Piece piece, int square)
