@@ -248,22 +248,11 @@ export default {
 </script>
 
 <style scoped>
-.cell {
-    stroke: #000;
-    stroke-width: 0px;
-}
-
 .light {
     fill: #f0d9b5;
 }
 
 .dark {
     fill: #b58863;
-}
-
-svg {
-    max-width: 512px;
-    width: 100%;
-    height: auto;
 }
 </style>

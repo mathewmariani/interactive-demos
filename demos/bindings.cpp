@@ -137,7 +137,14 @@ EMSCRIPTEN_BINDINGS(ChessModule)
         .function("get_knights", &Chess::Chess::GetKnights)
         .function("get_pawns", &Chess::Chess::GetPawns)
         .function("get_kings", &Chess::Chess::GetKings)
-        .function("move", &Chess::Chess::Move);
+
+        .function("board", &Chess::Chess::GetBoard)
+        .function("clear", &Chess::Chess::Clear)
+        .function("load", &Chess::Chess::Load)
+        .function("move", &Chess::Chess::Move)
+        .function("put", &Chess::Chess::Put)
+        .function("remove", &Chess::Chess::Remove)
+        .function("reset", &Chess::Chess::Reset);
 
     emscripten::register_vector<uint8_t>("VectorUint8");
     emscripten::register_vector<int>("VectorInt");

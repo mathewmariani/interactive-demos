@@ -10,6 +10,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
 
     add_executable(demos
         demos/bindings.cpp
+        demos/chess/chess.cpp
         demos/dungeon/dungeon.cpp
         demos/life/life.cpp)
     target_include_directories(demos PUBLIC demos)
