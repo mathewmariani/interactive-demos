@@ -1,5 +1,6 @@
 #pragma once
 
+#include "chess.h"
 #include "piece.h"
 #include <string>
 
@@ -9,16 +10,16 @@ namespace Chess
 static constexpr const char* KEmptyPostion = "8/8/8/8/8/8/8/8 w - - 0 1";
 static constexpr const char* kDefaultPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-static void loadFromFEN(const std::string& fen, Board& board)
+static void loadFromFEN(const std::string& fen, Chess* chess)
 {
     auto index = 0;
     for (auto i = 0; i < fen.size() && index < 64; ++i)
     {
         auto c = fen[i];
-        if (c == ' ')
-        {
-            break;
-        }
+        // if (c == ' ')
+        // {
+        //     break;
+        // }
 
         if (c == '/')
         {
@@ -29,7 +30,7 @@ static void loadFromFEN(const std::string& fen, Board& board)
             auto emptyCount = c - '0';
             for (auto j = 0; j < emptyCount; ++j)
             {
-                board.AddPiece(PieceType::None, index++);
+                chess->Put(PieceType::None, index++);
             }
         }
         else
@@ -64,7 +65,7 @@ static void loadFromFEN(const std::string& fen, Board& board)
             }
 
             auto piece = MakePiece(color, type);
-            board.AddPiece(piece, index++);
+            chess->Put(piece, index++);
         }
     }
 }

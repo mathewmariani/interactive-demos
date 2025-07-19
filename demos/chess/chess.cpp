@@ -24,7 +24,7 @@ void Chess::Clear()
 void Chess::Load(const std::string& fen)
 {
     board.Clear();
-    loadFromFEN(fen, board);
+    loadFromFEN(fen, this);
 }
 
 void Chess::Move(int from, int to)

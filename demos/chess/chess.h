@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "board.h"
-#include "fen.h"
 #include "piece.h"
 
 namespace Chess
