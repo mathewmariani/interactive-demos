@@ -35,6 +35,7 @@ class Chess
 
   private:
     Board board;
+    PieceColor turn;
 };
 
 } // namespace Chess

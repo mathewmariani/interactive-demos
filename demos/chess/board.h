@@ -86,7 +86,12 @@ class Board
         }
     }
 
-    void Remove(int square)
+    const Piece GetPiece(int square) const
+    {
+        return squares[square];
+    }
+
+    void RemovePiece(int square)
     {
         auto piece = squares[square];
         if (piece == PieceType::None)
@@ -134,38 +139,9 @@ class Board
         PieceType type = GetPieceType(piece);
         PieceColor color = GetPieceColor(piece);
 
-        squares[to] = piece;
-        squares[from] = PieceType::None;
-
-        switch (type)
-        {
-        case PieceType::King:
-            kings[color] &= ~(1ULL << from);
-            kings[color] |= (1ULL << to);
-            break;
-        case PieceType::Pawn:
-            pawns[color] &= ~(1ULL << from);
-            pawns[color] |= (1ULL << to);
-            break;
-        case PieceType::Knight:
-            knights[color] &= ~(1ULL << from);
-            knights[color] |= (1ULL << to);
-            break;
-        case PieceType::Bishop:
-            bishops[color] &= ~(1ULL << from);
-            bishops[color] |= (1ULL << to);
-            break;
-        case PieceType::Rook:
-            rooks[color] &= ~(1ULL << from);
-            rooks[color] |= (1ULL << to);
-            break;
-        case PieceType::Queen:
-            queens[color] &= ~(1ULL << from);
-            queens[color] |= (1ULL << to);
-            break;
-        default:
-            break;
-        }
+        RemovePiece(to);
+        RemovePiece(from);
+        AddPiece(piece, to);
     }
 
     std::vector<uint8_t> Data() const
