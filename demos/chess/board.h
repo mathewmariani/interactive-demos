@@ -1,7 +1,9 @@
 #pragma once
 
 #include "piece.h"
+#include "zobrist.h"
 #include <algorithm>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -10,17 +12,15 @@ namespace Chess
 
 using Bitboard = uint64_t;
 
-static constexpr const char* kBoardSquares[] = {
-    // clang-format off
-    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
-    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-    // clang-format on
+struct Undo
+{
+    struct
+    {
+        uint8_t from;
+        uint8_t to;
+    } move;
+    Piece captured;
+    uint64_t hash;
 };
 
 class Board
@@ -28,12 +28,17 @@ class Board
   public:
     Board() = default;
 
-    Bitboard GetRooks() const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
-    Bitboard GetBishops() const { return bishops[kWhiteIndex] | bishops[kBlackIndex]; }
-    Bitboard GetQueens() const { return queens[kWhiteIndex] | queens[kBlackIndex]; }
-    Bitboard GetKnights() const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
-    Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
-    Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
+    void Initialize()
+    {
+        hash = computeZobristHash(squares, true, 0x0, 0);
+    }
+
+    const Bitboard GetRooks() const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
+    const Bitboard GetBishops() const { return bishops[kWhiteIndex] | bishops[kBlackIndex]; }
+    const Bitboard GetQueens() const { return queens[kWhiteIndex] | queens[kBlackIndex]; }
+    const Bitboard GetKnights() const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
+    const Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
+    const Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
 
     void Clear()
     {
@@ -48,9 +53,12 @@ class Board
         std::fill(std::begin(knights), std::end(knights), 0ULL);
         std::fill(std::begin(pawns), std::end(pawns), 0ULL);
         std::fill(std::begin(kings), std::end(kings), 0ULL);
+
+        undo_stack.clear();
+        redo_stack.clear();
     }
 
-    void AddPiece(Piece piece, int square)
+    void AddPiece(Piece piece, uint8_t square)
     {
         if (piece == PieceType::None)
         {
@@ -86,12 +94,12 @@ class Board
         }
     }
 
-    const Piece GetPiece(int square) const
+    const Piece GetPiece(uint8_t square) const
     {
         return squares[square];
     }
 
-    void RemovePiece(int square)
+    void RemovePiece(uint8_t square)
     {
         auto piece = squares[square];
         if (piece == PieceType::None)
@@ -128,25 +136,95 @@ class Board
         }
     }
 
-    void Move(int from, int to)
+    void MovePiece(uint8_t from, uint8_t to)
     {
         if (from == to)
             return;
         if (from < 0 || from >= 64 || to < 0 || to >= 64)
             throw std::out_of_range("Move indices out of range");
 
-        Piece piece = squares[from];
-        PieceType type = GetPieceType(piece);
-        PieceColor color = GetPieceColor(piece);
+        Piece moving = squares[from];
+        Piece captured = squares[to];
+
+        PieceType moving_type = GetPieceType(moving);
+        PieceColor moving_color = GetPieceColor(moving);
+
+        // update the hash
+        hash ^= zobrist.psq[moving][from];
+        hash ^= zobrist.psq[moving][to];
+        if (captured != PieceType::None)
+        {
+            hash ^= zobrist.psq[captured][to];
+        }
 
         RemovePiece(to);
         RemovePiece(from);
-        AddPiece(piece, to);
+        AddPiece(moving, to);
+
+        undo_stack.push_back(Undo{{from, to}, captured, hash});
+        redo_stack.clear();
     }
 
-    std::vector<uint8_t> Data() const
+    void UndoMove(void)
     {
-        return std::vector<uint8_t>(squares, squares + 64);
+        if (undo_stack.empty())
+        {
+            return;
+        }
+
+        auto prev = undo_stack.back();
+        undo_stack.pop_back();
+
+        auto piece = squares[prev.move.to];
+        RemovePiece(prev.move.to);
+        RemovePiece(prev.move.from);
+
+        AddPiece(piece, prev.move.from);
+        AddPiece(prev.captured, prev.move.to);
+
+        hash = prev.hash;
+
+        redo_stack.push_back(prev);
+    }
+
+    void RedoMove(void)
+    {
+        if (redo_stack.empty())
+        {
+            return;
+        }
+
+        auto next = redo_stack.back();
+        redo_stack.pop_back();
+
+        Piece moving = squares[next.move.from];
+        Piece captured = next.captured;
+
+        // update the hash
+        hash ^= zobrist.psq[moving][next.move.from];
+        hash ^= zobrist.psq[moving][next.move.to];
+        if (captured != PieceType::None)
+        {
+            hash ^= zobrist.psq[captured][next.move.to];
+        }
+
+        RemovePiece(next.move.to);
+        RemovePiece(next.move.from);
+        AddPiece(moving, next.move.to);
+
+        undo_stack.push_back(next);
+    }
+
+    const uint8_t* Data() const
+    {
+        return squares;
+    }
+
+    const std::string Hash() const
+    {
+        std::stringstream ss;
+        ss << std::hex << hash;
+        return ss.str();
     }
 
   private:
@@ -157,6 +235,10 @@ class Board
     Bitboard knights[2];
     Bitboard pawns[2];
     Bitboard kings[2];
+
+    uint64_t hash;
+    std::vector<Undo> undo_stack;
+    std::vector<Undo> redo_stack;
 };
 
 } // namespace Chess

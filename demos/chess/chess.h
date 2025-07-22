@@ -17,14 +17,21 @@ class Chess
   public:
     Chess();
 
+    const char* GetSAN(const uint8_t square) const;
+
     void Clear(void);
     void Load(const std::string& fen);
     void Reset(void);
-    void Move(int from, int to);
-    void Put(Piece piece, int square);
-    void Remove(int square);
+    void Move(uint8_t from, uint8_t to);
+    void Put(Piece piece, uint8_t square);
+    void Remove(uint8_t square);
 
-    std::vector<uint8_t> GetBoard() const;
+    void Undo(void) { board.UndoMove(); }
+    void Redo(void) { board.RedoMove(); }
+
+    const std::vector<uint8_t> GetBoard() const;
+    const std::string GetZobrist() const;
+
     Bitboard GetRooks() const { return board.GetRooks(); }
     Bitboard GetBishops() const { return board.GetBishops(); }
     Bitboard GetQueens() const { return board.GetQueens(); }

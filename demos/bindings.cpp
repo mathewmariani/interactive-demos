@@ -138,6 +138,10 @@ EMSCRIPTEN_BINDINGS(ChessModule)
         .function("get_pawns", &Chess::Chess::GetPawns)
         .function("get_kings", &Chess::Chess::GetKings)
 
+        .function("zobrist", &Chess::Chess::GetZobrist)
+        .function("undo", &Chess::Chess::Undo)
+        .function("redo", &Chess::Chess::Redo)
+
         .function("board", &Chess::Chess::GetBoard)
         .function("clear", &Chess::Chess::Clear)
         .function("load", &Chess::Chess::Load)

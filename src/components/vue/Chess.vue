@@ -5,6 +5,10 @@
                 <button type="button" class="btn btn-primary" @click="onReset">Reset</button>
                 <button type="button" class="btn btn-primary" @click="onClear">Clear</button>
             </div>
+            <div class="btn-group mb-3" role="group" aria-label="Reset and Clear">
+                <button type="button" class="btn btn-primary" @click="onUndo">Undo</button>
+                <button type="button" class="btn btn-primary" @click="onRedo">Redo</button>
+            </div>
             <svg ref="svgRef" viewBox="0 0 8 8" width="512" height="512" @pointermove="onPointerMove"
                 @pointerup="onPointerUp" @pointercancel="onPointerUp">
                 <!-- squares -->
@@ -53,7 +57,7 @@
                 <!-- debug -->
                 <text v-for="square in squares" :key="square.name + '-debug'" :x="square.x + 0.05" :y="square.y + 0.95"
                     font-size="0.2" fill="red">
-                    {{ square.piece || "" }}
+                    {{ square.san || "" }}
                 </text>
             </svg>
         </div>
@@ -61,6 +65,7 @@
         <!-- New toggle form -->
         <div class="mt-3">
             <h2>Bitboards</h2>
+            <p>{{ getHash() }}</p>
             <div class="form-check">
                 <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
                 <label for="showRooks" class="form-check-label">Show Rooks</label>
@@ -108,7 +113,7 @@ import BlackRook from "./BlackRook.vue";
 import BlackQueen from "./BlackQueen.vue";
 import BlackKing from "./BlackKing.vue";
 
-export const pieceMap = {
+const pieceMap = {
     "0_1": markRaw(WhiteKing),
     "0_2": markRaw(WhitePawn),
     "0_3": markRaw(WhiteKnight),
@@ -123,6 +128,17 @@ export const pieceMap = {
     "8_5": markRaw(BlackRook),
     "8_6": markRaw(BlackQueen),
 };
+
+const SAN = [
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+];
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const boardSize = 8;
@@ -185,6 +201,7 @@ export default {
 
                     squares.push({
                         name: `${FILES[file]}${rank}`,
+                        san: SAN[idx],
                         x: file,
                         y: 8 - rank,
                         color: (file + rank) % 2 === 0 ? "light" : "dark",
@@ -208,10 +225,23 @@ export default {
             if (!square || !square.piece) return 'default';
             return this.draggingSquare === square.name ? 'grabbing' : 'grab';
         },
+        onUndo() {
+            this.engine.undo();
+            this.boardVersion++;
+            this.$forceUpdate();
+        },
+        onRedo() {
+            this.engine.redo();
+            this.boardVersion++;
+            this.$forceUpdate();
+        },
         onReset() {
             this.engine.reset();
             this.boardVersion++;
             this.$forceUpdate();
+        },
+        getHash() {
+            return (this.engine) ? this.engine.zobrist() : '';
         },
         onClear() {
             this.engine.clear();
