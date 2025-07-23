@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bitboard.h"
 #include "piece.h"
 #include "zobrist.h"
 #include <algorithm>
@@ -9,8 +10,6 @@
 
 namespace Chess
 {
-
-using Bitboard = uint64_t;
 
 struct Undo
 {
@@ -213,6 +212,39 @@ class Board
         AddPiece(moving, next.move.to);
 
         undo_stack.push_back(next);
+    }
+
+    const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const
+    {
+        const auto type = GetPieceType(piece);
+        const auto color = GetPieceColor(piece);
+
+        Bitboard moves;
+        switch (type)
+        {
+        case PieceType::None:
+            break;
+        case PieceType::King:
+            moves = KingMask(square);
+            break;
+        case PieceType::Pawn:
+            moves = KingMask(square);
+            break;
+        case PieceType::Knight:
+            moves = KnightMask(square);
+            break;
+        case PieceType::Bishop:
+            moves = KingMask(square);
+            break;
+        case PieceType::Rook:
+            moves = KingMask(square);
+            break;
+        case PieceType::Queen:
+            moves = KingMask(square);
+            break;
+        }
+
+        return moves;
     }
 
     const uint8_t* Data() const

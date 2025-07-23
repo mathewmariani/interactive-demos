@@ -142,6 +142,8 @@ EMSCRIPTEN_BINDINGS(ChessModule)
         .function("undo", &Chess::Chess::Undo)
         .function("redo", &Chess::Chess::Redo)
 
+        .function("get_possible_moves", &Chess::Chess::GetPossibleMoves)
+
         .function("board", &Chess::Chess::GetBoard)
         .function("clear", &Chess::Chess::Clear)
         .function("load", &Chess::Chess::Load)

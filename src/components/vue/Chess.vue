@@ -1,14 +1,16 @@
 <template>
     <figure id="diagram1">
-        <div class="d-flex flex-column align-items-center">
-            <div class="btn-group mb-3" role="group" aria-label="Reset and Clear">
+        <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
                 <button type="button" class="btn btn-primary" @click="onReset">Reset</button>
                 <button type="button" class="btn btn-primary" @click="onClear">Clear</button>
             </div>
-            <div class="btn-group mb-3" role="group" aria-label="Reset and Clear">
+            <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
                 <button type="button" class="btn btn-primary" @click="onUndo">Undo</button>
                 <button type="button" class="btn btn-primary" @click="onRedo">Redo</button>
             </div>
+        </div>
+        <div class="d-flex flex-column align-items-center">
             <svg ref="svgRef" viewBox="0 0 8 8" width="512" height="512" @pointermove="onPointerMove"
                 @pointerup="onPointerUp" @pointercancel="onPointerUp">
                 <!-- squares -->
@@ -43,7 +45,18 @@
                     <!-- interaction -->
                     <rect v-if="square && square.piece" :key="square.name + '-hover'" :x="square.x" :y="square.y"
                         width="1" height="1" fill="transparent" :style="{ cursor: getPieceCursor(square) }"
+                        @click="selectPiece(square)"
                         @pointerdown="startDrag(square, $event)" />
+                </template>
+
+                <template v-for="square in squares" :key="square.name + '-piece'">
+                    <circle
+                        v-if="possibleMoves & (1n << BigInt(square.idx))"
+                        :cx="square.x + 0.5"
+                        :cy="square.y + 0.5"
+                        r="0.20"
+                        fill="rgba(200, 214, 229, 0.85)"
+                        />
                 </template>
 
                 <!-- dragged -->
@@ -173,6 +186,7 @@ export default {
             showKnights: true,
             showPawns: true,
             showKings: true,
+            possibleMoves: 0n,
         };
     },
     async beforeCreate() {
@@ -201,6 +215,7 @@ export default {
 
                     squares.push({
                         name: `${FILES[file]}${rank}`,
+                        idx: idx,
                         san: SAN[idx],
                         x: file,
                         y: 8 - rank,
@@ -247,6 +262,12 @@ export default {
             this.engine.clear();
             this.boardVersion++;
             this.$forceUpdate();
+        },
+        selectPiece(square) {
+            this.selectedSquare = square;
+            const idx = squareNameToIndex(square.name);
+            const val = this.engine.get_board().get(idx);
+            this.possibleMoves = this.engine.get_possible_moves(val, idx);
         },
         svgPoint(event) {
             const svg = this.$refs.svgRef;

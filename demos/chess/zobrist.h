@@ -7,11 +7,6 @@
 namespace Chess
 {
 
-constexpr int kNumPieces = 12;
-constexpr int kNumSquares = 64;
-constexpr int kCastlingBits = 16;
-constexpr int kEnPassentBits = 8;
-
 struct SplitMix64
 {
     uint64_t state;

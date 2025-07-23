@@ -7,24 +7,6 @@
 namespace Chess
 {
 
-static constexpr const char* KEmptyPostion = "8/8/8/8/8/8/8/8 w - - 0 1";
-static constexpr const char* kDefaultPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-static constexpr const char kPawn = 'p';
-static constexpr const char kKnight = 'n';
-static constexpr const char kBishop = 'b';
-static constexpr const char kRook = 'r';
-static constexpr const char kQueen = 'q';
-static constexpr const char kKing = 'k';
-
-static constexpr const char kWhite = 'w';
-static constexpr const char kWhiteKing = 'K';
-static constexpr const char kWhiteQueen = 'Q';
-
-static constexpr const char kBlack = 'b';
-static constexpr const char kBlackKing = 'k';
-static constexpr const char kBlackQueen = 'q';
-
 static void loadFromFEN(const std::string& fen, Chess* chess)
 {
     auto index = 0;

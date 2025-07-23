@@ -39,6 +39,8 @@ class Chess
     Bitboard GetPawns() const { return board.GetPawns(); }
     Bitboard GetKings() const { return board.GetKings(); }
 
+    Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const { return board.GetPossibleMoves(piece, square); }
+
   private:
     Board board;
     PieceColor turn;
