@@ -58,7 +58,7 @@ struct Zobrist
 constexpr Zobrist zobrist = Zobrist();
 
 constexpr uint64_t computeZobristHash(const Piece board[kNumSquares],
-                                      bool sideToMove,
+                                      const PieceColor turn,
                                       uint8_t castlingRights,
                                       int epFile)
 {
@@ -72,7 +72,7 @@ constexpr uint64_t computeZobristHash(const Piece board[kNumSquares],
         }
     }
 
-    if (!sideToMove)
+    if (!turn)
     {
         k ^= zobrist.side;
     }

@@ -18,8 +18,6 @@ const char* Chess::GetSAN(const uint8_t square) const
 void Chess::Reset()
 {
     Load(kDefaultPosition);
-
-    turn = PieceColor::White;
 }
 
 void Chess::Clear()
@@ -30,29 +28,13 @@ void Chess::Clear()
 void Chess::Load(const std::string& fen)
 {
     board.Clear();
-    loadFromFEN(fen, this);
+    loadFromFEN(fen, &board);
     board.Initialize();
 }
 
 void Chess::Move(uint8_t from, uint8_t to)
 {
-    if (GetPieceColor(board.GetPiece(from)) != turn)
-    {
-        return;
-    }
-
-    // check square for piece
-    auto current_piece = board.GetPiece(to);
-    if (GetPieceType(current_piece) != PieceType::None)
-    {
-        if (GetPieceColor(current_piece) == turn)
-        {
-            return;
-        }
-    }
-
     board.MovePiece(from, to);
-    turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 }
 
 void Chess::Put(Piece piece, uint8_t square)

@@ -40,11 +40,13 @@ class Chess
     Bitboard GetPawns(void) const { return board.GetPawns(); }
     Bitboard GetKings(void) const { return board.GetKings(); }
 
+    const PieceColor GetTurn(void) const { return board.GetTurn(); }
+    void SetTurn(const PieceColor color) { return board.SetTurn(color); }
+
     Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const { return board.GetPossibleMoves(piece, square); }
 
   private:
     Board board;
-    PieceColor turn;
 };
 
 } // namespace chess

@@ -29,7 +29,7 @@ class Board
 
     void Initialize(void)
     {
-        hash = computeZobristHash(squares, true, 0x0, 0);
+        hash = computeZobristHash(squares, turn, 0x0, 0);
     }
 
     const Bitboard GetOccupied(const PieceColor color) const
@@ -44,6 +44,9 @@ class Board
     const Bitboard GetKnights() const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
     const Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
     const Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
+
+    const PieceColor GetTurn() const { return turn; }
+    void SetTurn(const PieceColor color) { turn = color; }
 
     void Clear(void)
     {
@@ -154,9 +157,25 @@ class Board
         PieceType moving_type = GetPieceType(moving);
         PieceColor moving_color = GetPieceColor(moving);
 
+        if (moving_color != turn)
+        {
+            return;
+        }
+
+        // check square for piece
+        // auto current_piece = board.GetPiece(to);
+        // if (moving_type != PieceType::None)
+        // {
+        //     if (GetPieceColor(current_piece) == turn)
+        //     {
+        //         return;
+        //     }
+        // }
+
         // update the hash
         hash ^= zobrist.psq[moving][from];
         hash ^= zobrist.psq[moving][to];
+        hash ^= zobrist.side;
         if (captured != PieceType::None)
         {
             hash ^= zobrist.psq[captured][to];
@@ -168,6 +187,8 @@ class Board
 
         undo_stack.push_back(Undo{{from, to}, captured, hash});
         redo_stack.clear();
+
+        turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
     void UndoMove(void)
@@ -190,6 +211,8 @@ class Board
         hash = prev.hash;
 
         redo_stack.push_back(prev);
+
+        turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
     void RedoMove(void)
@@ -208,6 +231,7 @@ class Board
         // update the hash
         hash ^= zobrist.psq[moving][next.move.from];
         hash ^= zobrist.psq[moving][next.move.to];
+        hash ^= zobrist.side;
         if (captured != PieceType::None)
         {
             hash ^= zobrist.psq[captured][next.move.to];
@@ -218,6 +242,8 @@ class Board
         AddPiece(moving, next.move.to);
 
         undo_stack.push_back(next);
+
+        turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
     const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const
@@ -269,6 +295,8 @@ class Board
     }
 
   private:
+    PieceColor turn;
+
     Piece squares[64];
     Bitboard rooks[2];
     Bitboard bishops[2];

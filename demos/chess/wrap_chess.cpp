@@ -34,6 +34,9 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("undo", &Chess::Undo)
         .function("redo", &Chess::Redo)
 
+        .function("turn", &Chess::GetTurn)
+        .function("setTurn", &Chess::SetTurn)
+
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("board", &Chess::GetBoard)
