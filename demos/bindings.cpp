@@ -3,8 +3,6 @@
 #include "datastructures/grid_location.h"
 #include "datastructures/grid_world.h"
 
-#include "chess/chess.h"
-
 #include "dungeon/dungeon.h"
 
 #include "towerdefense/astar_search.h"
@@ -111,47 +109,4 @@ EMSCRIPTEN_BINDINGS(DungeonGenerator)
         .function("isSuperSecret", &Dungeon::World::IsSuperSecret)
         .function("isBoss", &Dungeon::World::IsBoss)
         .function("countNeighbors", &Life::World::CountNeighbors);
-}
-
-EMSCRIPTEN_BINDINGS(ChessModule)
-{
-    emscripten::enum_<Chess::PieceType>("PieceType")
-        .value("None", Chess::PieceType::None)
-        .value("King", Chess::PieceType::King)
-        .value("Pawn", Chess::PieceType::Pawn)
-        .value("Knight", Chess::PieceType::Knight)
-        .value("Bishop", Chess::PieceType::Bishop)
-        .value("Rook", Chess::PieceType::Rook)
-        .value("Queen", Chess::PieceType::Queen);
-
-    emscripten::enum_<Chess::PieceColor>("PieceColor")
-        .value("White", Chess::PieceColor::White)
-        .value("Black", Chess::PieceColor::Black);
-
-    emscripten::class_<Chess::Chess>("Chess")
-        .constructor<>()
-        .function("get_board", &Chess::Chess::GetBoard)
-        .function("get_rooks", &Chess::Chess::GetRooks)
-        .function("get_bishops", &Chess::Chess::GetBishops)
-        .function("get_queens", &Chess::Chess::GetQueens)
-        .function("get_knights", &Chess::Chess::GetKnights)
-        .function("get_pawns", &Chess::Chess::GetPawns)
-        .function("get_kings", &Chess::Chess::GetKings)
-
-        .function("zobrist", &Chess::Chess::GetZobrist)
-        .function("undo", &Chess::Chess::Undo)
-        .function("redo", &Chess::Chess::Redo)
-
-        .function("get_possible_moves", &Chess::Chess::GetPossibleMoves)
-
-        .function("board", &Chess::Chess::GetBoard)
-        .function("clear", &Chess::Chess::Clear)
-        .function("load", &Chess::Chess::Load)
-        .function("move", &Chess::Chess::Move)
-        .function("put", &Chess::Chess::Put)
-        .function("remove", &Chess::Chess::Remove)
-        .function("reset", &Chess::Chess::Reset);
-
-    emscripten::register_vector<uint8_t>("VectorUint8");
-    emscripten::register_vector<int>("VectorInt");
 }

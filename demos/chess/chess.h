@@ -9,7 +9,7 @@
 #include "board.h"
 #include "piece.h"
 
-namespace Chess
+namespace chess
 {
 
 class Chess
@@ -46,4 +46,4 @@ class Chess
     PieceColor turn;
 };
 
-} // namespace Chess
+} // namespace chess

@@ -4,7 +4,7 @@
 
 #include "consts.h"
 
-namespace Chess
+namespace chess
 {
 
 using Bitboard = uint64_t;
@@ -114,4 +114,4 @@ constexpr auto InitRookMasks()
 
 constexpr auto RookMasks = InitRookMasks();
 
-} // namespace Chess
+} // namespace chess

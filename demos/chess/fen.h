@@ -4,7 +4,7 @@
 #include "piece.h"
 #include <string>
 
-namespace Chess
+namespace chess
 {
 
 static void loadFromFEN(const std::string& fen, Chess* chess)
@@ -147,4 +147,4 @@ static void loadFromFEN(const std::string& fen, Chess* chess)
     printf("Fullmove number: %d\n", std::stoi(fullmoveStr));
 }
 
-} // namespace Chess
+} // namespace chess

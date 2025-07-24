@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Chess
+namespace chess
 {
 
 struct Undo
@@ -219,35 +219,39 @@ class Board
         const auto type = GetPieceType(piece);
         const auto color = GetPieceColor(piece);
 
-        Bitboard moves;
+        Bitboard possible_moves;
         switch (type)
         {
         case PieceType::None:
             break;
         case PieceType::King:
-            moves = KingMask(square);
+            possible_moves = KingMask(square);
             break;
         case PieceType::Pawn:
-            moves = KingMask(square);
+            possible_moves = KingMask(square);
             break;
         case PieceType::Knight:
-            moves = KnightMask(square);
+            possible_moves = KnightMask(square);
             break;
         case PieceType::Bishop:
-            moves = KingMask(square);
+            possible_moves = KingMask(square);
             break;
         case PieceType::Rook:
-            moves = KingMask(square);
+            possible_moves = KingMask(square);
             break;
         case PieceType::Queen:
-            moves = KingMask(square);
+            possible_moves = KingMask(square);
             break;
         }
 
-        return moves;
+        // check overlap with same colored pieces
+        possible_moves &= ~Occupied(color);
+
+        return possible_moves;
     }
 
-    const uint8_t* Data() const
+    const uint8_t*
+    Data() const
     {
         return squares;
     }
@@ -257,6 +261,13 @@ class Board
         std::stringstream ss;
         ss << std::hex << hash;
         return ss.str();
+    }
+
+  private:
+    Bitboard Occupied(PieceColor color) const
+    {
+        return rooks[color] | bishops[color] | queens[color] |
+               knights[color] | pawns[color] | kings[color];
     }
 
   private:
@@ -273,4 +284,4 @@ class Board
     std::vector<Undo> redo_stack;
 };
 
-} // namespace Chess
+} // namespace chess

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Chess
+namespace chess
 {
 
 static constexpr const int kWhiteIndex = 0;
@@ -63,4 +63,4 @@ constexpr const Piece BlackRook = MakePiece(PieceColor::Black, PieceType::Rook);
 constexpr const Piece BlackQueen = MakePiece(PieceColor::Black, PieceType::Queen);
 constexpr const Piece BlackKing = MakePiece(PieceColor::Black, PieceType::King);
 
-} // namespace Chess
+} // namespace chess

@@ -4,7 +4,7 @@
 
 #include "piece.h"
 
-namespace Chess
+namespace chess
 {
 
 struct SplitMix64
@@ -87,4 +87,4 @@ constexpr uint64_t computeZobristHash(const Piece board[kNumSquares],
     return k;
 }
 
-} // namespace Chess
+} // namespace chess

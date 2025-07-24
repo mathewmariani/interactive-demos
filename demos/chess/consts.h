@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Chess
+namespace chess
 {
 
 constexpr const char* kSANPositions[] = {

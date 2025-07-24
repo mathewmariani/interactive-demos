@@ -2,7 +2,7 @@
 #include "fen.h"
 #include <sstream>
 
-namespace Chess
+namespace chess
 {
 
 Chess::Chess()
@@ -76,4 +76,4 @@ const std::string Chess::GetZobrist() const
     return board.Hash();
 }
 
-} // namespace Chess
+} // namespace chess
