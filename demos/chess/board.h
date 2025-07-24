@@ -25,11 +25,17 @@ struct Undo
 class Board
 {
   public:
-    Board() = default;
+    Board(void) = default;
 
-    void Initialize()
+    void Initialize(void)
     {
         hash = computeZobristHash(squares, true, 0x0, 0);
+    }
+
+    const Bitboard GetOccupied(const PieceColor color) const
+    {
+        return rooks[color] | bishops[color] | queens[color] |
+               knights[color] | pawns[color] | kings[color];
     }
 
     const Bitboard GetRooks() const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
@@ -39,7 +45,7 @@ class Board
     const Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
     const Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
 
-    void Clear()
+    void Clear(void)
     {
         for (auto i = 0; i < 64; i++)
         {
@@ -245,29 +251,21 @@ class Board
         }
 
         // check overlap with same colored pieces
-        possible_moves &= ~Occupied(color);
+        possible_moves &= ~GetOccupied(color);
 
         return possible_moves;
     }
 
-    const uint8_t*
-    Data() const
+    const uint8_t* Data(void) const
     {
         return squares;
     }
 
-    const std::string Hash() const
+    const std::string Hash(void) const
     {
         std::stringstream ss;
         ss << std::hex << hash;
         return ss.str();
-    }
-
-  private:
-    Bitboard Occupied(PieceColor color) const
-    {
-        return rooks[color] | bishops[color] | queens[color] |
-               knights[color] | pawns[color] | kings[color];
     }
 
   private:

@@ -29,15 +29,16 @@ class Chess
     void Undo(void) { board.UndoMove(); }
     void Redo(void) { board.RedoMove(); }
 
-    const std::vector<uint8_t> GetBoard() const;
-    const std::string GetZobrist() const;
+    const std::vector<uint8_t> GetBoard(void) const;
+    const std::string GetZobrist(void) const;
 
-    Bitboard GetRooks() const { return board.GetRooks(); }
-    Bitboard GetBishops() const { return board.GetBishops(); }
-    Bitboard GetQueens() const { return board.GetQueens(); }
-    Bitboard GetKnights() const { return board.GetKnights(); }
-    Bitboard GetPawns() const { return board.GetPawns(); }
-    Bitboard GetKings() const { return board.GetKings(); }
+    Bitboard GetOppcupied(PieceColor color) const { return board.GetOccupied(color); }
+    Bitboard GetRooks(void) const { return board.GetRooks(); }
+    Bitboard GetBishops(void) const { return board.GetBishops(); }
+    Bitboard GetQueens(void) const { return board.GetQueens(); }
+    Bitboard GetKnights(void) const { return board.GetKnights(); }
+    Bitboard GetPawns(void) const { return board.GetPawns(); }
+    Bitboard GetKings(void) const { return board.GetKings(); }
 
     Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const { return board.GetPossibleMoves(piece, square); }
 

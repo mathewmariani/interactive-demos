@@ -13,7 +13,7 @@ struct SplitMix64
 
     constexpr SplitMix64(uint64_t seed) : state(seed) {}
 
-    constexpr uint64_t next()
+    constexpr uint64_t next(void)
     {
         uint64_t z = (state += 0x9E3779B97f4A7C15ull);
         z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
@@ -29,7 +29,7 @@ struct Zobrist
     std::array<uint64_t, kEnPassentBits> enpassant;
     uint64_t side;
 
-    constexpr Zobrist() : psq{}, castling{}, enpassant{}, side{}
+    constexpr Zobrist(void) : psq{}, castling{}, enpassant{}, side{}
     {
         SplitMix64 rng(2025);
 

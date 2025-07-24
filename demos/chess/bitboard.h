@@ -36,7 +36,7 @@ constexpr Bitboard KingMask(int square)
     return mask;
 }
 
-constexpr auto InitKingMasks()
+constexpr auto InitKingMasks(void)
 {
     std::array<Bitboard, kBoardSize> masks = {};
     for (auto sq = 0; sq < kBoardSize; ++sq)
@@ -70,7 +70,7 @@ constexpr Bitboard KnightMask(int square)
     return mask;
 }
 
-constexpr auto InitKnightMasks()
+constexpr auto InitKnightMasks(void)
 {
     std::array<Bitboard, kBoardSize> masks = {};
     for (auto sq = 0; sq < kBoardSize; ++sq)
@@ -102,7 +102,7 @@ constexpr Bitboard RookMask(int square)
     return mask;
 }
 
-constexpr auto InitRookMasks()
+constexpr auto InitRookMasks(void)
 {
     std::array<Bitboard, kBoardSize> masks = {};
     for (auto sq = 0; sq < kBoardSize; ++sq)
