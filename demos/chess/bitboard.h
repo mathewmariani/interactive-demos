@@ -201,7 +201,7 @@ constexpr Bitboard KnightMask(int square)
 {
     int rank = square / kBoardSize;
     int file = square % kBoardSize;
-    Bitboard mask = 0;
+    Bitboard mask = kEmptyBitboard;
 
     for (auto i = 0; i < kBoardSize; ++i)
     {
@@ -226,38 +226,60 @@ constexpr auto InitKnightMasks(void)
     return masks;
 }
 
-constexpr std::array<int, kBoardSize> dr_rook = {-2, -1, 1, 2, 2, 1, -1, -2};
-constexpr std::array<int, kBoardSize> df_rook = {1, 2, 2, 1, -1, -2, -2, -1};
+constexpr auto KnightMasks = InitKnightMasks();
 
-constexpr Bitboard RookMask(int square)
+constexpr Bitboard RookMask(int square, const Bitboard blockers)
 {
+    Bitboard attacks = kEmptyBitboard;
+
     int rank = square / kBoardSize;
     int file = square % kBoardSize;
-    Bitboard mask = 0;
 
-    for (auto i = 0; i < kBoardSize; ++i)
+    // Up (+8)
+    for (auto r = rank + 1; r < kBoardSize; ++r)
     {
-        auto r = rank + dr_rook[i];
-        auto f = file + df_rook[i];
-        if (r >= 0 && r < kBoardSize && f >= 0 && f < kBoardSize)
+        auto sq = r * 8 + file;
+        attacks |= (1ULL << sq);
+        if (blockers & (1ULL << sq))
         {
-            mask |= SquareMask(r, f);
+            break;
         }
     }
 
-    return mask;
-}
-
-constexpr auto InitRookMasks(void)
-{
-    std::array<Bitboard, kBoardSize> masks = {};
-    for (auto sq = 0; sq < kBoardSize; ++sq)
+    // Down (-8)
+    for (auto r = rank - 1; r >= 0; --r)
     {
-        masks[sq] = KnightMask(sq);
+        auto sq = r * kBoardSize + file;
+        attacks |= (1ULL << sq);
+        if (blockers & (1ULL << sq))
+        {
+            break;
+        }
     }
-    return masks;
-}
 
-constexpr auto RookMasks = InitRookMasks();
+    // Right (+1)
+    for (auto f = file + 1; f < kBoardSize; ++f)
+    {
+        auto sq = rank * kBoardSize + f;
+        attacks |= (1ULL << sq);
+        if (blockers & (1ULL << sq))
+        {
+            break;
+        }
+    }
+
+    // Left (-1)
+    for (auto f = file - 1; f >= 0; --f)
+    {
+        auto sq = rank * kBoardSize + f;
+        attacks |= (1ULL << sq);
+        if (blockers & (1ULL << sq))
+        {
+            break;
+        }
+    }
+
+    return attacks;
+}
 
 } // namespace chess

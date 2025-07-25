@@ -263,7 +263,7 @@ class Board
         case PieceType::None:
             break;
         case PieceType::King:
-            possible_moves = KingMask(square);
+            possible_moves = KingMasks[square];
             break;
         case PieceType::Pawn:
         {
@@ -298,16 +298,19 @@ class Board
         }
         break;
         case PieceType::Knight:
-            possible_moves = KnightMask(square);
+            possible_moves = KnightMasks[square];
             break;
         case PieceType::Bishop:
-            possible_moves = KingMask(square);
+            possible_moves = KingMasks[square];
             break;
         case PieceType::Rook:
-            possible_moves = KingMask(square);
-            break;
+        {
+            auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+            possible_moves = RookMask(square, blockers);
+        }
+        break;
         case PieceType::Queen:
-            possible_moves = KingMask(square);
+            possible_moves = KingMasks[square];
             break;
         }
 
