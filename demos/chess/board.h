@@ -55,12 +55,12 @@ class Board
             squares[i] = PieceType::None;
         }
 
-        std::fill(std::begin(rooks), std::end(rooks), 0ULL);
-        std::fill(std::begin(bishops), std::end(bishops), 0ULL);
-        std::fill(std::begin(queens), std::end(queens), 0ULL);
-        std::fill(std::begin(knights), std::end(knights), 0ULL);
-        std::fill(std::begin(pawns), std::end(pawns), 0ULL);
-        std::fill(std::begin(kings), std::end(kings), 0ULL);
+        std::fill(std::begin(rooks), std::end(rooks), kEmptyBitboard);
+        std::fill(std::begin(bishops), std::end(bishops), kEmptyBitboard);
+        std::fill(std::begin(queens), std::end(queens), kEmptyBitboard);
+        std::fill(std::begin(knights), std::end(knights), kEmptyBitboard);
+        std::fill(std::begin(pawns), std::end(pawns), kEmptyBitboard);
+        std::fill(std::begin(kings), std::end(kings), kEmptyBitboard);
 
         undo_stack.clear();
         redo_stack.clear();
@@ -251,7 +251,13 @@ class Board
         const auto type = GetPieceType(piece);
         const auto color = GetPieceColor(piece);
 
-        Bitboard possible_moves;
+        Bitboard possible_moves = kEmptyBitboard;
+
+        PieceColor opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
+
+        Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
+        Bitboard enemy = GetOccupied(opponent);
+
         switch (type)
         {
         case PieceType::None:
@@ -260,8 +266,37 @@ class Board
             possible_moves = KingMask(square);
             break;
         case PieceType::Pawn:
-            possible_moves = KingMask(square);
-            break;
+        {
+            Bitboard push = kEmptyBitboard;
+            Bitboard double_push = kEmptyBitboard;
+            Bitboard captures = kEmptyBitboard;
+            switch (color)
+            {
+            case PieceColor::White:
+                push = WhitePawnPushMasks[square];
+                double_push = WhitePawnDoublePushMasks[square];
+                captures = WhitePawnCaptureMasks[square] & enemy;
+                break;
+            case PieceColor::Black:
+                push = BlackPawnPushMasks[square];
+                double_push = BlackPawnDoublePushMasks[square];
+                captures = BlackPawnCaptureMasks[square] & enemy;
+                break;
+            }
+
+            auto push_valid = push & empty;
+            if (push_valid)
+            {
+                double_push &= empty;
+            }
+            else
+            {
+                double_push = kEmptyBitboard;
+            }
+
+            possible_moves = push_valid | double_push | captures;
+        }
+        break;
         case PieceType::Knight:
             possible_moves = KnightMask(square);
             break;

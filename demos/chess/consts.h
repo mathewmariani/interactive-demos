@@ -34,9 +34,12 @@ constexpr const char kBlack = 'b';
 constexpr const char kBlackKing = 'k';
 constexpr const char kBlackQueen = 'q';
 
-constexpr int kBoardSize = 9;
+constexpr int kBoardSize = 8;
 constexpr int kNumPieces = 12;
 constexpr int kNumSquares = 64;
+
+// bitboard
+constexpr uint64_t kEmptyBitboard = 0ULL;
 
 // zobrist
 constexpr int kCastlingBits = 16;
