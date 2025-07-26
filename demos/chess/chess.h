@@ -43,6 +43,7 @@ class Chess
     const PieceColor GetTurn(void) const { return board.GetTurn(); }
     void SetTurn(const PieceColor color) { return board.SetTurn(color); }
 
+    const std::vector<chess::Move> Moves() const { return board.Moves(); }
     Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const { return board.GetPossibleMoves(piece, square); }
 
   private:

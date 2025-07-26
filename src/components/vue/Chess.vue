@@ -254,6 +254,12 @@ export default {
             this.engine.reset();
             this.boardVersion++;
             this.$forceUpdate();
+
+            const moves = this.engine.moves();
+            for (let i = 0; i < moves.size(); i++) {
+                const move = moves.get(i);
+                console.log(`from ${move.from} to ${move.to}`);
+            }
         },
         getHash() {
             return (this.engine) ? this.engine.zobrist() : '';
@@ -330,12 +336,6 @@ export default {
         },
         handlePieceMove(squareName, newPos) {
             console.log("Piece moved from", squareName, "to", newPos);
-        },
-        reset() {
-            if (this.engine) {
-                this.engine.reset();
-                this.$forceUpdate();
-            }
         },
     },
 };

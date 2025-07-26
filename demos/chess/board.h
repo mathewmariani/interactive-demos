@@ -4,6 +4,7 @@
 #include "piece.h"
 #include "zobrist.h"
 #include <algorithm>
+#include <bit>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -11,13 +12,15 @@
 namespace chess
 {
 
+struct Move
+{
+    uint8_t from;
+    uint8_t to;
+};
+
 struct Undo
 {
-    struct
-    {
-        uint8_t from;
-        uint8_t to;
-    } move;
+    Move move;
     Piece captured;
     uint64_t hash;
 };
@@ -50,7 +53,7 @@ class Board
 
     void Clear(void)
     {
-        for (auto i = 0; i < 64; i++)
+        for (auto i = 0; i < kNumSquares; i++)
         {
             squares[i] = PieceType::None;
         }
@@ -246,17 +249,44 @@ class Board
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
+    const std::vector<Move> Moves() const
+    {
+        std::vector<Move> moves = {};
+        for (auto sq = 0; sq < kNumSquares; sq++)
+        {
+            auto piece = GetPiece(sq);
+            auto color = GetPieceColor(piece);
+            if (piece == PieceType::None || color != GetTurn())
+            {
+                continue;
+            }
+
+            auto possible = GetPossibleMoves(piece, sq);
+            while (possible)
+            {
+                auto to = MoveFromBitboard(possible);
+                possible &= possible - 1;
+
+                moves.push_back((Move){
+                    .from = (uint8_t)sq,
+                    .to = (uint8_t)to,
+                });
+            }
+        }
+        return moves;
+    }
+
     const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const
     {
+        Bitboard possible_moves = kEmptyBitboard;
+
         const auto type = GetPieceType(piece);
         const auto color = GetPieceColor(piece);
 
-        Bitboard possible_moves = kEmptyBitboard;
+        const PieceColor opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
 
-        PieceColor opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
-
-        Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
-        Bitboard enemy = GetOccupied(opponent);
+        const Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
+        const Bitboard enemy = GetOccupied(opponent);
 
         switch (type)
         {

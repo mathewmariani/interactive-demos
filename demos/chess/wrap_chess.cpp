@@ -20,6 +20,12 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .value("White", PieceColor::White)
         .value("Black", PieceColor::Black);
 
+    emscripten::register_vector<Move>("MoveList");
+
+    emscripten::value_object<Move>("Move")
+        .field("from", &Move::from)
+        .field("to", &Move::to);
+
     emscripten::class_<Chess>("Chess")
         .constructor<>()
         .function("get_board", &Chess::GetBoard)
@@ -37,6 +43,7 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("turn", &Chess::GetTurn)
         .function("setTurn", &Chess::SetTurn)
 
+        .function("moves", &Chess::Moves)
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("board", &Chess::GetBoard)

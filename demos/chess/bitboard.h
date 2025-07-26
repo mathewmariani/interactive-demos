@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <bit>
 
 #include "consts.h"
 
@@ -12,6 +13,11 @@ using Bitboard = uint64_t;
 constexpr Bitboard SquareMask(int rank, int file)
 {
     return 1ULL << (rank * kNumRanks + file);
+}
+
+constexpr int MoveFromBitboard(const Bitboard bitboard)
+{
+    return std::countr_zero(bitboard);
 }
 
 constexpr Bitboard WhitePawnPushMask(int square)
@@ -38,10 +44,11 @@ constexpr Bitboard WhitePawnDoublePushMask(int square)
 
 constexpr Bitboard WhitePawnCaptureMask(int square)
 {
+    Bitboard mask = kEmptyBitboard;
+
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
 
-    Bitboard mask = kEmptyBitboard;
     if (rank > 0 && file > 0)
     {
         mask |= SquareMask(rank - 1, file - 1);
@@ -77,10 +84,11 @@ constexpr Bitboard BlackPawnDoublePushMask(int square)
 
 constexpr Bitboard BlackPawnCaptureMask(int square)
 {
+    Bitboard mask = kEmptyBitboard;
+
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
 
-    Bitboard mask = kEmptyBitboard;
     if (rank < 7 && file > 0)
     {
         mask |= SquareMask(rank + 1, file - 1);
@@ -165,9 +173,10 @@ constexpr std::array<int, 8> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
 
 constexpr Bitboard KingMask(int square)
 {
+    Bitboard mask = kEmptyBitboard;
+
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
-    Bitboard mask = kEmptyBitboard;
 
     for (auto i = 0; i < 8; ++i)
     {
@@ -199,9 +208,10 @@ constexpr std::array<int, 8> df_knight = {1, 2, 2, 1, -1, -2, -2, -1};
 
 constexpr Bitboard KnightMask(int square)
 {
+    Bitboard mask = kEmptyBitboard;
+
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
-    Bitboard mask = kEmptyBitboard;
 
     for (auto i = 0; i < 8; ++i)
     {
