@@ -127,19 +127,19 @@ import BlackQueen from "./BlackQueen.vue";
 import BlackKing from "./BlackKing.vue";
 
 const pieceMap = {
-    "0_1": markRaw(WhiteKing),
-    "0_2": markRaw(WhitePawn),
-    "0_3": markRaw(WhiteKnight),
-    "0_4": markRaw(WhiteBishop),
-    "0_5": markRaw(WhiteRook),
-    "0_6": markRaw(WhiteQueen),
+    "0_1": markRaw(WhitePawn),
+    "0_2": markRaw(WhiteKnight),
+    "0_3": markRaw(WhiteBishop),
+    "0_4": markRaw(WhiteRook),
+    "0_5": markRaw(WhiteQueen),
+    "0_6": markRaw(WhiteKing),
 
-    "8_1": markRaw(BlackKing),
-    "8_2": markRaw(BlackPawn),
-    "8_3": markRaw(BlackKnight),
-    "8_4": markRaw(BlackBishop),
-    "8_5": markRaw(BlackRook),
-    "8_6": markRaw(BlackQueen),
+    "8_1": markRaw(BlackPawn),
+    "8_2": markRaw(BlackKnight),
+    "8_3": markRaw(BlackBishop),
+    "8_4": markRaw(BlackRook),
+    "8_5": markRaw(BlackQueen),
+    "8_6": markRaw(BlackKing),
 };
 
 const SAN = [

@@ -20,12 +20,12 @@ enum PieceColor : uint8_t
 enum PieceType : uint8_t
 {
     None = 0,
-    King = 1,
-    Pawn = 2,
-    Knight = 3,
-    Bishop = 4,
-    Rook = 5,
-    Queen = 6,
+    Pawn = 1,
+    Knight = 2,
+    Bishop = 3,
+    Rook = 4,
+    Queen = 5,
+    King = 6,
 };
 
 constexpr Piece MakePiece(PieceColor c, PieceType t)
