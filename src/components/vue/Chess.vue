@@ -256,10 +256,7 @@ export default {
             this.$forceUpdate();
 
             const moves = this.engine.moves();
-            for (let i = 0; i < moves.size(); i++) {
-                const move = moves.get(i);
-                console.log(`from ${move.from} to ${move.to}`);
-            }
+            moves.forEach(m => console.log(m));
         },
         getHash() {
             return (this.engine) ? this.engine.zobrist() : '';
@@ -274,6 +271,10 @@ export default {
             const idx = squareNameToIndex(square.name);
             const val = this.engine.get_board().get(idx);
             this.possibleMoves = this.engine.get_possible_moves(val, idx);
+
+            const moves = this.engine.moves({ square: idx });
+            console.log(moves)
+            moves.forEach(m => console.log(m));
         },
         svgPoint(event) {
             const svg = this.$refs.svgRef;

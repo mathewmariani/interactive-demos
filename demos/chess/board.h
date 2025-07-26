@@ -276,6 +276,62 @@ class Board
         return moves;
     }
 
+    const std::vector<Move> MovesFromSquare(uint8_t square) const
+    {
+        std::vector<Move> moves = {};
+        auto piece = GetPiece(square);
+        auto color = GetPieceColor(piece);
+        if (piece != PieceType::None || color == GetTurn())
+        {
+            auto possible = GetPossibleMoves(piece, square);
+            while (possible)
+            {
+                auto to = MoveFromBitboard(possible);
+                possible &= possible - 1;
+
+                moves.push_back((Move){
+                    .from = (uint8_t)square,
+                    .to = (uint8_t)to,
+                });
+            }
+        }
+
+        return moves;
+    }
+
+    const std::vector<Move> MovesForPiece(Piece piece) const
+    {
+        std::vector<Move> moves = {};
+        const auto type = GetPieceColor(piece);
+        const auto color = GetPieceColor(piece);
+
+        for (auto sq = 0; sq < kNumSquares; sq++)
+        {
+            if (piece != GetPiece(sq))
+            {
+                continue;
+            }
+            auto color = GetPieceColor(piece);
+            if (piece == PieceType::None || color != GetTurn())
+            {
+                continue;
+            }
+
+            auto possible = GetPossibleMoves(piece, sq);
+            while (possible)
+            {
+                auto to = MoveFromBitboard(possible);
+                possible &= possible - 1;
+
+                moves.push_back((Move){
+                    .from = (uint8_t)sq,
+                    .to = (uint8_t)to,
+                });
+            }
+        }
+        return moves;
+    }
+
     const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const
     {
         Bitboard possible_moves = kEmptyBitboard;

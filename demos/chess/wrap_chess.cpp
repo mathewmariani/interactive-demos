@@ -5,6 +5,31 @@
 namespace chess
 {
 
+emscripten::val w_ChessMove(Chess& self, emscripten::val opts)
+{
+    std::vector<Move> moves;
+
+    if (opts.isUndefined() || opts.isNull())
+    {
+        moves = self.Moves();
+    }
+    else if (opts.hasOwnProperty("square"))
+    {
+        auto square = opts["square"].as<uint8_t>();
+        moves = self.MovesFromSquare(square);
+    }
+    else if (opts.hasOwnProperty("piece"))
+    {
+        auto piece = opts["piece"].as<uint8_t>();
+        moves = self.MovesForPiece(piece);
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid moves() argument");
+    }
+
+    return emscripten::val::array(moves);
+}
 EMSCRIPTEN_BINDINGS(chess_module)
 {
     emscripten::enum_<PieceType>("PieceType")
@@ -43,7 +68,7 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("turn", &Chess::GetTurn)
         .function("setTurn", &Chess::SetTurn)
 
-        .function("moves", &Chess::Moves)
+        .function("moves", w_ChessMove)
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("board", &Chess::GetBoard)
