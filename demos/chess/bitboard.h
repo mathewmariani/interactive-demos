@@ -11,13 +11,13 @@ using Bitboard = uint64_t;
 
 constexpr Bitboard SquareMask(int rank, int file)
 {
-    return 1ULL << (rank * kBoardSize + file);
+    return 1ULL << (rank * kNumRanks + file);
 }
 
 constexpr Bitboard WhitePawnPushMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
     if (rank <= 0)
     {
         return kEmptyBitboard;
@@ -27,8 +27,8 @@ constexpr Bitboard WhitePawnPushMask(int square)
 
 constexpr Bitboard WhitePawnDoublePushMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
     if (rank == 6)
     {
         return SquareMask(rank - 2, file);
@@ -38,8 +38,8 @@ constexpr Bitboard WhitePawnDoublePushMask(int square)
 
 constexpr Bitboard WhitePawnCaptureMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
 
     Bitboard mask = kEmptyBitboard;
     if (rank > 0 && file > 0)
@@ -55,8 +55,8 @@ constexpr Bitboard WhitePawnCaptureMask(int square)
 
 constexpr Bitboard BlackPawnPushMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
     if (rank >= 7)
     {
         return kEmptyBitboard;
@@ -66,8 +66,8 @@ constexpr Bitboard BlackPawnPushMask(int square)
 
 constexpr Bitboard BlackPawnDoublePushMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
     if (rank == 1)
     {
         return SquareMask(rank + 2, file);
@@ -77,8 +77,8 @@ constexpr Bitboard BlackPawnDoublePushMask(int square)
 
 constexpr Bitboard BlackPawnCaptureMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
 
     Bitboard mask = kEmptyBitboard;
     if (rank < 7 && file > 0)
@@ -160,20 +160,20 @@ constexpr auto BlackPawnPushMasks = InitBlackPawnPushMasks();
 constexpr auto BlackPawnDoublePushMasks = InitBlackPawnDoublePushMasks();
 constexpr auto BlackPawnCaptureMasks = InitBlackPawnCaptureMasks();
 
-constexpr std::array<int, kBoardSize> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
-constexpr std::array<int, kBoardSize> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
+constexpr std::array<int, 8> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
+constexpr std::array<int, 8> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
 
 constexpr Bitboard KingMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
-    Bitboard mask = 0x0000;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
+    Bitboard mask = kEmptyBitboard;
 
-    for (auto i = 0; i < kBoardSize; ++i)
+    for (auto i = 0; i < 8; ++i)
     {
         auto r = rank + dr_king[i];
         auto f = file + df_king[i];
-        if (r >= 0 && r < kBoardSize && f >= 0 && f < kBoardSize)
+        if (r >= 0 && r < kNumRanks && f >= 0 && f < kNumFiles)
         {
             mask |= SquareMask(r, f);
         }
@@ -184,8 +184,8 @@ constexpr Bitboard KingMask(int square)
 
 constexpr auto InitKingMasks(void)
 {
-    std::array<Bitboard, kBoardSize> masks = {};
-    for (auto sq = 0; sq < kBoardSize; ++sq)
+    std::array<Bitboard, kNumSquares> masks = {};
+    for (auto sq = 0; sq < kNumSquares; ++sq)
     {
         masks[sq] = KingMask(sq);
     }
@@ -194,20 +194,20 @@ constexpr auto InitKingMasks(void)
 
 constexpr auto KingMasks = InitKingMasks();
 
-constexpr std::array<int, kBoardSize> dr_knight = {-2, -1, 1, 2, 2, 1, -1, -2};
-constexpr std::array<int, kBoardSize> df_knight = {1, 2, 2, 1, -1, -2, -2, -1};
+constexpr std::array<int, 8> dr_knight = {-2, -1, 1, 2, 2, 1, -1, -2};
+constexpr std::array<int, 8> df_knight = {1, 2, 2, 1, -1, -2, -2, -1};
 
 constexpr Bitboard KnightMask(int square)
 {
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
     Bitboard mask = kEmptyBitboard;
 
-    for (auto i = 0; i < kBoardSize; ++i)
+    for (auto i = 0; i < 8; ++i)
     {
         auto r = rank + dr_knight[i];
         auto f = file + df_knight[i];
-        if (r >= 0 && r < kBoardSize && f >= 0 && f < kBoardSize)
+        if (r >= 0 && r < kNumRanks && f >= 0 && f < kNumFiles)
         {
             mask |= SquareMask(r, f);
         }
@@ -218,8 +218,8 @@ constexpr Bitboard KnightMask(int square)
 
 constexpr auto InitKnightMasks(void)
 {
-    std::array<Bitboard, kBoardSize> masks = {};
-    for (auto sq = 0; sq < kBoardSize; ++sq)
+    std::array<Bitboard, kNumSquares> masks = {};
+    for (auto sq = 0; sq < kNumSquares; ++sq)
     {
         masks[sq] = KnightMask(sq);
     }
@@ -228,58 +228,118 @@ constexpr auto InitKnightMasks(void)
 
 constexpr auto KnightMasks = InitKnightMasks();
 
-constexpr Bitboard RookMask(int square, const Bitboard blockers)
+constexpr Bitboard BishopMask(int square, const Bitboard blockers)
 {
-    Bitboard attacks = kEmptyBitboard;
+    constexpr int deltas = 4;
+    constexpr std::array<int, deltas> dr = {1, 1, -1, -1};
+    constexpr std::array<int, deltas> df = {1, -1, 1, -1};
 
-    int rank = square / kBoardSize;
-    int file = square % kBoardSize;
+    Bitboard mask = kEmptyBitboard;
 
-    // Up (+8)
-    for (auto r = rank + 1; r < kBoardSize; ++r)
+    const int rank = square / kNumRanks;
+    const int file = square % kNumRanks;
+
+    for (auto dir = 0; dir < deltas; ++dir)
     {
-        auto sq = r * 8 + file;
-        attacks |= (1ULL << sq);
-        if (blockers & (1ULL << sq))
+        auto r = rank;
+        auto f = file;
+
+        while (true)
         {
-            break;
+            r += dr[dir];
+            f += df[dir];
+            if (r < 0 || r >= kNumRanks || f < 0 || f >= kNumFiles)
+            {
+                break;
+            }
+
+            auto sq = r * kNumRanks + f;
+            mask |= (1ULL << sq);
+
+            if (blockers & (1ULL << sq))
+            {
+                break;
+            }
         }
     }
 
-    // Down (-8)
-    for (auto r = rank - 1; r >= 0; --r)
+    return mask;
+}
+
+constexpr Bitboard RookMask(int square, Bitboard blockers)
+{
+    constexpr int deltas = 4;
+    constexpr std::array<int, deltas> dr = {1, -1, 0, 0};
+    constexpr std::array<int, deltas> df = {0, 0, 1, -1};
+
+    Bitboard mask = kEmptyBitboard;
+
+    const int rank = square / kNumRanks;
+    const int file = square % kNumRanks;
+
+    for (auto dir = 0; dir < deltas; ++dir)
     {
-        auto sq = r * kBoardSize + file;
-        attacks |= (1ULL << sq);
-        if (blockers & (1ULL << sq))
+        auto r = rank;
+        auto f = file;
+
+        while (true)
         {
-            break;
+            r += dr[dir];
+            f += df[dir];
+            if (r < 0 || r >= kNumRanks || f < 0 || f >= kNumFiles)
+            {
+                break;
+            }
+
+            auto sq = r * kNumRanks + f;
+            mask |= (1ULL << sq);
+
+            if (blockers & (1ULL << sq))
+            {
+                break;
+            }
         }
     }
 
-    // Right (+1)
-    for (auto f = file + 1; f < kBoardSize; ++f)
+    return mask;
+}
+
+constexpr Bitboard QueenMask(int square, const Bitboard blockers)
+{
+    constexpr int deltas = 8;
+    constexpr std::array<int, deltas> dr = {1, -1, 0, 0, 1, 1, -1, -1};
+    constexpr std::array<int, deltas> df = {0, 0, 1, -1, 1, -1, 1, -1};
+
+    Bitboard mask = kEmptyBitboard;
+
+    const int rank = square / kNumRanks;
+    const int file = square % kNumRanks;
+
+    for (auto dir = 0; dir < deltas; ++dir)
     {
-        auto sq = rank * kBoardSize + f;
-        attacks |= (1ULL << sq);
-        if (blockers & (1ULL << sq))
+        auto r = rank;
+        auto f = file;
+
+        while (true)
         {
-            break;
+            r += dr[dir];
+            f += df[dir];
+            if (r < 0 || r >= kNumRanks || f < 0 || f >= kNumFiles)
+            {
+                break;
+            }
+
+            auto sq = r * kNumRanks + f;
+            mask |= (1ULL << sq);
+
+            if (blockers & (1ULL << sq))
+            {
+                break;
+            }
         }
     }
 
-    // Left (-1)
-    for (auto f = file - 1; f >= 0; --f)
-    {
-        auto sq = rank * kBoardSize + f;
-        attacks |= (1ULL << sq);
-        if (blockers & (1ULL << sq))
-        {
-            break;
-        }
-    }
-
-    return attacks;
+    return mask;
 }
 
 } // namespace chess

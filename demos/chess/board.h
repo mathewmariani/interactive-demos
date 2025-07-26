@@ -301,8 +301,11 @@ class Board
             possible_moves = KnightMasks[square];
             break;
         case PieceType::Bishop:
-            possible_moves = KingMasks[square];
-            break;
+        {
+            auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+            possible_moves = BishopMask(square, blockers);
+        }
+        break;
         case PieceType::Rook:
         {
             auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
@@ -310,8 +313,11 @@ class Board
         }
         break;
         case PieceType::Queen:
-            possible_moves = KingMasks[square];
-            break;
+        {
+            auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+            possible_moves = QueenMask(square, blockers);
+        }
+        break;
         }
 
         // check overlap with same colored pieces

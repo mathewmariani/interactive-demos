@@ -34,9 +34,10 @@ constexpr const char kBlack = 'b';
 constexpr const char kBlackKing = 'k';
 constexpr const char kBlackQueen = 'q';
 
-constexpr int kBoardSize = 8;
+constexpr int kNumRanks = 8; // x
+constexpr int kNumFiles = 8; // y
+constexpr int kNumSquares = kNumRanks * kNumFiles;
 constexpr int kNumPieces = 12;
-constexpr int kNumSquares = 64;
 
 // bitboard
 constexpr uint64_t kEmptyBitboard = 0ULL;
@@ -45,4 +46,4 @@ constexpr uint64_t kEmptyBitboard = 0ULL;
 constexpr int kCastlingBits = 16;
 constexpr int kEnPassentBits = 8;
 
-}
+} // namespace chess
