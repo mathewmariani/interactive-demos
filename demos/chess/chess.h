@@ -22,14 +22,14 @@ class Chess
     void Clear(void);
     void Load(const std::string& fen);
     void Reset(void);
-    void Move(uint8_t from, uint8_t to);
+    bool Move(uint8_t from, uint8_t to);
     void Put(Piece piece, uint8_t square);
     void Remove(uint8_t square);
 
     void Undo(void) { board.UndoMove(); }
     void Redo(void) { board.RedoMove(); }
 
-    const std::vector<uint8_t> GetBoard(void) const;
+    const std::vector<Piece> GetBoard(void) const;
     const std::string GetZobrist(void) const;
 
     Bitboard GetOppcupied(PieceColor color) const { return board.GetOccupied(color); }

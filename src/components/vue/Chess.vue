@@ -45,18 +45,12 @@
                     <!-- interaction -->
                     <rect v-if="square && square.piece" :key="square.name + '-hover'" :x="square.x" :y="square.y"
                         width="1" height="1" fill="transparent" :style="{ cursor: getPieceCursor(square) }"
-                        @click="selectPiece(square)"
-                        @pointerdown="startDrag(square, $event)" />
+                        @pointerdown="onPointerDown(square, $event)" />
                 </template>
 
                 <template v-for="square in squares" :key="square.name + '-piece'">
-                    <circle
-                        v-if="possibleMoves & (1n << BigInt(square.idx))"
-                        :cx="square.x + 0.5"
-                        :cy="square.y + 0.5"
-                        r="0.20"
-                        fill="rgba(200, 214, 229, 0.85)"
-                        />
+                    <circle v-if="possibleMoves & (1n << BigInt(square.idx))" :cx="square.x + 0.5" :cy="square.y + 0.5"
+                        r="0.20" fill="rgba(200, 214, 229, 0.85)" />
                 </template>
 
                 <!-- dragged -->
@@ -170,6 +164,32 @@ function squareNameToIndex(name) {
     return rank * 8 + file;
 }
 
+const kEmptyBitboard = 0n;
+const kPieceColorMask = 0b00001000; // 8
+const kPieceTypeMask = 0b00000111;  // 7
+
+const PieceColor = {
+    WHITE: 0,
+    BLACK: 1,
+};
+
+const PieceType = {
+    PAWN: 1,
+    KNIGHT: 2,
+    BISHOP: 3,
+    ROOK: 4,
+    QUEEN: 5,
+    KING: 6,
+};
+
+function getPieceColor(piece) {
+    return (piece & kPieceColorMask) >> 3;
+}
+
+function getPieceType(piece) {
+    return piece & kPieceTypeMask;
+}
+
 export default {
     data() {
         return {
@@ -186,7 +206,7 @@ export default {
             showKnights: true,
             showPawns: true,
             showKings: true,
-            possibleMoves: 0n,
+            possibleMoves: kEmptyBitboard,
         };
     },
     async beforeCreate() {
@@ -223,12 +243,12 @@ export default {
                         piece: pieceKey,
 
                         // only highlight if corresponding toggle is true
-                        isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== 0n,
-                        isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== 0n,
-                        isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== 0n,
-                        isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== 0n,
-                        isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== 0n,
-                        isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== 0n,
+                        isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                     });
                 }
             }
@@ -270,6 +290,12 @@ export default {
             this.selectedSquare = square;
             const idx = squareNameToIndex(square.name);
             const val = this.engine.get_board().get(idx);
+
+            if (this.engine.turn().value != getPieceColor(val)) {
+                this.possibleMoves = kEmptyBitboard;
+                return;
+            }
+
             this.possibleMoves = this.engine.get_possible_moves(val, idx);
 
             const moves = this.engine.moves({ square: idx });
@@ -283,9 +309,11 @@ export default {
             pt.y = event.clientY;
             return pt.matrixTransform(svg.getScreenCTM().inverse());
         },
-        startDrag(square, event) {
+        onPointerDown(square, event) {
             event.preventDefault();
             const pointer = this.svgPoint(event);
+
+            this.selectPiece(square);
 
             this.draggingSquare = square.name;
             this.dragStartSquare = square;
@@ -323,9 +351,11 @@ export default {
 
             console.log(`Moved ${draggingIndex} to ${newIndex}`);
 
-            this.engine.move(draggingIndex, newIndex);
-            this.boardVersion++;
-            this.$forceUpdate();
+            if (this.engine.move(draggingIndex, newIndex)) {
+                this.possibleMoves = kEmptyBitboard;
+                this.boardVersion++;
+                this.$forceUpdate();
+            }
 
             delete this.dragPositions[this.draggingSquare];
             this.draggingSquare = null;

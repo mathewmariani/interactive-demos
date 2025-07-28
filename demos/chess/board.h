@@ -147,12 +147,12 @@ class Board
         }
     }
 
-    void MovePiece(uint8_t from, uint8_t to)
+    bool MovePiece(uint8_t from, uint8_t to)
     {
         if (from == to)
-            return;
+            return false;
         if (from < 0 || from >= 64 || to < 0 || to >= 64)
-            throw std::out_of_range("Move indices out of range");
+            return false;
 
         Piece moving = squares[from];
         Piece captured = squares[to];
@@ -162,7 +162,7 @@ class Board
 
         if (moving_color != turn)
         {
-            return;
+            return false;
         }
 
         // check square for piece
@@ -192,6 +192,8 @@ class Board
         redo_stack.clear();
 
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+
+        return true;
     }
 
     void UndoMove(void)
@@ -412,7 +414,7 @@ class Board
         return possible_moves;
     }
 
-    const uint8_t* Data(void) const
+    const Piece* Data(void) const
     {
         return squares;
     }
