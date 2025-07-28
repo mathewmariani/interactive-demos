@@ -33,6 +33,8 @@
                         fill="rgba(255, 107, 107, 0.85)" />
                     <rect v-if="square.isKing" v-show="showKings" :x="square.x" :y="square.y" width="1" height="1"
                         fill="rgba(255, 140, 0, 0.85)" />
+                    <rect v-if="square.isAttacking" v-show="showAttacking" :x="square.x" :y="square.y" width="1" height="1"
+                        fill="rgba(255, 107, 107, 0.85)" />
                 </template>
 
                 <!-- pieces -->
@@ -96,6 +98,10 @@
             <div class="form-check">
                 <input type="checkbox" id="showKings" class="form-check-input" v-model="showKings" />
                 <label for="showKings" class="form-check-label">Show Kings</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="showAttacking" class="form-check-input" v-model="showAttacking" />
+                <label for="showAttacking" class="form-check-label">Show Attacking</label>
             </div>
         </div>
 
@@ -206,6 +212,7 @@ export default {
             showKnights: true,
             showPawns: true,
             showKings: true,
+            showAttacking: true,
             possibleMoves: kEmptyBitboard,
         };
     },
@@ -224,6 +231,7 @@ export default {
             const knightBits = this.engine.get_knights();
             const pawnBits = this.engine.get_pawns();
             const kingBits = this.engine.get_kings();
+            const attackingBits = this.engine.attacking();
             const squares = [];
             for (let rank = 8; rank >= 1; rank--) {
                 for (let file = 0; file < 8; file++) {
@@ -249,6 +257,7 @@ export default {
                         isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                         isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                         isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        isAttacking: this.showAttacking && (attackingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                     });
                 }
             }

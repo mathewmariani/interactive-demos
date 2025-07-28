@@ -35,6 +35,31 @@ class Board
         hash = computeZobristHash(squares, turn, 0x0, 0);
     }
 
+    bool IsValidMove(int from, int to)
+    {
+        auto piece = GetPiece(from);
+        auto possible = GetPossibleMoves(piece, from);
+        return (possible & (1ULL << to)) != 0;
+    }
+
+    Bitboard GetAttacking() const
+    {
+        Bitboard bitboard = kEmptyBitboard;
+        for (auto i = 0; i < kNumSquares; i++)
+        {
+            auto piece = GetPiece(i);
+            auto color = GetPieceColor(piece);
+            if ((piece == PieceType::None) || (color == GetTurn()))
+            {
+                continue;
+            };
+
+            bitboard |= GetPossibleMoves(piece, i);
+        }
+
+        return bitboard;
+    }
+
     const Bitboard GetOccupied(const PieceColor color) const
     {
         return rooks[color] | bishops[color] | queens[color] |
@@ -149,31 +174,26 @@ class Board
 
     bool MovePiece(uint8_t from, uint8_t to)
     {
-        if (from == to)
+        if ((from == to) || (from < 0 || from >= 64 || to < 0 || to >= 64))
+        {
             return false;
-        if (from < 0 || from >= 64 || to < 0 || to >= 64)
+        }
+
+        auto moving = squares[from];
+        auto captured = squares[to];
+
+        if (!IsValidMove(from, to))
+        {
             return false;
+        }
 
-        Piece moving = squares[from];
-        Piece captured = squares[to];
-
-        PieceType moving_type = GetPieceType(moving);
-        PieceColor moving_color = GetPieceColor(moving);
+        auto moving_type = GetPieceType(moving);
+        auto moving_color = GetPieceColor(moving);
 
         if (moving_color != turn)
         {
             return false;
         }
-
-        // check square for piece
-        // auto current_piece = board.GetPiece(to);
-        // if (moving_type != PieceType::None)
-        // {
-        //     if (GetPieceColor(current_piece) == turn)
-        //     {
-        //         return;
-        //     }
-        // }
 
         // update the hash
         hash ^= zobrist.psq[moving][from];
@@ -230,8 +250,8 @@ class Board
         auto next = redo_stack.back();
         redo_stack.pop_back();
 
-        Piece moving = squares[next.move.from];
-        Piece captured = next.captured;
+        auto moving = squares[next.move.from];
+        auto captured = next.captured;
 
         // update the hash
         hash ^= zobrist.psq[moving][next.move.from];
@@ -341,10 +361,10 @@ class Board
         const auto type = GetPieceType(piece);
         const auto color = GetPieceColor(piece);
 
-        const PieceColor opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
+        const auto opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
 
-        const Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
-        const Bitboard enemy = GetOccupied(opponent);
+        const auto empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
+        const auto enemy = GetOccupied(opponent);
 
         switch (type)
         {

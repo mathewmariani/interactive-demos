@@ -1,13 +1,9 @@
 #pragma once
 
+#include "consts.h"
+
 namespace chess
 {
-
-static constexpr const int kWhiteIndex = 0;
-static constexpr const int kBlackIndex = 1;
-
-static constexpr const uint8_t kPieceTypeMask = 0b00000111;
-static constexpr const uint8_t kPieceColorMask = 0b00001000;
 
 using Piece = uint8_t;
 
@@ -55,7 +51,7 @@ constexpr const Piece WhiteRook = MakePiece(PieceColor::White, PieceType::Rook);
 constexpr const Piece WhiteQueen = MakePiece(PieceColor::White, PieceType::Queen);
 constexpr const Piece WhiteKing = MakePiece(PieceColor::White, PieceType::King);
 
-// black pconst ieces
+// black pieces
 constexpr const Piece BlackPawn = MakePiece(PieceColor::Black, PieceType::Pawn);
 constexpr const Piece BlackKnight = MakePiece(PieceColor::Black, PieceType::Knight);
 constexpr const Piece BlackBishop = MakePiece(PieceColor::Black, PieceType::Bishop);

@@ -32,6 +32,7 @@ class Chess
     const std::vector<Piece> GetBoard(void) const;
     const std::string GetZobrist(void) const;
 
+    Bitboard GetAttacking() const { return board.GetAttacking(); }
     Bitboard GetOppcupied(PieceColor color) const { return board.GetOccupied(color); }
     Bitboard GetRooks(void) const { return board.GetRooks(); }
     Bitboard GetBishops(void) const { return board.GetBishops(); }

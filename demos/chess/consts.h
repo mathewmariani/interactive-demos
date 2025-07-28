@@ -34,6 +34,11 @@ constexpr const char kBlack = 'b';
 constexpr const char kBlackKing = 'k';
 constexpr const char kBlackQueen = 'q';
 
+constexpr const int kWhiteIndex = 0;
+constexpr const int kBlackIndex = 1;
+constexpr const uint8_t kPieceTypeMask = 0b00000111;
+constexpr const uint8_t kPieceColorMask = 0b00001000;
+
 constexpr int kNumRanks = 8; // x
 constexpr int kNumFiles = 8; // y
 constexpr int kNumSquares = kNumRanks * kNumFiles;
