@@ -42,24 +42,6 @@ class Board
         return (possible & (1ULL << to)) != 0;
     }
 
-    Bitboard GetAttacking() const
-    {
-        Bitboard bitboard = kEmptyBitboard;
-        for (auto i = 0; i < kNumSquares; i++)
-        {
-            auto piece = GetPiece(i);
-            auto color = GetPieceColor(piece);
-            if ((piece == PieceType::None) || (color == GetTurn()))
-            {
-                continue;
-            };
-
-            bitboard |= GetPossibleMoves(piece, i);
-        }
-
-        return bitboard;
-    }
-
     const Bitboard GetOccupied(const PieceColor color) const
     {
         return rooks[color] | bishops[color] | queens[color] |
@@ -357,6 +339,62 @@ class Board
             }
         }
         return moves;
+    }
+
+    Bitboard GetAttacking() const
+    {
+        Bitboard attacks = kEmptyBitboard;
+
+        auto occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+
+        for (auto i = 0; i < kNumSquares; ++i)
+        {
+            auto piece = GetPiece(i);
+            if (piece == PieceType::None)
+            {
+                continue;
+            }
+
+            auto color = GetPieceColor(piece);
+            if (color == GetTurn())
+            {
+                continue;
+            }
+
+            switch (GetPieceType(piece))
+            {
+            case PieceType::Pawn:
+                attacks |= (color == PieceColor::White)
+                               ? WhitePawnCaptureMasks[i]
+                               : BlackPawnCaptureMasks[i];
+                break;
+
+            case PieceType::Knight:
+                attacks |= KnightMasks[i];
+                break;
+
+            case PieceType::Bishop:
+                attacks |= BishopMask(i, occupancy);
+                break;
+
+            case PieceType::Rook:
+                attacks |= RookMask(i, occupancy);
+                break;
+
+            case PieceType::Queen:
+                attacks |= QueenMask(i, occupancy);
+                break;
+
+            case PieceType::King:
+                attacks |= KingMasks[i];
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        return attacks;
     }
 
     const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const
