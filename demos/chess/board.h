@@ -14,6 +14,7 @@ namespace chess
 
 struct Move
 {
+    Piece piece;
     uint8_t from;
     uint8_t to;
 };
@@ -22,7 +23,6 @@ struct Undo
 {
     Move move;
     Piece captured;
-    uint64_t hash;
 };
 
 class Board
@@ -187,15 +187,17 @@ class Board
             return false;
         }
 
-        auto moving_type = GetPieceType(moving);
-        auto moving_color = GetPieceColor(moving);
-
-        if (moving_color != turn)
+        if (GetPieceColor(moving) != GetTurn())
         {
             return false;
         }
 
+        // cache move
+        undo_stack.push_back(Undo{{moving, from, to}, captured});
+        redo_stack.clear();
+
         // update the hash
+        auto cached_hash = hash;
         hash ^= zobrist.psq[moving][from];
         hash ^= zobrist.psq[moving][to];
         hash ^= zobrist.side;
@@ -204,12 +206,10 @@ class Board
             hash ^= zobrist.psq[captured][to];
         }
 
+        // move pieces
         RemovePiece(to);
         RemovePiece(from);
         AddPiece(moving, to);
-
-        undo_stack.push_back(Undo{{from, to}, captured, hash});
-        redo_stack.clear();
 
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 
@@ -226,14 +226,21 @@ class Board
         auto prev = undo_stack.back();
         undo_stack.pop_back();
 
-        auto piece = squares[prev.move.to];
+        // move pieces
         RemovePiece(prev.move.to);
         RemovePiece(prev.move.from);
-
-        AddPiece(piece, prev.move.from);
+        AddPiece(prev.move.piece, prev.move.from);
         AddPiece(prev.captured, prev.move.to);
 
-        hash = prev.hash;
+        // update the hash
+        auto cached_hash = hash;
+        hash ^= zobrist.psq[prev.move.piece][prev.move.from];
+        hash ^= zobrist.psq[prev.move.piece][prev.move.to];
+        hash ^= zobrist.side;
+        if (prev.captured != PieceType::None)
+        {
+            hash ^= zobrist.psq[prev.captured][prev.move.to];
+        }
 
         redo_stack.push_back(prev);
 
@@ -250,21 +257,19 @@ class Board
         auto next = redo_stack.back();
         redo_stack.pop_back();
 
-        auto moving = squares[next.move.from];
-        auto captured = next.captured;
-
-        // update the hash
-        hash ^= zobrist.psq[moving][next.move.from];
-        hash ^= zobrist.psq[moving][next.move.to];
-        hash ^= zobrist.side;
-        if (captured != PieceType::None)
-        {
-            hash ^= zobrist.psq[captured][next.move.to];
-        }
-
+        // move pieces
         RemovePiece(next.move.to);
         RemovePiece(next.move.from);
-        AddPiece(moving, next.move.to);
+        AddPiece(next.move.piece, next.move.to);
+
+        // update the hash
+        hash ^= zobrist.psq[next.move.piece][next.move.from];
+        hash ^= zobrist.psq[next.move.piece][next.move.to];
+        hash ^= zobrist.side;
+        if (next.captured != PieceType::None)
+        {
+            hash ^= zobrist.psq[next.captured][next.move.to];
+        }
 
         undo_stack.push_back(next);
 
