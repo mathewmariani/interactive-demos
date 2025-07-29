@@ -258,6 +258,29 @@ class Board
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
+    bool InCheck(void) const
+    {
+        auto attacking = GetAttacking();
+        auto king = kings[GetTurn()];
+        return (king & attacking) != 0;
+    }
+
+    bool IsCheckmate() const
+    {
+        if (!InCheck())
+        {
+            return false;
+        }
+
+        auto square = MoveFromBitboard(kings[GetTurn()]);
+        auto king_moves = KingMasks[square] & ~GetOccupied(GetTurn());
+        auto safe_moves = king_moves & ~GetAttacking();
+
+        // FIXME: need to know if we can capture the piece checking us
+
+        return safe_moves == kEmptyBitboard;
+    }
+
     const std::vector<Move> Moves() const
     {
         std::vector<Move> moves = {};
@@ -278,7 +301,7 @@ class Board
 
                 moves.push_back((Move){
                     .from = (uint8_t)sq,
-                    .to = (uint8_t)to,
+                    .to = to,
                 });
             }
         }
@@ -299,8 +322,8 @@ class Board
                 possible &= possible - 1;
 
                 moves.push_back((Move){
-                    .from = (uint8_t)square,
-                    .to = (uint8_t)to,
+                    .from = square,
+                    .to = to,
                 });
             }
         }
@@ -334,7 +357,7 @@ class Board
 
                 moves.push_back((Move){
                     .from = (uint8_t)sq,
-                    .to = (uint8_t)to,
+                    .to = to,
                 });
             }
         }
@@ -414,8 +437,11 @@ class Board
         case PieceType::None:
             break;
         case PieceType::King:
+        {
             possible_moves = KingMasks[square];
-            break;
+            possible_moves &= ~GetAttacking();
+        }
+        break;
         case PieceType::Pawn:
         {
             Bitboard push = kEmptyBitboard;

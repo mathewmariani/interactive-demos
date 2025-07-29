@@ -72,6 +72,8 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("attacking", &Chess::GetAttacking)
+        .function("inCheck", &Chess::InCheck)
+        .function("isCheckmate", &Chess::InCheckmate)
 
         .function("board", &Chess::GetBoard)
         .function("clear", &Chess::Clear)

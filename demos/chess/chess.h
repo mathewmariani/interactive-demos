@@ -44,6 +44,9 @@ class Chess
     const PieceColor GetTurn(void) const { return board.GetTurn(); }
     void SetTurn(const PieceColor color) { return board.SetTurn(color); }
 
+    bool InCheck(void) const { return board.InCheck(); }
+    bool InCheckmate(void) const { return board.IsCheckmate(); }
+
     const std::vector<chess::Move> Moves() const { return board.Moves(); }
     const std::vector<chess::Move> MovesFromSquare(uint8_t square) const { return board.MovesFromSquare(square); }
     const std::vector<chess::Move> MovesForPiece(Piece piece) const { return board.MovesForPiece(piece); }

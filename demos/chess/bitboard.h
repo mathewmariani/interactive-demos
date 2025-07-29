@@ -15,9 +15,9 @@ constexpr Bitboard SquareMask(int rank, int file)
     return 1ULL << (rank * kNumRanks + file);
 }
 
-constexpr int MoveFromBitboard(const Bitboard bitboard)
+constexpr uint8_t MoveFromBitboard(const Bitboard bitboard)
 {
-    return std::countr_zero(bitboard);
+    return static_cast<uint8_t>(std::countr_zero(bitboard));
 }
 
 constexpr Bitboard WhitePawnPushMask(int square)
@@ -168,52 +168,18 @@ constexpr auto BlackPawnPushMasks = InitBlackPawnPushMasks();
 constexpr auto BlackPawnDoublePushMasks = InitBlackPawnDoublePushMasks();
 constexpr auto BlackPawnCaptureMasks = InitBlackPawnCaptureMasks();
 
-constexpr std::array<int, 8> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
-constexpr std::array<int, 8> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
-
-constexpr Bitboard KingMask(int square)
-{
-    Bitboard mask = kEmptyBitboard;
-
-    int rank = square / kNumRanks;
-    int file = square % kNumRanks;
-
-    for (auto i = 0; i < 8; ++i)
-    {
-        auto r = rank + dr_king[i];
-        auto f = file + df_king[i];
-        if (r >= 0 && r < kNumRanks && f >= 0 && f < kNumFiles)
-        {
-            mask |= SquareMask(r, f);
-        }
-    }
-
-    return mask;
-}
-
-constexpr auto InitKingMasks(void)
-{
-    std::array<Bitboard, kNumSquares> masks = {};
-    for (auto sq = 0; sq < kNumSquares; ++sq)
-    {
-        masks[sq] = KingMask(sq);
-    }
-    return masks;
-}
-
-constexpr auto KingMasks = InitKingMasks();
-
-constexpr std::array<int, 8> dr_knight = {-2, -1, 1, 2, 2, 1, -1, -2};
-constexpr std::array<int, 8> df_knight = {1, 2, 2, 1, -1, -2, -2, -1};
-
 constexpr Bitboard KnightMask(int square)
 {
     Bitboard mask = kEmptyBitboard;
 
+    constexpr int deltas = 8;
+    constexpr std::array<int, deltas> dr_knight = {-2, -1, 1, 2, 2, 1, -1, -2};
+    constexpr std::array<int, deltas> df_knight = {1, 2, 2, 1, -1, -2, -2, -1};
+
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
 
-    for (auto i = 0; i < 8; ++i)
+    for (auto i = 0; i < deltas; ++i)
     {
         auto r = rank + dr_knight[i];
         auto f = file + df_knight[i];
@@ -348,6 +314,67 @@ constexpr Bitboard QueenMask(int square, const Bitboard blockers)
             }
         }
     }
+
+    return mask;
+}
+
+constexpr std::array<int, 8> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
+constexpr std::array<int, 8> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
+
+constexpr Bitboard KingMask(int square)
+{
+    Bitboard mask = kEmptyBitboard;
+
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
+
+    for (auto i = 0; i < 8; ++i)
+    {
+        auto r = rank + dr_king[i];
+        auto f = file + df_king[i];
+        if (r >= 0 && r < kNumRanks && f >= 0 && f < kNumFiles)
+        {
+            mask |= SquareMask(r, f);
+        }
+    }
+
+    return mask;
+}
+
+constexpr auto InitKingMasks(void)
+{
+    std::array<Bitboard, kNumSquares> masks = {};
+    for (auto sq = 0; sq < kNumSquares; ++sq)
+    {
+        masks[sq] = KingMask(sq);
+    }
+    return masks;
+}
+
+constexpr auto KingMasks = InitKingMasks();
+
+constexpr Bitboard KingMask(int square, Bitboard attackers)
+{
+    constexpr int deltas = 8;
+    constexpr std::array<int, deltas> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
+    constexpr std::array<int, deltas> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
+
+    Bitboard mask = kEmptyBitboard;
+
+    int rank = square / kNumRanks;
+    int file = square % kNumRanks;
+
+    for (auto i = 0; i < deltas; ++i)
+    {
+        auto r = rank + dr_king[i];
+        auto f = file + df_king[i];
+        if (r >= 0 && r < kNumRanks && f >= 0 && f < kNumFiles)
+        {
+            mask |= SquareMask(r, f);
+        }
+    }
+
+    mask &= ~attackers;
 
     return mask;
 }
