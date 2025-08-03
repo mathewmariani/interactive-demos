@@ -32,7 +32,7 @@ class Board
 
     void Initialize(void)
     {
-        hash = computeZobristHash(squares, turn, 0x0, 0);
+        hash = ComputeZobristHash(squares, turn, castlingRights, 0);
     }
 
     bool IsValidMove(int from, int to)
@@ -48,14 +48,14 @@ class Board
                knights[color] | pawns[color] | kings[color];
     }
 
-    const Bitboard GetRooks() const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
-    const Bitboard GetBishops() const { return bishops[kWhiteIndex] | bishops[kBlackIndex]; }
-    const Bitboard GetQueens() const { return queens[kWhiteIndex] | queens[kBlackIndex]; }
-    const Bitboard GetKnights() const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
-    const Bitboard GetPawns() const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
-    const Bitboard GetKings() const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
+    const Bitboard GetRooks(void) const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
+    const Bitboard GetBishops(void) const { return bishops[kWhiteIndex] | bishops[kBlackIndex]; }
+    const Bitboard GetQueens(void) const { return queens[kWhiteIndex] | queens[kBlackIndex]; }
+    const Bitboard GetKnights(void) const { return knights[kWhiteIndex] | knights[kBlackIndex]; }
+    const Bitboard GetPawns(void) const { return pawns[kWhiteIndex] | pawns[kBlackIndex]; }
+    const Bitboard GetKings(void) const { return kings[kWhiteIndex] | kings[kBlackIndex]; }
 
-    const PieceColor GetTurn() const { return turn; }
+    const PieceColor GetTurn(void) const { return turn; }
     void SetTurn(const PieceColor color) { turn = color; }
 
     void Clear(void)
@@ -152,6 +152,16 @@ class Board
             queens[color] &= ~(1ULL << square);
             break;
         }
+    }
+
+    uint8_t GetCastlingRights(void) const
+    {
+        return castlingRights;
+    }
+
+    void SetCastlingRights(uint8_t rights)
+    {
+        castlingRights |= rights;
     }
 
     bool MovePiece(uint8_t from, uint8_t to)
@@ -265,7 +275,7 @@ class Board
         return (king & attacking) != 0;
     }
 
-    bool IsCheckmate() const
+    bool IsCheckmate(void) const
     {
         if (!InCheck())
         {
@@ -281,7 +291,7 @@ class Board
         return safe_moves == kEmptyBitboard;
     }
 
-    const std::vector<Move> Moves() const
+    const std::vector<Move> Moves(void) const
     {
         std::vector<Move> moves = {};
         for (auto sq = 0; sq < kNumSquares; sq++)
@@ -364,7 +374,7 @@ class Board
         return moves;
     }
 
-    Bitboard GetAttacking() const
+    Bitboard GetAttacking(void) const
     {
         Bitboard attacks = kEmptyBitboard;
 
@@ -517,6 +527,7 @@ class Board
 
   private:
     PieceColor turn;
+    uint8_t castlingRights;
 
     Piece squares[64];
     Bitboard rooks[2];

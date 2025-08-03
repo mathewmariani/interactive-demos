@@ -68,6 +68,9 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("turn", &Chess::GetTurn)
         .function("setTurn", &Chess::SetTurn)
 
+        .function("CastlingRights", &Chess::GetCastlingRights)
+        .function("setCastlingRights", &Chess::SetCastlingRights)
+
         .function("moves", w_ChessMove)
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 

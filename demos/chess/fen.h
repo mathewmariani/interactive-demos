@@ -106,6 +106,23 @@ static void loadFromFEN(const std::string& fen, Board* chess)
     printf("Black can castle kingside: %d\n", (castlingRights.find(kBlackKing) != std::string::npos));
     printf("Black can castle queenside: %d\n", (castlingRights.find(kBlackQueen) != std::string::npos));
 
+    if (castlingRights.find(kWhiteKing) != std::string::npos)
+    {
+        chess->SetCastlingRights(CastlingRights::WhiteKingSide);
+    }
+    if (castlingRights.find(kWhiteQueen) != std::string::npos)
+    {
+        chess->SetCastlingRights(CastlingRights::WhiteQueenSide);
+    }
+    if (castlingRights.find(kBlackKing) != std::string::npos)
+    {
+        chess->SetCastlingRights(CastlingRights::BlackKingSide);
+    }
+    if (castlingRights.find(kBlackQueen) != std::string::npos)
+    {
+        chess->SetCastlingRights(CastlingRights::BlackQueenSide);
+    }
+
     if (fen[i] == ' ')
     {
         ++i;

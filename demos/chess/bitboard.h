@@ -318,17 +318,18 @@ constexpr Bitboard QueenMask(int square, const Bitboard blockers)
     return mask;
 }
 
-constexpr std::array<int, 8> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
-constexpr std::array<int, 8> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
-
 constexpr Bitboard KingMask(int square)
 {
+    constexpr int deltas = 8;
+    constexpr std::array<int, deltas> dr_king = {-1, -1, -1, 0, 1, 1, 1, 0};
+    constexpr std::array<int, deltas> df_king = {-1, 0, 1, 1, 1, 0, -1, -1};
+
     Bitboard mask = kEmptyBitboard;
 
     int rank = square / kNumRanks;
     int file = square % kNumRanks;
 
-    for (auto i = 0; i < 8; ++i)
+    for (auto i = 0; i < deltas; ++i)
     {
         auto r = rank + dr_king[i];
         auto f = file + df_king[i];

@@ -24,6 +24,14 @@ enum PieceType : uint8_t
     King = 6,
 };
 
+enum CastlingRights : uint8_t
+{
+    WhiteKingSide = (1 << 0),
+    WhiteQueenSide = (1 << 1),
+    BlackKingSide = (1 << 2),
+    BlackQueenSide = (1 << 3),
+};
+
 constexpr Piece MakePiece(PieceColor c, PieceType t)
 {
     if (t == PieceType::None)

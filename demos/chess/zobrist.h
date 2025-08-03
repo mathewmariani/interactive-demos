@@ -57,34 +57,34 @@ struct Zobrist
 
 constexpr Zobrist zobrist = Zobrist();
 
-constexpr uint64_t computeZobristHash(const Piece board[kNumSquares],
+constexpr uint64_t ComputeZobristHash(const Piece board[kNumSquares],
                                       const PieceColor turn,
                                       uint8_t castlingRights,
                                       int epFile)
 {
-    uint64_t k = 0;
+    uint64_t hash = 0;
 
     for (auto sq = 0; sq < kNumSquares; ++sq)
     {
         if (board[sq] != PieceType::None)
         {
-            k ^= zobrist.psq[board[sq] - 1][sq]; // -1 because EMPTY=0
+            hash ^= zobrist.psq[board[sq] - 1][sq]; // -1 because EMPTY=0
         }
     }
 
     if (!turn)
     {
-        k ^= zobrist.side;
+        hash ^= zobrist.side;
     }
 
-    k ^= zobrist.castling[castlingRights];
+    hash ^= zobrist.castling[castlingRights];
 
     if (epFile >= 0)
     {
-        k ^= zobrist.enpassant[epFile];
+        hash ^= zobrist.enpassant[epFile];
     }
 
-    return k;
+    return hash;
 }
 
 } // namespace chess

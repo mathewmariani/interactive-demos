@@ -37,6 +37,12 @@
                         fill="rgba(255, 107, 107, 0.85)" />
                 </template>
 
+                <!-- square name -->
+                <text v-for="square in squares" :key="square.name + '-debug'" :x="square.x + 0.05" :y="square.y + 0.95"
+                    font-size="0.2" fill="red">
+                    {{ square.san || "" }}
+                </text>
+
                 <!-- pieces -->
                 <template v-for="square in squares" :key="square.name + '-piece'">
                     <g v-if="square && square.piece && square.name !== draggingSquare" :key="square.name + '-piece'"
@@ -62,12 +68,6 @@
                         <component :is="pieceMap[square.piece]" />
                     </g>
                 </template>
-
-                <!-- debug -->
-                <text v-for="square in squares" :key="square.name + '-debug'" :x="square.x + 0.05" :y="square.y + 0.95"
-                    font-size="0.2" fill="red">
-                    {{ square.san || "" }}
-                </text>
             </svg>
         </div>
 

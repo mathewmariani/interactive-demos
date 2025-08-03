@@ -44,6 +44,9 @@ class Chess
     const PieceColor GetTurn(void) const { return board.GetTurn(); }
     void SetTurn(const PieceColor color) { return board.SetTurn(color); }
 
+    const uint8_t GetCastlingRights(void) const { return board.GetCastlingRights(); }
+    void SetCastlingRights(uint8_t rights) { return board.SetCastlingRights(rights); }
+
     bool InCheck(void) const { return board.InCheck(); }
     bool InCheckmate(void) const { return board.IsCheckmate(); }
 
