@@ -59,7 +59,7 @@ constexpr Zobrist zobrist = Zobrist();
 
 constexpr uint64_t ComputeZobristHash(const Piece board[kNumSquares],
                                       const PieceColor turn,
-                                      uint8_t castlingRights,
+                                      const CastlingRights castlingRights,
                                       int epFile)
 {
     uint64_t hash = 0;
@@ -77,7 +77,7 @@ constexpr uint64_t ComputeZobristHash(const Piece board[kNumSquares],
         hash ^= zobrist.side;
     }
 
-    hash ^= zobrist.castling[castlingRights];
+    hash ^= zobrist.castling[static_cast<uint8_t>(castlingRights)];
 
     if (epFile >= 0)
     {

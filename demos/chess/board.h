@@ -23,6 +23,7 @@ struct Undo
 {
     Move move;
     Piece captured;
+    CastlingRights castlingRights;
 };
 
 class Board
@@ -32,7 +33,6 @@ class Board
 
     void Initialize(void)
     {
-        castlingRights = 0b1111;
         hash = ComputeZobristHash(squares, turn, castlingRights, 0);
     }
 
@@ -155,12 +155,12 @@ class Board
         }
     }
 
-    uint8_t GetCastlingRights(void) const
+    CastlingRights GetCastlingRights(void) const
     {
         return castlingRights;
     }
 
-    void SetCastlingRights(uint8_t rights)
+    void SetCastlingRights(CastlingRights rights)
     {
         castlingRights |= rights;
     }
@@ -186,7 +186,7 @@ class Board
         }
 
         // cache move
-        undo_stack.push_back(Undo{{moving, from, to}, captured});
+        undo_stack.push_back(Undo{{moving, from, to}, captured, castlingRights});
         redo_stack.clear();
 
         // update the hash
@@ -274,6 +274,9 @@ class Board
         AddPiece(prev.move.piece, prev.move.from);
         AddPiece(prev.captured, prev.move.to);
 
+        // game state
+        castlingRights = prev.castlingRights;
+
         // update the hash
         auto cached_hash = hash;
         hash ^= zobrist.psq[prev.move.piece][prev.move.from];
@@ -303,6 +306,9 @@ class Board
         RemovePiece(next.move.to);
         RemovePiece(next.move.from);
         AddPiece(next.move.piece, next.move.to);
+
+        // game state
+        // castlingRights = next.castlingRights;
 
         // update the hash
         hash ^= zobrist.psq[next.move.piece][next.move.from];
@@ -553,6 +559,36 @@ class Board
         {
             possible_moves = KingMasks[square];
             possible_moves &= ~GetAttacking();
+
+            switch (color)
+            {
+            case PieceColor::White:
+            {
+                bool canWhiteCastleKingSide = (castlingRights & CastlingRights::WhiteKingSide) != CastlingRights::None;
+                if (canWhiteCastleKingSide)
+                {
+                    possible_moves |= 1ULL << G1;
+                }
+                bool canWhiteCastleQueenSide = (castlingRights & CastlingRights::WhiteQueenSide) != CastlingRights::None;
+                if (canWhiteCastleQueenSide)
+                {
+                    possible_moves |= 1ULL << C1;
+                }
+                break;
+            }
+            case PieceColor::Black:
+                bool canBlackCastleKingSide = (castlingRights & CastlingRights::BlackKingSide) != CastlingRights::None;
+                if (canBlackCastleKingSide)
+                {
+                    possible_moves |= 1ULL << G8;
+                }
+                bool canBlackCastleQueenSide = (castlingRights & CastlingRights::BlackQueenSide) != CastlingRights::None;
+                if (canBlackCastleQueenSide)
+                {
+                    possible_moves |= 1ULL << C8;
+                }
+                break;
+            }
         }
         break;
         }
@@ -577,7 +613,7 @@ class Board
 
   private:
     PieceColor turn;
-    uint8_t castlingRights;
+    CastlingRights castlingRights;
 
     Piece squares[64];
     Bitboard rooks[2];

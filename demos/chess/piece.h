@@ -24,13 +24,44 @@ enum PieceType : uint8_t
     King = 6,
 };
 
-enum CastlingRights : uint8_t
+enum class CastlingRights : uint8_t
 {
+    None = 0,
     WhiteKingSide = (1 << 0),
     WhiteQueenSide = (1 << 1),
     BlackKingSide = (1 << 2),
     BlackQueenSide = (1 << 3),
 };
+
+inline CastlingRights operator|(CastlingRights lhs, CastlingRights rhs)
+{
+    return static_cast<CastlingRights>(
+        static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+}
+
+inline CastlingRights operator&(CastlingRights lhs, CastlingRights rhs)
+{
+    return static_cast<CastlingRights>(
+        static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+}
+
+inline CastlingRights operator~(CastlingRights val)
+{
+    return static_cast<CastlingRights>(
+        ~static_cast<uint8_t>(val));
+}
+
+inline CastlingRights& operator|=(CastlingRights& lhs, CastlingRights rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
+}
+
+inline CastlingRights& operator&=(CastlingRights& lhs, CastlingRights rhs)
+{
+    lhs = lhs & rhs;
+    return lhs;
+}
 
 constexpr Piece MakePiece(PieceColor c, PieceType t)
 {
