@@ -32,6 +32,7 @@ class Board
 
     void Initialize(void)
     {
+        castlingRights = 0b1111;
         hash = ComputeZobristHash(squares, turn, castlingRights, 0);
     }
 
@@ -202,6 +203,55 @@ class Board
         RemovePiece(to);
         RemovePiece(from);
         AddPiece(moving, to);
+
+        // castling rights
+        const auto type = GetPieceType(moving);
+        const auto color = GetPieceColor(moving);
+        switch (type)
+        {
+        case PieceType::Rook:
+        {
+            switch (color)
+            {
+            case PieceColor::White:
+                if (from == H1)
+                {
+                    castlingRights &= ~CastlingRights::WhiteKingSide;
+                }
+                else if (from == A1)
+                {
+                    castlingRights &= ~CastlingRights::WhiteQueenSide;
+                }
+                break;
+            case PieceColor::Black:
+                if (from == H8)
+                {
+                    castlingRights &= ~CastlingRights::BlackKingSide;
+                }
+                else if (from == A8)
+                {
+                    castlingRights &= ~CastlingRights::BlackQueenSide;
+                }
+                break;
+            }
+            break;
+        }
+        case PieceType::King:
+        {
+            switch (color)
+            {
+            case PieceColor::White:
+                castlingRights &= ~(CastlingRights::WhiteKingSide | CastlingRights::WhiteQueenSide);
+                break;
+            case PieceColor::Black:
+                castlingRights &= ~(CastlingRights::BlackKingSide | CastlingRights::BlackQueenSide);
+                break;
+            }
+            break;
+        }
+        default:
+            break;
+        }
 
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 
@@ -446,12 +496,6 @@ class Board
         {
         case PieceType::None:
             break;
-        case PieceType::King:
-        {
-            possible_moves = KingMasks[square];
-            possible_moves &= ~GetAttacking();
-        }
-        break;
         case PieceType::Pawn:
         {
             Bitboard push = kEmptyBitboard;
@@ -503,6 +547,12 @@ class Board
         {
             auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
             possible_moves = QueenMask(square, blockers);
+        }
+        break;
+        case PieceType::King:
+        {
+            possible_moves = KingMasks[square];
+            possible_moves &= ~GetAttacking();
         }
         break;
         }

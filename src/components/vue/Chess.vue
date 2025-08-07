@@ -75,6 +75,7 @@
         <div class="mt-3">
             <h2>Bitboards</h2>
             <p>{{ getHash() }}</p>
+            <p>{{ getCastlingRights() }}</p>
             <div class="form-check">
                 <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
                 <label for="showRooks" class="form-check-label">Show Rooks</label>
@@ -289,6 +290,9 @@ export default {
         },
         getHash() {
             return (this.engine) ? this.engine.zobrist() : '';
+        },
+        getCastlingRights() {
+            return (this.engine) ? this.engine.castlingRights() : '';
         },
         onClear() {
             this.engine.clear();

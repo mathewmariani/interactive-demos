@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import { symlinkIntegration } from './src/integrations/symlink';
 
 import vue from '@astrojs/vue';
+import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,6 +14,9 @@ export default defineConfig({
   vite: {
     resolve: {
       preserveSymlinks: true,
+      alias: {
+        '@': path.resolve('./src'),
+      },
     },
   },
 });
