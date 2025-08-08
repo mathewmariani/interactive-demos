@@ -5,7 +5,7 @@
 namespace chess
 {
 
-emscripten::val w_ChessMove(Chess& self, emscripten::val opts)
+emscripten::val w_getMoves(Chess& self, emscripten::val opts)
 {
     std::vector<Move> moves;
 
@@ -30,6 +30,12 @@ emscripten::val w_ChessMove(Chess& self, emscripten::val opts)
 
     return emscripten::val::array(moves);
 }
+
+emscripten::val w_getCastlingRights(Chess& self)
+{
+    return emscripten::val(static_cast<uint8_t>(self.GetCastlingRights()));
+}
+
 EMSCRIPTEN_BINDINGS(chess_module)
 {
     emscripten::enum_<PieceType>("PieceType")
@@ -68,10 +74,10 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("turn", &Chess::GetTurn)
         .function("setTurn", &Chess::SetTurn)
 
-        .function("castlingRights", &Chess::GetCastlingRights)
+        .function("castlingRights", w_getCastlingRights)
         .function("setCastlingRights", &Chess::SetCastlingRights)
 
-        .function("moves", w_ChessMove)
+        .function("moves", w_getMoves)
         .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("attacking", &Chess::GetAttacking)

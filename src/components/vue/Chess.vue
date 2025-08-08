@@ -33,8 +33,8 @@
                         fill="rgba(255, 107, 107, 0.85)" />
                     <rect v-if="square.isKing" v-show="showKings" :x="square.x" :y="square.y" width="1" height="1"
                         fill="rgba(255, 140, 0, 0.85)" />
-                    <rect v-if="square.isAttacking" v-show="showAttacking" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(255, 107, 107, 0.85)" />
+                    <rect v-if="square.isAttacking" v-show="showAttacking" :x="square.x" :y="square.y" width="1"
+                        height="1" fill="rgba(255, 107, 107, 0.85)" />
                 </template>
 
                 <!-- square name -->
@@ -75,7 +75,7 @@
         <div class="mt-3">
             <h2>Bitboards</h2>
             <p>{{ getHash() }}</p>
-            <p>{{ getCastlingRights() }}</p>
+            <p>Castling Rights: {{ getCastlingRights() }}</p>
             <div class="form-check">
                 <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
                 <label for="showRooks" class="form-check-label">Show Rooks</label>
@@ -292,7 +292,7 @@ export default {
             return (this.engine) ? this.engine.zobrist() : '';
         },
         getCastlingRights() {
-            return (this.engine) ? this.engine.castlingRights() : '';
+            return (this.engine) ? this.engine.castlingRights() : 'Never';
         },
         onClear() {
             this.engine.clear();

@@ -23,7 +23,8 @@ struct Undo
 {
     Move move;
     Piece captured;
-    CastlingRights castlingRights;
+    CastlingRights oldCastlingRights;
+    CastlingRights newCastlingRights;
 };
 
 class Board
@@ -185,28 +186,49 @@ class Board
             return false;
         }
 
-        // cache move
-        undo_stack.push_back(Undo{{moving, from, to}, captured, castlingRights});
-        redo_stack.clear();
-
-        // update the hash
-        auto cached_hash = hash;
-        hash ^= zobrist.psq[moving][from];
-        hash ^= zobrist.psq[moving][to];
-        hash ^= zobrist.side;
-        if (captured != PieceType::None)
-        {
-            hash ^= zobrist.psq[captured][to];
-        }
-
-        // move pieces
+        // Move the king
         RemovePiece(to);
         RemovePiece(from);
         AddPiece(moving, to);
 
+        if (IsCastlingMove(from, to, moving))
+        {
+            if (turn == PieceColor::White)
+            {
+                if (to % 8 == 6) // king-side castle (king moves to G1 = 6)
+                {
+                    RemovePiece(H1);
+                    auto piece = MakePiece(PieceColor::White, PieceType::Rook);
+                    AddPiece(piece, F1);
+                }
+                else if (to % 8 == 2) // queen-side castle (king moves to C1 = 2)
+                {
+                    RemovePiece(A1);
+                    auto piece = MakePiece(PieceColor::White, PieceType::Rook);
+                    AddPiece(piece, D1);
+                }
+            }
+            else if (turn == PieceColor::Black)
+            {
+                if (to % 8 == 6) // king-side castle (king moves to G8 = 62 % 8 = 6)
+                {
+                    RemovePiece(H8);
+                    auto piece = MakePiece(PieceColor::Black, PieceType::Rook);
+                    AddPiece(piece, F8);
+                }
+                else if (to % 8 == 2) // queen-side castle (king moves to C8 = 58 % 8 = 2)
+                {
+                    RemovePiece(A8);
+                    auto piece = MakePiece(PieceColor::Black, PieceType::Rook);
+                    AddPiece(piece, D8);
+                }
+            }
+        }
+
         // castling rights
         const auto type = GetPieceType(moving);
         const auto color = GetPieceColor(moving);
+        const auto prevCastlingRights = castlingRights;
         switch (type)
         {
         case PieceType::Rook:
@@ -255,6 +277,12 @@ class Board
 
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 
+        // cache move
+        undo_stack.push_back(Undo{{moving, from, to}, captured, prevCastlingRights, castlingRights});
+        redo_stack.clear();
+
+        UpdateZobristMove(moving, from, to, captured, castlingRights, prevCastlingRights);
+
         return true;
     }
 
@@ -272,24 +300,19 @@ class Board
         RemovePiece(prev.move.to);
         RemovePiece(prev.move.from);
         AddPiece(prev.move.piece, prev.move.from);
-        AddPiece(prev.captured, prev.move.to);
 
-        // game state
-        castlingRights = prev.castlingRights;
-
-        // update the hash
-        auto cached_hash = hash;
-        hash ^= zobrist.psq[prev.move.piece][prev.move.from];
-        hash ^= zobrist.psq[prev.move.piece][prev.move.to];
-        hash ^= zobrist.side;
         if (prev.captured != PieceType::None)
         {
-            hash ^= zobrist.psq[prev.captured][prev.move.to];
+            AddPiece(prev.captured, prev.move.to);
         }
 
-        redo_stack.push_back(prev);
-
+        // game state
+        castlingRights = prev.oldCastlingRights;
         turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+
+        UpdateZobristMove(prev.move.piece, prev.move.from, prev.move.to, prev.captured, prev.newCastlingRights, prev.oldCastlingRights);
+
+        redo_stack.push_back(prev);
     }
 
     void RedoMove(void)
@@ -303,25 +326,18 @@ class Board
         redo_stack.pop_back();
 
         // move pieces
-        RemovePiece(next.move.to);
         RemovePiece(next.move.from);
+        RemovePiece(next.move.to);
         AddPiece(next.move.piece, next.move.to);
 
         // game state
-        // castlingRights = next.castlingRights;
+        castlingRights = next.newCastlingRights;
+        turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 
         // update the hash
-        hash ^= zobrist.psq[next.move.piece][next.move.from];
-        hash ^= zobrist.psq[next.move.piece][next.move.to];
-        hash ^= zobrist.side;
-        if (next.captured != PieceType::None)
-        {
-            hash ^= zobrist.psq[next.captured][next.move.to];
-        }
+        UpdateZobristMove(next.move.piece, next.move.from, next.move.to, next.captured, next.oldCastlingRights, next.newCastlingRights);
 
         undo_stack.push_back(next);
-
-        turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     }
 
     bool InCheck(void) const
@@ -609,6 +625,36 @@ class Board
         std::stringstream ss;
         ss << std::hex << hash;
         return ss.str();
+    }
+
+  private:
+    inline void UpdateZobristMove(Piece moving,
+                                  uint8_t from,
+                                  uint8_t to,
+                                  Piece captured,
+                                  CastlingRights prevCastlingRights,
+                                  CastlingRights newCastlingRights)
+    {
+        hash ^= zobrist.side;              // flip side
+        hash ^= zobrist.psq[moving][from]; // remove piece from old square
+        hash ^= zobrist.psq[moving][to];   // add piece to new square
+        if (captured != PieceType::None)
+        {
+            hash ^= zobrist.psq[captured][to]; // remove captured piece
+        }
+        hash ^= zobrist.castling[static_cast<uint8_t>(prevCastlingRights)]; // remove old castling rights
+        hash ^= zobrist.castling[static_cast<uint8_t>(newCastlingRights)];  // add new castling rights
+    }
+
+    inline bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece)
+    {
+        if (GetPieceType(movingPiece) != PieceType::King)
+        {
+            return false;
+        }
+
+        auto diff = to - from;
+        return (diff == 2 || diff == -2);
     }
 
   private:
