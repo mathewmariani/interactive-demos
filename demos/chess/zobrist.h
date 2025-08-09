@@ -66,13 +66,13 @@ constexpr uint64_t ComputeZobristHash(const Piece board[kNumSquares],
 
     for (auto sq = 0; sq < kNumSquares; ++sq)
     {
-        if (board[sq] != PieceType::None)
+        if (board[sq] != static_cast<uint8_t>(PieceType::None))
         {
             hash ^= zobrist.psq[board[sq] - 1][sq]; // -1 because EMPTY=0
         }
     }
 
-    if (!turn)
+    if (turn == PieceColor::White)
     {
         hash ^= zobrist.side;
     }

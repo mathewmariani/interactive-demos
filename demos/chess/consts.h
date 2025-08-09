@@ -23,6 +23,7 @@ constexpr const char kBlackQueen = 'q';
 
 constexpr const int kWhiteIndex = 0;
 constexpr const int kBlackIndex = 1;
+constexpr const uint8_t kNullPiece = 0b00000000;
 constexpr const uint8_t kPieceTypeMask = 0b00000111;
 constexpr const uint8_t kPieceColorMask = 0b00001000;
 

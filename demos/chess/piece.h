@@ -7,13 +7,19 @@ namespace chess
 
 using Piece = uint8_t;
 
-enum PieceColor : uint8_t
+template <typename T>
+constexpr auto to_index(T t) noexcept
+{
+    return static_cast<std::underlying_type_t<T>>(t);
+}
+
+enum class PieceColor : uint8_t
 {
     White = 0,
     Black = 1,
 };
 
-enum PieceType : uint8_t
+enum class PieceType : uint8_t
 {
     None = 0,
     Pawn = 1,
@@ -67,19 +73,19 @@ constexpr Piece MakePiece(PieceColor c, PieceType t)
 {
     if (t == PieceType::None)
     {
-        return PieceType::None;
+        return kNullPiece;
     }
-    return (c << 3) | t;
+    return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
 }
 
 inline PieceColor GetPieceColor(const Piece piece)
 {
-    return static_cast<PieceColor>((piece & kPieceColorMask) >> 3);
+    return static_cast<PieceColor>((static_cast<uint8_t>(piece) & kPieceColorMask) >> 3);
 }
 
 inline PieceType GetPieceType(const Piece piece)
 {
-    return static_cast<PieceType>(piece & kPieceTypeMask);
+    return static_cast<PieceType>(static_cast<uint8_t>(piece) & kPieceTypeMask);
 }
 
 // white pieces

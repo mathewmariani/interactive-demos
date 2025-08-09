@@ -46,8 +46,9 @@ class Board
 
     const Bitboard GetOccupied(const PieceColor color) const
     {
-        return rooks[color] | bishops[color] | queens[color] |
-               knights[color] | pawns[color] | kings[color];
+        auto idx = to_index(color);
+        return rooks[idx] | bishops[idx] | queens[idx] |
+               knights[idx] | pawns[idx] | kings[idx];
     }
 
     const Bitboard GetRooks(void) const { return rooks[kWhiteIndex] | rooks[kBlackIndex]; }
@@ -64,7 +65,7 @@ class Board
     {
         for (auto i = 0; i < kNumSquares; i++)
         {
-            squares[i] = PieceType::None;
+            squares[i] = kNullPiece;
         }
 
         std::fill(std::begin(rooks), std::end(rooks), kEmptyBitboard);
@@ -80,7 +81,7 @@ class Board
 
     void AddPiece(Piece piece, uint8_t square)
     {
-        if (piece == PieceType::None)
+        if (GetPieceType(piece) == PieceType::None)
         {
             return;
         }
@@ -88,7 +89,7 @@ class Board
         squares[square] = piece;
 
         auto type = GetPieceType(piece);
-        auto color = GetPieceColor(piece);
+        auto color = to_index(GetPieceColor(piece));
         switch (type)
         {
         case PieceType::None:
@@ -122,15 +123,15 @@ class Board
     void RemovePiece(uint8_t square)
     {
         auto piece = squares[square];
-        if (piece == PieceType::None)
+        if (GetPieceType(piece) == PieceType::None)
         {
             return;
         }
 
-        squares[square] = PieceType::None;
+        squares[square] = kNullPiece;
 
         auto type = GetPieceType(piece);
-        auto color = GetPieceColor(piece);
+        auto color = to_index(GetPieceColor(piece));
         switch (type)
         {
         case PieceType::None:
@@ -301,7 +302,7 @@ class Board
         RemovePiece(prev.move.from);
         AddPiece(prev.move.piece, prev.move.from);
 
-        if (prev.captured != PieceType::None)
+        if (GetPieceType(prev.captured) != PieceType::None)
         {
             AddPiece(prev.captured, prev.move.to);
         }
@@ -342,8 +343,9 @@ class Board
 
     bool InCheck(void) const
     {
+        auto color = to_index(GetTurn());
         auto attacking = GetAttacking();
-        auto king = kings[GetTurn()];
+        auto king = kings[color];
         return (king & attacking) != 0;
     }
 
@@ -354,7 +356,8 @@ class Board
             return false;
         }
 
-        auto square = MoveFromBitboard(kings[GetTurn()]);
+        auto color = to_index(GetTurn());
+        auto square = MoveFromBitboard(kings[color]);
         auto king_moves = KingMasks[square] & ~GetOccupied(GetTurn());
         auto safe_moves = king_moves & ~GetAttacking();
 
@@ -370,7 +373,7 @@ class Board
         {
             auto piece = GetPiece(sq);
             auto color = GetPieceColor(piece);
-            if (piece == PieceType::None || color != GetTurn())
+            if (GetPieceType(piece) == PieceType::None || color != GetTurn())
             {
                 continue;
             }
@@ -395,7 +398,7 @@ class Board
         std::vector<Move> moves = {};
         auto piece = GetPiece(square);
         auto color = GetPieceColor(piece);
-        if (piece != PieceType::None || color == GetTurn())
+        if (GetPieceType(piece) == PieceType::None || color != GetTurn())
         {
             auto possible = GetPossibleMoves(piece, square);
             while (possible)
@@ -426,7 +429,7 @@ class Board
                 continue;
             }
             auto color = GetPieceColor(piece);
-            if (piece == PieceType::None || color != GetTurn())
+            if (GetPieceType(piece) == PieceType::None || color != GetTurn())
             {
                 continue;
             }
@@ -455,7 +458,7 @@ class Board
         for (auto i = 0; i < kNumSquares; ++i)
         {
             auto piece = GetPiece(i);
-            if (piece == PieceType::None)
+            if (GetPieceType(piece) == PieceType::None)
             {
                 continue;
             }
@@ -638,7 +641,7 @@ class Board
         hash ^= zobrist.side;              // flip side
         hash ^= zobrist.psq[moving][from]; // remove piece from old square
         hash ^= zobrist.psq[moving][to];   // add piece to new square
-        if (captured != PieceType::None)
+        if (GetPieceType(captured) != PieceType::None)
         {
             hash ^= zobrist.psq[captured][to]; // remove captured piece
         }

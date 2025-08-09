@@ -30,7 +30,7 @@ static void loadFromFEN(const std::string& fen, Board* chess)
             auto emptyCount = c - '0';
             for (auto j = 0; j < emptyCount; ++j)
             {
-                chess->AddPiece(PieceType::None, index++);
+                chess->AddPiece(kNullPiece, index++);
             }
         }
         else
