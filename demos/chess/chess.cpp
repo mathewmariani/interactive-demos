@@ -576,17 +576,19 @@ const std::vector<chess::Move> Chess::MovesFromSquare(uint8_t square) const
     auto color = GetPieceColor(piece);
     if (GetPieceType(piece) == PieceType::None || color != GetTurn())
     {
-        auto possible = GetPossibleMoves(piece, square);
-        while (possible)
-        {
-            auto to = MoveFromBitboard(possible);
-            possible &= possible - 1;
+        return moves;
+    }
 
-            moves.push_back((chess::Move){
-                .from = square,
-                .to = to,
-            });
-        }
+    auto possible = GetPossibleMoves(piece, square);
+    while (possible)
+    {
+        auto to = MoveFromBitboard(possible);
+        possible &= possible - 1;
+
+        moves.push_back((chess::Move){
+            .from = square,
+            .to = to,
+        });
     }
 
     return moves;
