@@ -1,13 +1,12 @@
 #pragma once
 
-#include "board.h"
 #include "piece.h"
 #include <string>
 
 namespace chess
 {
 
-static void loadFromFEN(const std::string& fen, Board* chess)
+static void loadFromFEN(const std::string& fen, Chess* chess)
 {
     auto index = 0;
     auto i = 0;
@@ -30,7 +29,7 @@ static void loadFromFEN(const std::string& fen, Board* chess)
             auto emptyCount = c - '0';
             for (auto j = 0; j < emptyCount; ++j)
             {
-                chess->AddPiece(kNullPiece, index++);
+                chess->PutPiece(kNullPiece, index++);
             }
         }
         else
@@ -65,7 +64,7 @@ static void loadFromFEN(const std::string& fen, Board* chess)
             }
 
             auto piece = MakePiece(color, type);
-            chess->AddPiece(piece, index++);
+            chess->PutPiece(piece, index++);
         }
     }
 

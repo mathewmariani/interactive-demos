@@ -6,11 +6,26 @@
 #include <string>
 #include <vector>
 
-#include "board.h"
+#include "bitboard.h"
 #include "piece.h"
 
 namespace chess
 {
+
+struct Move
+{
+    Piece piece;
+    uint8_t from;
+    uint8_t to;
+};
+
+struct Undo
+{
+    Move move;
+    Piece captured;
+    CastlingRights oldCastlingRights;
+    CastlingRights newCastlingRights;
+};
 
 class Chess
 {
@@ -22,41 +37,66 @@ class Chess
     void Clear(void);
     void Load(const std::string& fen);
     void Reset(void);
-    bool Move(uint8_t from, uint8_t to);
-    void Put(Piece piece, uint8_t square);
-    void Remove(uint8_t square);
+    bool MovePiece(uint8_t from, uint8_t to);
+    Piece GetPiece(uint8_t square) const;
+    void PutPiece(Piece piece, uint8_t square);
+    void RemovePiece(uint8_t square);
 
-    void Undo(void) { board.UndoMove(); }
-    void Redo(void) { board.RedoMove(); }
+    void Undo(void);
+    void Redo(void);
 
     const std::vector<Piece> GetBoard(void) const;
     const std::string GetZobrist(void) const;
 
-    Bitboard GetAttacking() const { return board.GetAttacking(); }
-    Bitboard GetOppcupied(PieceColor color) const { return board.GetOccupied(color); }
-    Bitboard GetRooks(void) const { return board.GetRooks(); }
-    Bitboard GetBishops(void) const { return board.GetBishops(); }
-    Bitboard GetQueens(void) const { return board.GetQueens(); }
-    Bitboard GetKnights(void) const { return board.GetKnights(); }
-    Bitboard GetPawns(void) const { return board.GetPawns(); }
-    Bitboard GetKings(void) const { return board.GetKings(); }
+    const Bitboard GetRooks(void) const;
+    const Bitboard GetBishops(void) const;
+    const Bitboard GetQueens(void) const;
+    const Bitboard GetKnights(void) const;
+    const Bitboard GetPawns(void) const;
+    const Bitboard GetKings(void) const;
+    const Bitboard GetOccupied(PieceColor color) const;
+    const Bitboard GetAttacking() const;
+    const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const;
 
-    const PieceColor GetTurn(void) const { return board.GetTurn(); }
-    void SetTurn(const PieceColor color) { return board.SetTurn(color); }
+    const PieceColor GetTurn(void) const { return turn; }
+    void SetTurn(const PieceColor color) { turn = color; }
 
-    const CastlingRights GetCastlingRights(void) const { return board.GetCastlingRights(); }
-    void SetCastlingRights(CastlingRights rights) { return board.SetCastlingRights(rights); }
+    const CastlingRights GetCastlingRights(void) const { return castlingRights; }
+    void SetCastlingRights(CastlingRights rights) { castlingRights |= rights; }
 
-    bool InCheck(void) const { return board.InCheck(); }
-    bool InCheckmate(void) const { return board.IsCheckmate(); }
+    bool InCheck(void) const;
+    bool InCheckmate(void) const;
 
-    const std::vector<chess::Move> Moves() const { return board.Moves(); }
-    const std::vector<chess::Move> MovesFromSquare(uint8_t square) const { return board.MovesFromSquare(square); }
-    const std::vector<chess::Move> MovesForPiece(Piece piece) const { return board.MovesForPiece(piece); }
-    Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const { return board.GetPossibleMoves(piece, square); }
+    const std::vector<chess::Move> Moves() const;
+    const std::vector<chess::Move> MovesFromSquare(uint8_t square) const;
+    const std::vector<chess::Move> MovesForPiece(Piece piece) const;
 
   private:
-    Board board;
+    bool IsValidMove(int from, int to) const;
+    bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece);
+
+    void UpdateZobristMove(Piece moving,
+                           uint8_t from,
+                           uint8_t to,
+                           Piece captured,
+                           CastlingRights prevCastlingRights,
+                           CastlingRights newCastlingRights);
+
+  private:
+    PieceColor turn;
+    CastlingRights castlingRights;
+
+    Piece squares[64];
+    Bitboard rooks[2];
+    Bitboard bishops[2];
+    Bitboard queens[2];
+    Bitboard knights[2];
+    Bitboard pawns[2];
+    Bitboard kings[2];
+
+    uint64_t hash;
+    std::vector<chess::Undo> undo_stack;
+    std::vector<chess::Undo> redo_stack;
 };
 
 } // namespace chess

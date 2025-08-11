@@ -87,9 +87,9 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("board", &Chess::GetBoard)
         .function("clear", &Chess::Clear)
         .function("load", &Chess::Load)
-        .function("move", &Chess::Move)
-        .function("put", &Chess::Put)
-        .function("remove", &Chess::Remove)
+        .function("move", &Chess::MovePiece)
+        .function("put", &Chess::PutPiece)
+        .function("remove", &Chess::RemovePiece)
         .function("reset", &Chess::Reset);
 
     emscripten::register_vector<uint8_t>("VectorUint8");
