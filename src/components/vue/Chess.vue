@@ -56,9 +56,9 @@
                         @pointerdown="onPointerDown(square, $event)" />
                 </template>
 
-                <template v-for="square in squares" :key="square.name + '-piece'">
-                    <circle v-if="possibleMoves & (1n << BigInt(square.idx))" :cx="square.x + 0.5" :cy="square.y + 0.5"
-                        r="0.20" fill="rgba(200, 214, 229, 0.85)" />
+                <template v-for="move in possibleMoves" :key="`${move.from}-${move.to}`">
+                    <circle :cx="indexToCoords(move.to).x + 0.5" :cy="indexToCoords(move.to).y + 0.5" r="0.20"
+                        fill="rgba(200, 214, 229, 0.85)" />
                 </template>
 
                 <!-- dragged -->
@@ -309,10 +309,11 @@ export default {
                 return;
             }
 
-            this.possibleMoves = this.engine.get_possible_moves(val, idx);
+            this.possibleMoves = this.engine.moves({ square: idx });
 
             const moves = this.engine.moves({ square: idx });
             console.log(moves)
+            console.log(this.possibleMoves)
             moves.forEach(m => console.log(m));
         },
         svgPoint(event) {
@@ -381,6 +382,12 @@ export default {
         handlePieceMove(squareName, newPos) {
             console.log("Piece moved from", squareName, "to", newPos);
         },
+        indexToCoords(idx) {
+            return {
+                x: idx % 8,
+                y: Math.floor(idx / 8),
+            };
+        }
     },
 };
 </script>

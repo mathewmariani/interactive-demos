@@ -78,7 +78,6 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("setCastlingRights", &Chess::SetCastlingRights)
 
         .function("moves", w_getMoves)
-        .function("get_possible_moves", &Chess::GetPossibleMoves)
 
         .function("attacking", &Chess::GetAttacking)
         .function("inCheck", &Chess::InCheck)
