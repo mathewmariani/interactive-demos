@@ -69,6 +69,11 @@ inline CastlingRights& operator&=(CastlingRights& lhs, CastlingRights rhs)
     return lhs;
 }
 
+constexpr bool Has(CastlingRights lhs, CastlingRights rhs)
+{
+    return (static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs)) != 0;
+}
+
 constexpr Piece MakePiece(PieceColor c, PieceType t)
 {
     if (t == PieceType::None)

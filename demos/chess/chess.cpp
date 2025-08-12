@@ -660,30 +660,40 @@ const Bitboard Chess::GenerateKingMoves(uint8_t square) const
     Bitboard possible_moves = KingMasks[square];
     possible_moves &= ~GetOpponentAttacks();
 
+    const Bitboard occupied = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+
+    auto isSafeSquare = [&](uint8_t sq) -> bool
+    {
+        return (GetOpponentAttacksToSquare(sq) == 0);
+    };
+
     switch (GetTurn())
     {
     case PieceColor::White:
-    {
-        bool canWhiteCastleKingSide = (castlingRights & CastlingRights::WhiteKingSide) != CastlingRights::None;
-        if (canWhiteCastleKingSide)
+        if (Has(castlingRights, CastlingRights::WhiteKingSide) &&
+            !(occupied & ((1ULL << F1) | (1ULL << G1))) &&            // no pieces in between
+            isSafeSquare(E1) && isSafeSquare(F1) && isSafeSquare(G1)) // can't pass through check
         {
             possible_moves |= 1ULL << G1;
         }
-        bool canWhiteCastleQueenSide = (castlingRights & CastlingRights::WhiteQueenSide) != CastlingRights::None;
-        if (canWhiteCastleQueenSide)
+        if (Has(castlingRights, CastlingRights::WhiteQueenSide) &&
+            !(occupied & ((1ULL << D1) | (1ULL << C1) | (1ULL << B1))) && // no pieces in between
+            isSafeSquare(E1) && isSafeSquare(D1) && isSafeSquare(C1))
         {
             possible_moves |= 1ULL << C1;
         }
         break;
-    }
+
     case PieceColor::Black:
-        bool canBlackCastleKingSide = (castlingRights & CastlingRights::BlackKingSide) != CastlingRights::None;
-        if (canBlackCastleKingSide)
+        if (Has(castlingRights, CastlingRights::BlackKingSide) &&
+            !(occupied & ((1ULL << F8) | (1ULL << G8))) &&
+            isSafeSquare(E8) && isSafeSquare(F8) && isSafeSquare(G8))
         {
             possible_moves |= 1ULL << G8;
         }
-        bool canBlackCastleQueenSide = (castlingRights & CastlingRights::BlackQueenSide) != CastlingRights::None;
-        if (canBlackCastleQueenSide)
+        if (Has(castlingRights, CastlingRights::BlackQueenSide) &&
+            !(occupied & ((1ULL << D8) | (1ULL << C8) | (1ULL << B8))) &&
+            isSafeSquare(E8) && isSafeSquare(D8) && isSafeSquare(C8))
         {
             possible_moves |= 1ULL << C8;
         }

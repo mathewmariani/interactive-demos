@@ -74,6 +74,7 @@ class Chess
 
   private:
     bool IsValidMove(int from, int to) const;
+    bool IsSquareAttacked(uint8_t square) const;
     bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece);
 
     const Bitboard GeneratePawnMoves(uint8_t square) const;
