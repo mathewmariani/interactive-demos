@@ -55,7 +55,8 @@ class Chess
     const Bitboard GetPawns(void) const;
     const Bitboard GetKings(void) const;
     const Bitboard GetOccupied(PieceColor color) const;
-    const Bitboard GetAttacking() const;
+    const Bitboard GetOpponentAttacks() const;
+    const Bitboard GetOpponentAttacksToSquare(uint8_t square) const;
     const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const;
 
     const PieceColor GetTurn(void) const { return turn; }
@@ -74,6 +75,13 @@ class Chess
   private:
     bool IsValidMove(int from, int to) const;
     bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece);
+
+    const Bitboard GeneratePawnMoves(uint8_t square) const;
+    const Bitboard GenerateKnightMoves(uint8_t square) const;
+    const Bitboard GenerateBishopMoves(uint8_t square, const Bitboard blockers) const;
+    const Bitboard GenerateRookMoves(uint8_t square, const Bitboard blockers) const;
+    const Bitboard GenerateQueenMoves(uint8_t square, const Bitboard blockers) const;
+    const Bitboard GenerateKingMoves(uint8_t square) const;
 
     void UpdateZobristMove(Piece moving,
                            uint8_t from,

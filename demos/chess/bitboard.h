@@ -15,6 +15,11 @@ constexpr Bitboard SquareMask(int rank, int file)
     return 1ULL << (rank * kNumRanks + file);
 }
 
+constexpr uint8_t CountPieces(const Bitboard bitboard)
+{
+    return static_cast<uint8_t>(std::popcount(bitboard));
+}
+
 constexpr uint8_t MoveFromBitboard(const Bitboard bitboard)
 {
     return static_cast<uint8_t>(std::countr_zero(bitboard));

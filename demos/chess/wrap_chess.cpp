@@ -7,7 +7,7 @@ namespace chess
 
 emscripten::val w_getMoves(Chess& self, emscripten::val opts)
 {
-    std::vector<Move> moves;
+    std::vector<Move> moves = {};
 
     if (opts.isUndefined() || opts.isNull())
     {
@@ -34,6 +34,27 @@ emscripten::val w_getMoves(Chess& self, emscripten::val opts)
 emscripten::val w_getCastlingRights(Chess& self)
 {
     return emscripten::val(static_cast<uint8_t>(self.GetCastlingRights()));
+}
+
+emscripten::val w_getAttacking(Chess& self, emscripten::val opts)
+{
+    Bitboard attacking = kEmptyBitboard;
+
+    if (opts.isUndefined() || opts.isNull())
+    {
+        attacking = self.GetOpponentAttacks();
+    }
+    else if (opts.hasOwnProperty("square"))
+    {
+        auto square = opts["square"].as<uint8_t>();
+        attacking = self.GetOpponentAttacksToSquare(square);
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid w_getAttacking() argument");
+    }
+
+    return emscripten::val(attacking);
 }
 
 EMSCRIPTEN_BINDINGS(chess_module)
@@ -79,7 +100,7 @@ EMSCRIPTEN_BINDINGS(chess_module)
 
         .function("moves", w_getMoves)
 
-        .function("attacking", &Chess::GetAttacking)
+        .function("attacking", w_getAttacking)
         .function("inCheck", &Chess::InCheck)
         .function("isCheckmate", &Chess::InCheckmate)
 

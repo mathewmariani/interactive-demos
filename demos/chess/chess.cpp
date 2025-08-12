@@ -2,7 +2,6 @@
 #include "fen.h"
 #include "zobrist.h"
 #include <algorithm>
-#include <bit>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -348,22 +347,17 @@ const Bitboard Chess::GetOccupied(const PieceColor color) const
            knights[idx] | pawns[idx] | kings[idx];
 }
 
-const Bitboard Chess::GetAttacking(void) const
+const Bitboard Chess::GetOpponentAttacks(void) const
 {
     Bitboard attacks = kEmptyBitboard;
-
+    PieceColor us = GetTurn();
+    PieceColor them = (us == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     auto occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
 
-    for (auto i = 0; i < kNumSquares; ++i)
+    for (int i = 0; i < kNumSquares; ++i)
     {
         auto piece = GetPiece(i);
-        if (GetPieceType(piece) == PieceType::None)
-        {
-            continue;
-        }
-
-        auto color = GetPieceColor(piece);
-        if (color == GetTurn())
+        if ((GetPieceType(piece) == PieceType::None) || (GetPieceColor(piece) != them))
         {
             continue;
         }
@@ -371,147 +365,119 @@ const Bitboard Chess::GetAttacking(void) const
         switch (GetPieceType(piece))
         {
         case PieceType::Pawn:
-            attacks |= (color == PieceColor::White)
+            attacks |= (them == PieceColor::White)
                            ? WhitePawnCaptureMasks[i]
                            : BlackPawnCaptureMasks[i];
             break;
-
         case PieceType::Knight:
             attacks |= KnightMasks[i];
             break;
-
         case PieceType::Bishop:
             attacks |= BishopMask(i, occupancy);
             break;
-
         case PieceType::Rook:
             attacks |= RookMask(i, occupancy);
             break;
-
         case PieceType::Queen:
             attacks |= QueenMask(i, occupancy);
             break;
-
         case PieceType::King:
             attacks |= KingMasks[i];
             break;
-
         default:
             break;
         }
     }
-
     return attacks;
+}
+
+const Bitboard Chess::GetOpponentAttacksToSquare(uint8_t square) const
+{
+    Bitboard attackers = kEmptyBitboard;
+
+    const auto opponent = to_index(GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White);
+    const Bitboard occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+
+    attackers |= (GetTurn() == PieceColor::White)
+                     ? BlackPawnCaptureMasks[square]
+                     : WhitePawnCaptureMasks[square];
+    attackers |= KnightMasks[square] & knights[opponent];
+    attackers |= KingMasks[square] & kings[opponent];
+    attackers |= BishopMask(square, occupancy) & (bishops[opponent] | queens[opponent]);
+    attackers |= RookMask(square, occupancy) & (rooks[opponent] | queens[opponent]);
+
+    return attackers;
 }
 
 const Bitboard Chess::GetPossibleMoves(const Piece piece, uint8_t square) const
 {
     Bitboard possible_moves = kEmptyBitboard;
 
+    const Bitboard blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
     const auto type = GetPieceType(piece);
     const auto color = GetPieceColor(piece);
-
-    const auto opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
-
-    const auto empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
+    const auto opponent = (GetTurn() == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+    const auto empty = ~blockers;
     const auto enemy = GetOccupied(opponent);
 
-    switch (type)
-    {
-    case PieceType::None:
-        break;
-    case PieceType::Pawn:
-    {
-        Bitboard push = kEmptyBitboard;
-        Bitboard double_push = kEmptyBitboard;
-        Bitboard captures = kEmptyBitboard;
-        switch (color)
-        {
-        case PieceColor::White:
-            push = WhitePawnPushMasks[square];
-            double_push = WhitePawnDoublePushMasks[square];
-            captures = WhitePawnCaptureMasks[square] & enemy;
-            break;
-        case PieceColor::Black:
-            push = BlackPawnPushMasks[square];
-            double_push = BlackPawnDoublePushMasks[square];
-            captures = BlackPawnCaptureMasks[square] & enemy;
-            break;
-        }
+    const auto king_square = kings[to_index(color)];
+    const Bitboard attackers = GetOpponentAttacksToSquare(king_square);
+    const int num_attackers = CountPieces(attackers);
 
-        auto push_valid = push & empty;
-        if (push_valid)
+    if (InCheck())
+    {
+        if (num_attackers >= 2)
         {
-            double_push &= empty;
+            if (type == PieceType::King)
+            {
+                possible_moves = GenerateKingMoves(square);
+            }
         }
         else
         {
-            double_push = kEmptyBitboard;
+            if (type == PieceType::King)
+            {
+                possible_moves = GenerateKingMoves(square);
+            }
+            else
+            {
+                // Generate moves normally, but filter so they:
+                // - capture the checking piece, or
+                // - block the check ray if it’s a sliding piece, or
+                // - do not move into check (your legal move filter)
+                // possible_moves = GenerateMovesForPieceConsideringCheck(square, attackers, king_square);
+            }
         }
-
-        possible_moves = push_valid | double_push | captures;
     }
-    break;
-    case PieceType::Knight:
-        possible_moves = KnightMasks[square];
-        break;
-    case PieceType::Bishop:
+    else
     {
-        auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
-        possible_moves = BishopMask(square, blockers);
-    }
-    break;
-    case PieceType::Rook:
-    {
-        auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
-        possible_moves = RookMask(square, blockers);
-    }
-    break;
-    case PieceType::Queen:
-    {
-        auto blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
-        possible_moves = QueenMask(square, blockers);
-    }
-    break;
-    case PieceType::King:
-    {
-        possible_moves = KingMasks[square];
-        possible_moves &= ~GetAttacking();
-
-        switch (color)
+        // Normal move generation when not in check
+        switch (type)
         {
-        case PieceColor::White:
-        {
-            bool canWhiteCastleKingSide = (castlingRights & CastlingRights::WhiteKingSide) != CastlingRights::None;
-            if (canWhiteCastleKingSide)
-            {
-                possible_moves |= 1ULL << G1;
-            }
-            bool canWhiteCastleQueenSide = (castlingRights & CastlingRights::WhiteQueenSide) != CastlingRights::None;
-            if (canWhiteCastleQueenSide)
-            {
-                possible_moves |= 1ULL << C1;
-            }
+        case PieceType::None:
             break;
-        }
-        case PieceColor::Black:
-            bool canBlackCastleKingSide = (castlingRights & CastlingRights::BlackKingSide) != CastlingRights::None;
-            if (canBlackCastleKingSide)
-            {
-                possible_moves |= 1ULL << G8;
-            }
-            bool canBlackCastleQueenSide = (castlingRights & CastlingRights::BlackQueenSide) != CastlingRights::None;
-            if (canBlackCastleQueenSide)
-            {
-                possible_moves |= 1ULL << C8;
-            }
+        case PieceType::Pawn:
+            possible_moves = GeneratePawnMoves(square);
+            break;
+        case PieceType::Knight:
+            possible_moves = GenerateKnightMoves(square);
+            break;
+        case PieceType::Bishop:
+            possible_moves = GenerateBishopMoves(square, blockers);
+            break;
+        case PieceType::Rook:
+            possible_moves = GenerateRookMoves(square, blockers);
+            break;
+        case PieceType::Queen:
+            possible_moves = GenerateQueenMoves(square, blockers);
+            break;
+        case PieceType::King:
+            possible_moves = GenerateKingMoves(square);
             break;
         }
     }
-    break;
-    }
 
-    // check overlap with same colored pieces
+    // Exclude squares occupied by friendly pieces
     possible_moves &= ~GetOccupied(color);
 
     return possible_moves;
@@ -519,10 +485,10 @@ const Bitboard Chess::GetPossibleMoves(const Piece piece, uint8_t square) const
 
 bool Chess::InCheck(void) const
 {
-    auto color = to_index(GetTurn());
-    auto attacking = GetAttacking();
-    auto king = kings[color];
-    return (king & attacking) != 0;
+    const auto color_index = to_index(GetTurn());
+    const Bitboard attackers = GetOpponentAttacks();
+    const Bitboard king_square = kings[color_index];
+    return (king_square & attackers) != kEmptyBitboard;
 }
 
 bool Chess::InCheckmate(void) const
@@ -532,10 +498,15 @@ bool Chess::InCheckmate(void) const
         return false;
     }
 
-    auto color = to_index(GetTurn());
-    auto square = MoveFromBitboard(kings[color]);
-    auto king_moves = KingMasks[square] & ~GetOccupied(GetTurn());
-    auto safe_moves = king_moves & ~GetAttacking();
+    const auto color_index = to_index(GetTurn());
+    const auto king_square = MoveFromBitboard(kings[color_index]);
+    const Bitboard king_moves = KingMasks[king_square] & ~GetOccupied(GetTurn());
+    const Bitboard safe_moves = king_moves & ~GetOpponentAttacks();
+
+    // const Bitboard attackers = GetAttacking(king_square);
+
+    // const auto is_double_check = CountPieces(attackers)
+    // auto num_of_attackers =
 
     // FIXME: need to know if we can capture the piece checking us
 
@@ -625,6 +596,101 @@ const std::vector<chess::Move> Chess::MovesForPiece(Piece piece) const
         }
     }
     return moves;
+}
+
+const Bitboard Chess::GeneratePawnMoves(uint8_t square) const
+{
+    const auto opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
+    const Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
+    const Bitboard enemy = GetOccupied(opponent);
+
+    Bitboard push = kEmptyBitboard;
+    Bitboard double_push = kEmptyBitboard;
+    Bitboard captures = kEmptyBitboard;
+
+    switch (GetTurn())
+    {
+    case PieceColor::White:
+        push = WhitePawnPushMasks[square];
+        double_push = WhitePawnDoublePushMasks[square];
+        captures = WhitePawnCaptureMasks[square] & enemy;
+        break;
+    case PieceColor::Black:
+        push = BlackPawnPushMasks[square];
+        double_push = BlackPawnDoublePushMasks[square];
+        captures = BlackPawnCaptureMasks[square] & enemy;
+        break;
+    }
+
+    auto push_valid = push & empty;
+    if (push_valid)
+    {
+        double_push &= empty;
+    }
+    else
+    {
+        double_push = kEmptyBitboard;
+    }
+
+    return (push_valid | double_push | captures);
+}
+
+const Bitboard Chess::GenerateKnightMoves(uint8_t square) const
+{
+    return KnightMasks[square];
+}
+
+const Bitboard Chess::GenerateBishopMoves(uint8_t square, const Bitboard blockers) const
+{
+    return BishopMask(square, blockers);
+}
+
+const Bitboard Chess::GenerateRookMoves(uint8_t square, const Bitboard blockers) const
+{
+    return RookMask(square, blockers);
+}
+
+const Bitboard Chess::GenerateQueenMoves(uint8_t square, const Bitboard blockers) const
+{
+    return QueenMask(square, blockers);
+}
+
+const Bitboard Chess::GenerateKingMoves(uint8_t square) const
+{
+    Bitboard possible_moves = KingMasks[square];
+    possible_moves &= ~GetOpponentAttacks();
+
+    switch (GetTurn())
+    {
+    case PieceColor::White:
+    {
+        bool canWhiteCastleKingSide = (castlingRights & CastlingRights::WhiteKingSide) != CastlingRights::None;
+        if (canWhiteCastleKingSide)
+        {
+            possible_moves |= 1ULL << G1;
+        }
+        bool canWhiteCastleQueenSide = (castlingRights & CastlingRights::WhiteQueenSide) != CastlingRights::None;
+        if (canWhiteCastleQueenSide)
+        {
+            possible_moves |= 1ULL << C1;
+        }
+        break;
+    }
+    case PieceColor::Black:
+        bool canBlackCastleKingSide = (castlingRights & CastlingRights::BlackKingSide) != CastlingRights::None;
+        if (canBlackCastleKingSide)
+        {
+            possible_moves |= 1ULL << G8;
+        }
+        bool canBlackCastleQueenSide = (castlingRights & CastlingRights::BlackQueenSide) != CastlingRights::None;
+        if (canBlackCastleQueenSide)
+        {
+            possible_moves |= 1ULL << C8;
+        }
+        break;
+    }
+
+    return possible_moves;
 }
 
 void Chess::UpdateZobristMove(Piece moving,

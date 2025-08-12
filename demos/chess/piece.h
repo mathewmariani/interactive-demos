@@ -78,12 +78,12 @@ constexpr Piece MakePiece(PieceColor c, PieceType t)
     return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
 }
 
-inline PieceColor GetPieceColor(const Piece piece)
+constexpr PieceColor GetPieceColor(const Piece piece)
 {
     return static_cast<PieceColor>((static_cast<uint8_t>(piece) & kPieceColorMask) >> 3);
 }
 
-inline PieceType GetPieceType(const Piece piece)
+constexpr PieceType GetPieceType(const Piece piece)
 {
     return static_cast<PieceType>(static_cast<uint8_t>(piece) & kPieceTypeMask);
 }

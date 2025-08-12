@@ -73,9 +73,17 @@
 
         <!-- New toggle form -->
         <div class="mt-3">
+            <div class="input-group mb-3">
+                <button class="btn btn-primary" @click="loadFEN" type="button">Load FEN</button>
+                <input type="text" class="form-control" placeholder="Enter FEN" v-model="fenInput"
+                    @keyup.enter="loadFEN" />
+            </div>
             <h2>Bitboards</h2>
-            <p>{{ getHash() }}</p>
+            <p>Zobrist Hash: {{ getHash() }}</p>
             <p>Castling Rights: {{ getCastlingRights() }}</p>
+            <p>Turn: {{ getTurn() }}</p>
+            <p>Check: {{ inCheck() }}</p>
+            <p>Checkmate: {{ isCheckmate() }}</p>
             <div class="form-check">
                 <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
                 <label for="showRooks" class="form-check-label">Show Rooks</label>
@@ -215,6 +223,7 @@ export default {
             showKings: true,
             showAttacking: true,
             possibleMoves: kEmptyBitboard,
+            fenInput: '',
         };
     },
     async beforeCreate() {
@@ -270,6 +279,11 @@ export default {
             if (!square || !square.piece) return 'default';
             return this.draggingSquare === square.name ? 'grabbing' : 'grab';
         },
+        loadFEN() {
+            this.engine.load(this.fenInput);
+            this.boardVersion++;
+            this.$forceUpdate();
+        },
         onUndo() {
             this.engine.undo();
             this.boardVersion++;
@@ -294,6 +308,15 @@ export default {
         getCastlingRights() {
             return (this.engine) ? this.engine.castlingRights() : 'Never';
         },
+        getTurn() {
+            return (this.engine) ? (this.engine.turn().value ? 'Black' : 'White') : '';
+        },
+        inCheck() {
+            return (this.engine) ? (this.engine.inCheck() ? 'True' : 'False') : '';
+        },
+        isCheckmate() {
+            return (this.engine) ? (this.engine.isCheckmate() ? 'True' : 'False') : '';
+        },
         onClear() {
             this.engine.clear();
             this.boardVersion++;
@@ -312,9 +335,6 @@ export default {
             this.possibleMoves = this.engine.moves({ square: idx });
 
             const moves = this.engine.moves({ square: idx });
-            console.log(moves)
-            console.log(this.possibleMoves)
-            moves.forEach(m => console.log(m));
         },
         svgPoint(event) {
             const svg = this.$refs.svgRef;
@@ -362,8 +382,6 @@ export default {
 
             const draggingIndex = squareNameToIndex(this.draggingSquare);
             const newIndex = newY * 8 + newX;
-
-            console.log(`Moved ${draggingIndex} to ${newIndex}`);
 
             if (this.engine.move(draggingIndex, newIndex)) {
                 this.possibleMoves = kEmptyBitboard;
