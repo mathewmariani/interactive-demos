@@ -7,12 +7,6 @@ namespace chess
 
 using Piece = uint8_t;
 
-template <typename T>
-constexpr auto to_index(T t) noexcept
-{
-    return static_cast<std::underlying_type_t<T>>(t);
-}
-
 enum class PieceColor : uint8_t
 {
     White = 0,

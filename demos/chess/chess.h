@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include "bitboard.h"
 #include "piece.h"
 
 namespace chess
@@ -51,7 +50,6 @@ class Chess
     const Bitboard GetOccupied(PieceColor color) const;
     const Bitboard GetOpponentAttacks() const;
     const Bitboard GetOpponentAttacksToSquare(uint8_t square) const;
-    const Bitboard GetPossibleMoves(const Piece piece, uint8_t square) const;
 
     const PieceColor GetTurn(void) const { return turn; }
     void SetTurn(const PieceColor color) { turn = color; }
@@ -77,6 +75,7 @@ class Chess
     const Bitboard GenerateRookMoves(uint8_t square, const Bitboard blockers) const;
     const Bitboard GenerateQueenMoves(uint8_t square, const Bitboard blockers) const;
     const Bitboard GenerateKingMoves(uint8_t square) const;
+    const Bitboard GenerateMovesForPieceAt(const Piece piece, uint8_t square) const;
 
     void UpdateZobristMove(Piece moving,
                            uint8_t from,

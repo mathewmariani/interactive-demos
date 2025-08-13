@@ -8,8 +8,6 @@
 namespace chess
 {
 
-using Bitboard = uint64_t;
-
 constexpr Bitboard SquareMask(int rank, int file)
 {
     return 1ULL << (rank * kNumRanks + file);
@@ -209,7 +207,7 @@ constexpr auto InitKnightMasks(void)
 
 constexpr auto KnightMasks = InitKnightMasks();
 
-constexpr Bitboard BishopMask(int square, const Bitboard blockers)
+Bitboard BishopMask(int square, const Bitboard blockers)
 {
     constexpr int deltas = 4;
     constexpr std::array<int, deltas> dr = {1, 1, -1, -1};
@@ -247,7 +245,7 @@ constexpr Bitboard BishopMask(int square, const Bitboard blockers)
     return mask;
 }
 
-constexpr Bitboard RookMask(int square, Bitboard blockers)
+Bitboard RookMask(int square, Bitboard blockers)
 {
     constexpr int deltas = 4;
     constexpr std::array<int, deltas> dr = {1, -1, 0, 0};
@@ -285,7 +283,7 @@ constexpr Bitboard RookMask(int square, Bitboard blockers)
     return mask;
 }
 
-constexpr Bitboard QueenMask(int square, const Bitboard blockers)
+Bitboard QueenMask(int square, const Bitboard blockers)
 {
     constexpr int deltas = 8;
     constexpr std::array<int, deltas> dr = {1, -1, 0, 0, 1, 1, -1, -1};

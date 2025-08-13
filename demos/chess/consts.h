@@ -3,6 +3,8 @@
 namespace chess
 {
 
+using Bitboard = uint64_t;
+
 constexpr const char* KEmptyPostion = "8/8/8/8/8/8/8/8 w - - 0 1";
 constexpr const char* kDefaultPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
