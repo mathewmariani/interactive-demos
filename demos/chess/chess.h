@@ -48,12 +48,6 @@ class Chess
     const std::vector<Piece> GetBoard(void) const;
     const std::string GetZobrist(void) const;
 
-    const Bitboard GetRooks(void) const;
-    const Bitboard GetBishops(void) const;
-    const Bitboard GetQueens(void) const;
-    const Bitboard GetKnights(void) const;
-    const Bitboard GetPawns(void) const;
-    const Bitboard GetKings(void) const;
     const Bitboard GetOccupied(PieceColor color) const;
     const Bitboard GetOpponentAttacks() const;
     const Bitboard GetOpponentAttacksToSquare(uint8_t square) const;
@@ -91,17 +85,42 @@ class Chess
                            CastlingRights prevCastlingRights,
                            CastlingRights newCastlingRights);
 
+    inline constexpr const Bitboard GetPawns(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::Pawn)];
+    }
+
+    inline constexpr const Bitboard GetKnights(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::Knight)];
+    }
+
+    inline constexpr const Bitboard GetBishops(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::Bishop)];
+    }
+
+    inline constexpr const Bitboard GetRooks(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::Rook)];
+    }
+
+    inline constexpr const Bitboard GetQueens(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::Queen)];
+    }
+
+    inline constexpr const Bitboard GetKings(PieceColor turn) const
+    {
+        return pieces[static_cast<uint8_t>(turn)][static_cast<uint8_t>(PieceType::King)];
+    }
+
   private:
     PieceColor turn;
     CastlingRights castlingRights;
 
-    Piece squares[64];
-    Bitboard rooks[2];
-    Bitboard bishops[2];
-    Bitboard queens[2];
-    Bitboard knights[2];
-    Bitboard pawns[2];
-    Bitboard kings[2];
+    Piece squares[kNumSquares];
+    Bitboard pieces[kNumColors][kNumPieces];
 
     uint64_t hash;
     std::vector<chess::Undo> undo_stack;

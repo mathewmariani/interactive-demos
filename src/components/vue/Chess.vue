@@ -235,13 +235,13 @@ export default {
             this.boardVersion;
             if (!this.engine) return [];
             const vec = this.engine.get_board();
-            const rookBits = this.engine.get_rooks();
-            const bishopBits = this.engine.get_bishops();
-            const queenBits = this.engine.get_queens();
-            const knightBits = this.engine.get_knights();
-            const pawnBits = this.engine.get_pawns();
-            const kingBits = this.engine.get_kings();
-            const attackingBits = this.engine.attacking();
+            const rookBits = 0;//this.engine.get_rooks();
+            const bishopBits = 0;//this.engine.get_bishops();
+            const queenBits = 0;//this.engine.get_queens();
+            const knightBits = 0;//this.engine.get_knights();
+            const pawnBits = 0;//this.engine.get_pawns();
+            const kingBits = 0;//this.engine.get_kings();
+            const attackingBits = 0;//this.engine.attacking();
             const squares = [];
             for (let rank = 8; rank >= 1; rank--) {
                 for (let file = 0; file < 8; file++) {
@@ -261,13 +261,13 @@ export default {
                         piece: pieceKey,
 
                         // only highlight if corresponding toggle is true
-                        isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        isAttacking: this.showAttacking && (attackingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
+                        // isAttacking: this.showAttacking && (attackingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                     });
                 }
             }

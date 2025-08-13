@@ -27,17 +27,18 @@ constexpr const uint8_t kNullPiece = 0b00000000;
 constexpr const uint8_t kPieceTypeMask = 0b00000111;
 constexpr const uint8_t kPieceColorMask = 0b00001000;
 
-constexpr int kNumRanks = 8; // x
-constexpr int kNumFiles = 8; // y
-constexpr int kNumSquares = kNumRanks * kNumFiles;
-constexpr int kNumPieces = 12;
+constexpr const int kNumRanks = 8; // x
+constexpr const int kNumFiles = 8; // y
+constexpr const int kNumSquares = kNumRanks * kNumFiles;
+constexpr const int kNumPieces = 12;
+constexpr const int kNumColors = 2;
 
 // bitboard
-constexpr uint64_t kEmptyBitboard = 0ULL;
+constexpr const uint64_t kEmptyBitboard = 0ULL;
 
 // zobrist
-constexpr int kCastlingBits = 16;
-constexpr int kEnPassentBits = 8;
+constexpr const int kCastlingBits = 16;
+constexpr const int kEnPassentBits = 8;
 
 // SAN
 constexpr const char* kSANPositions[] = {
@@ -53,76 +54,76 @@ constexpr const char* kSANPositions[] = {
     // clang-format on
 };
 
-constexpr uint8_t A8 = 0;
-constexpr uint8_t B8 = 1;
-constexpr uint8_t C8 = 2;
-constexpr uint8_t D8 = 3;
-constexpr uint8_t E8 = 4;
-constexpr uint8_t F8 = 5;
-constexpr uint8_t G8 = 6;
-constexpr uint8_t H8 = 7;
+constexpr const uint8_t A8 = 0;
+constexpr const uint8_t B8 = 1;
+constexpr const uint8_t C8 = 2;
+constexpr const uint8_t D8 = 3;
+constexpr const uint8_t E8 = 4;
+constexpr const uint8_t F8 = 5;
+constexpr const uint8_t G8 = 6;
+constexpr const uint8_t H8 = 7;
 
-constexpr uint8_t A7 = 8;
-constexpr uint8_t B7 = 9;
-constexpr uint8_t C7 = 10;
-constexpr uint8_t D7 = 11;
-constexpr uint8_t E7 = 12;
-constexpr uint8_t F7 = 13;
-constexpr uint8_t G7 = 14;
-constexpr uint8_t H7 = 15;
+constexpr const uint8_t A7 = 8;
+constexpr const uint8_t B7 = 9;
+constexpr const uint8_t C7 = 10;
+constexpr const uint8_t D7 = 11;
+constexpr const uint8_t E7 = 12;
+constexpr const uint8_t F7 = 13;
+constexpr const uint8_t G7 = 14;
+constexpr const uint8_t H7 = 15;
 
-constexpr uint8_t A6 = 16;
-constexpr uint8_t B6 = 17;
-constexpr uint8_t C6 = 18;
-constexpr uint8_t D6 = 19;
-constexpr uint8_t E6 = 20;
-constexpr uint8_t F6 = 21;
-constexpr uint8_t G6 = 22;
-constexpr uint8_t H6 = 23;
+constexpr const uint8_t A6 = 16;
+constexpr const uint8_t B6 = 17;
+constexpr const uint8_t C6 = 18;
+constexpr const uint8_t D6 = 19;
+constexpr const uint8_t E6 = 20;
+constexpr const uint8_t F6 = 21;
+constexpr const uint8_t G6 = 22;
+constexpr const uint8_t H6 = 23;
 
-constexpr uint8_t A5 = 24;
-constexpr uint8_t B5 = 25;
-constexpr uint8_t C5 = 26;
-constexpr uint8_t D5 = 27;
-constexpr uint8_t E5 = 28;
-constexpr uint8_t F5 = 29;
-constexpr uint8_t G5 = 30;
-constexpr uint8_t H5 = 31;
+constexpr const uint8_t A5 = 24;
+constexpr const uint8_t B5 = 25;
+constexpr const uint8_t C5 = 26;
+constexpr const uint8_t D5 = 27;
+constexpr const uint8_t E5 = 28;
+constexpr const uint8_t F5 = 29;
+constexpr const uint8_t G5 = 30;
+constexpr const uint8_t H5 = 31;
 
-constexpr uint8_t A4 = 32;
-constexpr uint8_t B4 = 33;
-constexpr uint8_t C4 = 34;
-constexpr uint8_t D4 = 35;
-constexpr uint8_t E4 = 36;
-constexpr uint8_t F4 = 37;
-constexpr uint8_t G4 = 38;
-constexpr uint8_t H4 = 39;
+constexpr const uint8_t A4 = 32;
+constexpr const uint8_t B4 = 33;
+constexpr const uint8_t C4 = 34;
+constexpr const uint8_t D4 = 35;
+constexpr const uint8_t E4 = 36;
+constexpr const uint8_t F4 = 37;
+constexpr const uint8_t G4 = 38;
+constexpr const uint8_t H4 = 39;
 
-constexpr uint8_t A3 = 40;
-constexpr uint8_t B3 = 41;
-constexpr uint8_t C3 = 42;
-constexpr uint8_t D3 = 43;
-constexpr uint8_t E3 = 44;
-constexpr uint8_t F3 = 45;
-constexpr uint8_t G3 = 46;
-constexpr uint8_t H3 = 47;
+constexpr const uint8_t A3 = 40;
+constexpr const uint8_t B3 = 41;
+constexpr const uint8_t C3 = 42;
+constexpr const uint8_t D3 = 43;
+constexpr const uint8_t E3 = 44;
+constexpr const uint8_t F3 = 45;
+constexpr const uint8_t G3 = 46;
+constexpr const uint8_t H3 = 47;
 
-constexpr uint8_t A2 = 48;
-constexpr uint8_t B2 = 49;
-constexpr uint8_t C2 = 50;
-constexpr uint8_t D2 = 51;
-constexpr uint8_t E2 = 52;
-constexpr uint8_t F2 = 53;
-constexpr uint8_t G2 = 54;
-constexpr uint8_t H2 = 55;
+constexpr const uint8_t A2 = 48;
+constexpr const uint8_t B2 = 49;
+constexpr const uint8_t C2 = 50;
+constexpr const uint8_t D2 = 51;
+constexpr const uint8_t E2 = 52;
+constexpr const uint8_t F2 = 53;
+constexpr const uint8_t G2 = 54;
+constexpr const uint8_t H2 = 55;
 
-constexpr uint8_t A1 = 56;
-constexpr uint8_t B1 = 57;
-constexpr uint8_t C1 = 58;
-constexpr uint8_t D1 = 59;
-constexpr uint8_t E1 = 60;
-constexpr uint8_t F1 = 61;
-constexpr uint8_t G1 = 62;
-constexpr uint8_t H1 = 63;
+constexpr const uint8_t A1 = 56;
+constexpr const uint8_t B1 = 57;
+constexpr const uint8_t C1 = 58;
+constexpr const uint8_t D1 = 59;
+constexpr const uint8_t E1 = 60;
+constexpr const uint8_t F1 = 61;
+constexpr const uint8_t G1 = 62;
+constexpr const uint8_t H1 = 63;
 
 } // namespace chess
