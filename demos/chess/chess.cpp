@@ -178,7 +178,7 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
         break;
     }
 
-    turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+    turn = GetOpponent();
 
     // cache move
     undo_stack.push_back(chess::Undo{{moving, from, to}, captured, prevCastlingRights, castlingRights});
@@ -245,7 +245,7 @@ void Chess::Undo(void)
 
     // game state
     castlingRights = prev.oldCastlingRights;
-    turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+    turn = GetOpponent();
 
     UpdateZobristMove(prev.move.piece, prev.move.from, prev.move.to, prev.captured, prev.newCastlingRights, prev.oldCastlingRights);
 
@@ -269,7 +269,7 @@ void Chess::Redo(void)
 
     // game state
     castlingRights = next.newCastlingRights;
-    turn = (turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+    turn = GetOpponent();
 
     // update the hash
     UpdateZobristMove(next.move.piece, next.move.from, next.move.to, next.captured, next.oldCastlingRights, next.newCastlingRights);
@@ -299,17 +299,15 @@ const Bitboard Chess::GetOccupied(const PieceColor color) const
     return pawns | knights | bishops | queens | kings;
 }
 
-const Bitboard Chess::GetOpponentAttacks(void) const
+const Bitboard Chess::GetAttacks(PieceColor from) const
 {
     Bitboard attacks = kEmptyBitboard;
-    auto us = GetTurn();
-    auto them = (us == PieceColor::White) ? PieceColor::Black : PieceColor::White;
-    auto occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+    const Bitboard occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
 
     for (auto i = 0; i < kNumSquares; ++i)
     {
         auto piece = GetPiece(i);
-        if ((GetPieceType(piece) == PieceType::None) || (GetPieceColor(piece) != them))
+        if ((GetPieceType(piece) == PieceType::None) || (GetPieceColor(piece) != from))
         {
             continue;
         }
@@ -317,7 +315,7 @@ const Bitboard Chess::GetOpponentAttacks(void) const
         switch (GetPieceType(piece))
         {
         case PieceType::Pawn:
-            attacks |= (them == PieceColor::White)
+            attacks |= (from == PieceColor::White)
                            ? WhitePawnCaptureMasks[i]
                            : BlackPawnCaptureMasks[i];
             break;
@@ -343,28 +341,29 @@ const Bitboard Chess::GetOpponentAttacks(void) const
     return attacks;
 }
 
-const Bitboard Chess::GetOpponentAttacksToSquare(uint8_t square) const
+const Bitboard Chess::GetAttacksOnSquare(uint8_t square, PieceColor from) const
 {
     Bitboard attackers = kEmptyBitboard;
 
-    const auto opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
     const Bitboard occupancy = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
 
-    attackers |= (GetTurn() == PieceColor::White)
-                     ? BlackPawnCaptureMasks[square]
-                     : WhitePawnCaptureMasks[square];
-    attackers |= KnightMasks[square] & GetKnights(opponent);
-    attackers |= KingMasks[square] & GetKings(opponent);
-    attackers |= BishopMask(square, occupancy) & (GetBishops(opponent) | GetQueens(opponent));
-    attackers |= RookMask(square, occupancy) & (GetRooks(opponent) | GetQueens(opponent));
+    attackers |= (from == PieceColor::White)
+                     ? (WhitePawnCaptureMasks[square] & GetPawns(from))
+                     : (BlackPawnCaptureMasks[square] & GetPawns(from));
+    attackers |= KnightMasks[square] & GetKnights(from);
+    attackers |= KingMasks[square] & GetKings(from);
+    attackers |= BishopMask(square, occupancy) & (GetBishops(from) | GetQueens(from));
+    attackers |= RookMask(square, occupancy) & (GetRooks(from) | GetQueens(from));
 
     return attackers;
 }
 
 bool Chess::InCheck(void) const
 {
-    const auto turn = GetTurn();
-    return (GetKings(turn) & GetOpponentAttacks()) != kEmptyBitboard;
+    const auto opponent = GetOpponent();
+    const auto king = MoveFromBitboard(GetKings(GetTurn()));
+    const auto attacking = CountPieces(GetAttacksOnSquare(king, opponent));
+    return attacking >= 1;
 }
 
 bool Chess::InCheckmate(void) const
@@ -377,7 +376,7 @@ bool Chess::InCheckmate(void) const
     const auto turn = GetTurn();
     const auto king_square = MoveFromBitboard(GetKings(turn));
     const Bitboard king_moves = KingMasks[king_square] & ~GetOccupied(turn);
-    const Bitboard safe_moves = king_moves & ~GetOpponentAttacks();
+    const Bitboard safe_moves = king_moves & ~GetAttacks(GetOpponent());
 
     // const Bitboard attackers = GetAttacking(king_square);
 
@@ -476,9 +475,8 @@ const std::vector<chess::Move> Chess::MovesForPiece(Piece piece) const
 
 const Bitboard Chess::GeneratePawnMoves(uint8_t square) const
 {
-    const auto opponent = GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White;
     const Bitboard empty = ~GetOccupied(PieceColor::White) & ~GetOccupied(PieceColor::Black);
-    const Bitboard enemy = GetOccupied(opponent);
+    const Bitboard enemy = GetOccupied(GetOpponent());
 
     Bitboard push = kEmptyBitboard;
     Bitboard double_push = kEmptyBitboard;
@@ -534,13 +532,13 @@ const Bitboard Chess::GenerateQueenMoves(uint8_t square, const Bitboard blockers
 const Bitboard Chess::GenerateKingMoves(uint8_t square) const
 {
     Bitboard possible_moves = KingMasks[square];
-    possible_moves &= ~GetOpponentAttacks();
+    possible_moves &= ~GetAttacks(GetOpponent());
 
     const Bitboard occupied = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
 
     auto isSafeSquare = [&](uint8_t sq) -> bool
     {
-        return (GetOpponentAttacksToSquare(sq) == 0);
+        return (GetAttacksOnSquare(sq, GetOpponent()) == 0);
     };
 
     switch (GetTurn())
@@ -585,44 +583,27 @@ const Bitboard Chess::GenerateMovesForPieceAt(const Piece piece, uint8_t square)
 
     const auto type = GetPieceType(piece);
     const auto color = GetPieceColor(piece);
-    const auto opponent = (GetTurn() == PieceColor::White) ? PieceColor::Black : PieceColor::White;
-    const auto king_square = GetKings(color);
 
-    const Bitboard blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
-    const Bitboard empty = ~blockers;
-    const Bitboard enemy = GetOccupied(opponent);
-    const Bitboard attackers = GetOpponentAttacksToSquare(king_square);
+    const auto king = MoveFromBitboard(GetKings(GetTurn()));
+    const auto num_attackers = CountPieces(GetAttacksOnSquare(king, GetOpponent()));
 
-    const auto num_attackers = CountPieces(attackers);
-
-    if (InCheck())
+    if (num_attackers > 0)
     {
-        if (num_attackers >= 2)
+        if (type == PieceType::King)
         {
-            if (type == PieceType::King)
+            if (num_attackers > 2)
             {
-                possible_moves = GenerateKingMoves(square);
-            }
-        }
-        else
-        {
-            if (type == PieceType::King)
-            {
-                possible_moves = GenerateKingMoves(square);
             }
             else
             {
-                // Generate moves normally, but filter so they:
-                // - capture the checking piece, or
-                // - block the check ray if it’s a sliding piece, or
-                // - do not move into check (your legal move filter)
-                // possible_moves = GenerateMovesForPieceConsideringCheck(square, attackers, king_square);
+                possible_moves = GenerateKingMoves(square);
             }
         }
     }
     else
     {
-        // Normal move generation when not in check
+        const Bitboard blockers = GetOccupied(PieceColor::White) | GetOccupied(PieceColor::Black);
+
         switch (type)
         {
         case PieceType::None:

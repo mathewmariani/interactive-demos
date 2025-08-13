@@ -48,10 +48,11 @@ class Chess
     const std::string GetZobrist(void) const;
 
     const Bitboard GetOccupied(PieceColor color) const;
-    const Bitboard GetOpponentAttacks() const;
-    const Bitboard GetOpponentAttacksToSquare(uint8_t square) const;
+    const Bitboard GetAttacksOnSquare(uint8_t square, PieceColor from) const;
+    const Bitboard GetAttacks(PieceColor from) const;
 
     const PieceColor GetTurn(void) const { return turn; }
+    const PieceColor GetOpponent(void) const { return GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White; }
     void SetTurn(const PieceColor color) { turn = color; }
 
     const CastlingRights GetCastlingRights(void) const { return castlingRights; }

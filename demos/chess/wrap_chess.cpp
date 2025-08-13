@@ -42,12 +42,12 @@ emscripten::val w_getAttacking(Chess& self, emscripten::val opts)
 
     if (opts.isUndefined() || opts.isNull())
     {
-        attacking = self.GetOpponentAttacks();
+        attacking = self.GetAttacks(self.GetOpponent());
     }
     else if (opts.hasOwnProperty("square"))
     {
         auto square = opts["square"].as<uint8_t>();
-        attacking = self.GetOpponentAttacksToSquare(square);
+        attacking = self.GetAttacksOnSquare(square, self.GetOpponent());
     }
     else
     {
