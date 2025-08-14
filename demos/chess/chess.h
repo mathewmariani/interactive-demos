@@ -53,12 +53,13 @@ class Chess
 
     const PieceColor GetTurn(void) const { return turn; }
     const PieceColor GetOpponent(void) const { return GetTurn() == PieceColor::White ? PieceColor::Black : PieceColor::White; }
+    const PieceColor GetOpposite(PieceColor color) const { return color == PieceColor::White ? PieceColor::Black : PieceColor::White; }
     void SetTurn(const PieceColor color) { turn = color; }
 
     const CastlingRights GetCastlingRights(void) const { return castlingRights; }
     void SetCastlingRights(CastlingRights rights) { castlingRights |= rights; }
 
-    bool InCheck(void) const;
+    bool InCheck(PieceColor turn) const;
     bool InCheckmate(void) const;
 
     const std::vector<chess::Move> Moves() const;
@@ -67,8 +68,8 @@ class Chess
 
   private:
     bool IsValidMove(int from, int to) const;
-    bool IsSquareAttacked(uint8_t square) const;
-    bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece);
+    bool IsCastlingMove(uint8_t from, uint8_t to, Piece movingPiece) const;
+    bool MoveLeadsToCheck(uint8_t from, uint8_t to) const;
 
     const Bitboard GeneratePawnMoves(uint8_t square) const;
     const Bitboard GenerateKnightMoves(uint8_t square) const;
@@ -119,12 +120,12 @@ class Chess
     PieceColor turn;
     CastlingRights castlingRights;
 
-    Piece squares[kNumSquares];
+    Piece board[kNumSquares];
     Bitboard pieces[kNumColors][kNumPieces];
 
     uint64_t hash;
-    std::vector<chess::Undo> undo_stack;
-    std::vector<chess::Undo> redo_stack;
+    std::vector<chess::Undo> undoStack;
+    std::vector<chess::Undo> redoStack;
 };
 
 } // namespace chess

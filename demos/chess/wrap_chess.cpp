@@ -57,6 +57,11 @@ emscripten::val w_getAttacking(Chess& self, emscripten::val opts)
     return emscripten::val(attacking);
 }
 
+emscripten::val w_getInCheck(Chess& self)
+{
+    return emscripten::val(self.InCheck(self.GetTurn()));
+}
+
 EMSCRIPTEN_BINDINGS(chess_module)
 {
     emscripten::enum_<PieceType>("PieceType")
@@ -101,7 +106,7 @@ EMSCRIPTEN_BINDINGS(chess_module)
         .function("moves", w_getMoves)
 
         .function("attacking", w_getAttacking)
-        .function("inCheck", &Chess::InCheck)
+        .function("inCheck", w_getInCheck)
         .function("isCheckmate", &Chess::InCheckmate)
 
         .function("board", &Chess::GetBoard)
