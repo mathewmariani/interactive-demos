@@ -8,9 +8,14 @@
 namespace chess
 {
 
+constexpr Bitboard MaskFromSquare(int square)
+{
+    return (1ULL << square);
+}
+
 constexpr Bitboard SquareMask(int rank, int file)
 {
-    return 1ULL << (rank * kNumRanks + file);
+    return MaskFromSquare(rank * kNumRanks + file);
 }
 
 constexpr uint8_t CountPieces(const Bitboard bitboard)
@@ -233,9 +238,9 @@ Bitboard BishopMask(int square, const Bitboard blockers)
             }
 
             auto sq = r * kNumRanks + f;
-            mask |= (1ULL << sq);
+            mask |= MaskFromSquare(sq);
 
-            if (blockers & (1ULL << sq))
+            if (blockers & MaskFromSquare(sq))
             {
                 break;
             }
@@ -271,9 +276,9 @@ Bitboard RookMask(int square, Bitboard blockers)
             }
 
             auto sq = r * kNumRanks + f;
-            mask |= (1ULL << sq);
+            mask |= MaskFromSquare(sq);
 
-            if (blockers & (1ULL << sq))
+            if (blockers & MaskFromSquare(sq))
             {
                 break;
             }
@@ -309,9 +314,9 @@ Bitboard QueenMask(int square, const Bitboard blockers)
             }
 
             auto sq = r * kNumRanks + f;
-            mask |= (1ULL << sq);
+            mask |= MaskFromSquare(sq);
 
-            if (blockers & (1ULL << sq))
+            if (blockers & MaskFromSquare(sq))
             {
                 break;
             }
