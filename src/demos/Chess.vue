@@ -47,7 +47,7 @@
                 <template v-for="square in squares" :key="square.name + '-piece'">
                     <g v-if="square && square.piece && square.name !== draggingSquare" :key="square.name + '-piece'"
                         :transform="getPieceTransform(square)">
-                        <component :is="pieceMap[square.piece]" />
+                        <g v-html="pieceMap[square.piece]"></g>
                     </g>
 
                     <!-- interaction -->
@@ -65,7 +65,7 @@
                 <template v-for="square in squares">
                     <g v-if="square && square.piece && square.name === draggingSquare" :key="square.name + '-dragging'"
                         :transform="getPieceTransform(square)">
-                        <component :is="pieceMap[square.piece]" />
+                        <g v-html="pieceMap[square.piece]"></g>
                     </g>
                 </template>
             </svg>
@@ -118,37 +118,37 @@
 </template>
 
 <script>
-import { shallowReactive, markRaw, reactive } from "vue";
-import Module from "../../modules/demos.js";
+import { shallowReactive, reactive } from "vue";
+import Module from "@/modules/demos.js";
 
-import WhitePawn from "./WhitePawn.vue";
-import WhiteKnight from "./WhiteKnight.vue";
-import WhiteBishop from "./WhiteBishop.vue";
-import WhiteRook from "./WhiteRook.vue";
-import WhiteQueen from "./WhiteQueen.vue";
-import WhiteKing from "./WhiteKing.vue";
+import WhitePawn from "@/assets/chess/Chess_plt45.svg?raw";
+import WhiteKnight from "@/assets/chess/Chess_nlt45.svg?raw";
+import WhiteBishop from "@/assets/chess/Chess_blt45.svg?raw";
+import WhiteRook from "@/assets/chess/Chess_rlt45.svg?raw";
+import WhiteQueen from "@/assets/chess/Chess_qlt45.svg?raw";
+import WhiteKing from "@/assets/chess/Chess_klt45.svg?raw";
 
-import BlackPawn from "./BlackPawn.vue";
-import BlackKnight from "./BlackKnight.vue";
-import BlackBishop from "./BlackBishop.vue";
-import BlackRook from "./BlackRook.vue";
-import BlackQueen from "./BlackQueen.vue";
-import BlackKing from "./BlackKing.vue";
+import BlackPawn from "@/assets/chess/Chess_pdt45.svg?raw";
+import BlackKnight from "@/assets/chess/Chess_ndt45.svg?raw";
+import BlackBishop from "@/assets/chess/Chess_bdt45.svg?raw";
+import BlackRook from "@/assets/chess/Chess_rdt45.svg?raw";
+import BlackQueen from "@/assets/chess/Chess_qdt45.svg?raw";
+import BlackKing from "@/assets/chess/Chess_kdt45.svg?raw";
 
 const pieceMap = {
-    "0_1": markRaw(WhitePawn),
-    "0_2": markRaw(WhiteKnight),
-    "0_3": markRaw(WhiteBishop),
-    "0_4": markRaw(WhiteRook),
-    "0_5": markRaw(WhiteQueen),
-    "0_6": markRaw(WhiteKing),
+    "0_1": WhitePawn,
+    "0_2": WhiteKnight,
+    "0_3": WhiteBishop,
+    "0_4": WhiteRook,
+    "0_5": WhiteQueen,
+    "0_6": WhiteKing,
 
-    "8_1": markRaw(BlackPawn),
-    "8_2": markRaw(BlackKnight),
-    "8_3": markRaw(BlackBishop),
-    "8_4": markRaw(BlackRook),
-    "8_5": markRaw(BlackQueen),
-    "8_6": markRaw(BlackKing),
+    "8_1": BlackPawn,
+    "8_2": BlackKnight,
+    "8_3": BlackBishop,
+    "8_4": BlackRook,
+    "8_5": BlackQueen,
+    "8_6": BlackKing,
 };
 
 const SAN = [
