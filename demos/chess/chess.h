@@ -22,7 +22,7 @@ struct Undo
 {
     Move move;
     Piece captured;
-    uint8_t capturedSquare;
+    uint8_t enPassantCaptureSquare;
     uint8_t oldEnPassant;
     uint8_t newEnPassant;
     CastlingRights oldCastlingRights;

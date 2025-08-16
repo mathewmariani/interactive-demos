@@ -164,11 +164,12 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
     const auto color = GetPieceColor(moving);
 
     auto isEnPassant = (type == PieceType::Pawn && to == enPassantSquare && GetPieceType(captured) == PieceType::None);
+    auto enPassantCaptureSquare = kNullSquare;
     if (isEnPassant)
     {
-        auto sq = (color == PieceColor::White) ? to + kNumRanks : to - kNumRanks;
-        captured = board[sq];
-        RemovePiece(sq);
+        enPassantCaptureSquare = (color == PieceColor::White) ? to + kNumRanks : to - kNumRanks;
+        captured = board[enPassantCaptureSquare];
+        RemovePiece(enPassantCaptureSquare);
     }
 
     // Move the king
@@ -264,6 +265,9 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
         if (abs((int)to - (int)from) == 16)
         {
             enPassantSquare = (from + to) / 2;
+            enPassantCaptureSquare = (turn == PieceColor::White)
+                                         ? enPassantSquare + kNumFiles
+                                         : enPassantSquare - kNumFiles;
         }
     }
 
@@ -274,6 +278,7 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
     undoStack.push_back(chess::Undo{
         .move = {moving, from, to},
         .captured = captured,
+        .enPassantCaptureSquare = enPassantCaptureSquare,
         .oldEnPassant = prevEnPassant,
         .newEnPassant = enPassantSquare,
         .oldCastlingRights = prevCastlingRights,
@@ -332,13 +337,11 @@ void Chess::Undo(void)
     RemovePiece(prev.move.to);
 
     auto isEnPassant = (GetPieceType(prev.move.piece) == PieceType::Pawn &&
-                        prev.move.to == prev.newEnPassant &&
-                        GetPieceType(prev.captured) != PieceType::None);
+                        prev.move.to == prev.oldEnPassant);
 
     if (isEnPassant)
     {
-        auto sq = (GetPieceColor(prev.move.piece) == PieceColor::White) ? prev.move.to + kNumFiles : prev.move.to - kNumFiles;
-        PutPiece(prev.captured, sq);
+        PutPiece(prev.captured, prev.enPassantCaptureSquare);
     }
     else if (GetPieceType(prev.captured) != PieceType::None)
     {
@@ -368,20 +371,11 @@ void Chess::Redo(void)
     redoStack.pop_back();
 
     auto isEnPassant = (GetPieceType(next.move.piece) == PieceType::Pawn &&
-                        next.move.to == next.newEnPassant &&
-                        GetPieceType(next.captured) != PieceType::None);
+                        next.move.to == next.oldEnPassant);
 
     // move pieces
     RemovePiece(next.move.from);
-    if (isEnPassant)
-    {
-        int sq = (GetPieceColor(next.move.piece) == PieceColor::White) ? next.move.to - kNumFiles : next.move.to + kNumFiles;
-        RemovePiece(sq);
-    }
-    else
-    {
-        RemovePiece(next.move.to);
-    }
+    RemovePiece(isEnPassant ? next.enPassantCaptureSquare : next.move.to);
     PutPiece(next.move.piece, next.move.to);
 
     // game state
