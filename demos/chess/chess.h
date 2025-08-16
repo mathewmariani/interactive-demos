@@ -22,6 +22,9 @@ struct Undo
 {
     Move move;
     Piece captured;
+    uint8_t capturedSquare;
+    uint8_t oldEnPassant;
+    uint8_t newEnPassant;
     CastlingRights oldCastlingRights;
     CastlingRights newCastlingRights;
 };
@@ -83,6 +86,7 @@ class Chess
                            uint8_t from,
                            uint8_t to,
                            Piece captured,
+                           uint8_t enPassant,
                            CastlingRights prevCastlingRights,
                            CastlingRights newCastlingRights);
 
@@ -119,6 +123,7 @@ class Chess
   private:
     PieceColor turn;
     CastlingRights castlingRights;
+    uint8_t enPassantSquare;
 
     Piece board[kNumSquares];
     Bitboard pieces[kNumColors][kNumPieces];

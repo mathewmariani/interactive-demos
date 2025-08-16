@@ -160,6 +160,17 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
         return false;
     }
 
+    const auto type = GetPieceType(moving);
+    const auto color = GetPieceColor(moving);
+
+    auto isEnPassant = (type == PieceType::Pawn && to == enPassantSquare && GetPieceType(captured) == PieceType::None);
+    if (isEnPassant)
+    {
+        auto sq = (color == PieceColor::White) ? to + kNumRanks : to - kNumRanks;
+        captured = board[sq];
+        RemovePiece(sq);
+    }
+
     // Move the king
     RemovePiece(to);
     RemovePiece(from);
@@ -198,8 +209,6 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
     }
 
     // castling rights
-    const auto type = GetPieceType(moving);
-    const auto color = GetPieceColor(moving);
     const auto prevCastlingRights = castlingRights;
     switch (type)
     {
@@ -247,13 +256,31 @@ bool Chess::MovePiece(uint8_t from, uint8_t to)
         break;
     }
 
+    // enpassent
+    auto prevEnPassant = enPassantSquare;
+    enPassantSquare = kNullSquare;
+    if (type == PieceType::Pawn)
+    {
+        if (abs((int)to - (int)from) == 16)
+        {
+            enPassantSquare = (from + to) / 2;
+        }
+    }
+
     turn = GetOpponent();
 
     // cache move
-    undoStack.push_back(chess::Undo{{moving, from, to}, captured, prevCastlingRights, castlingRights});
     redoStack.clear();
+    undoStack.push_back(chess::Undo{
+        .move = {moving, from, to},
+        .captured = captured,
+        .oldEnPassant = prevEnPassant,
+        .newEnPassant = enPassantSquare,
+        .oldCastlingRights = prevCastlingRights,
+        .newCastlingRights = castlingRights,
+    });
 
-    UpdateZobristMove(moving, from, to, captured, castlingRights, prevCastlingRights);
+    UpdateZobristMove(moving, from, to, captured, 0x00, castlingRights, prevCastlingRights);
 
     return true;
 }
@@ -302,21 +329,30 @@ void Chess::Undo(void)
     auto prev = undoStack.back();
     undoStack.pop_back();
 
-    // move pieces
     RemovePiece(prev.move.to);
-    RemovePiece(prev.move.from);
-    PutPiece(prev.move.piece, prev.move.from);
 
-    if (GetPieceType(prev.captured) != PieceType::None)
+    auto isEnPassant = (GetPieceType(prev.move.piece) == PieceType::Pawn &&
+                        prev.move.to == prev.newEnPassant &&
+                        GetPieceType(prev.captured) != PieceType::None);
+
+    if (isEnPassant)
+    {
+        auto sq = (GetPieceColor(prev.move.piece) == PieceColor::White) ? prev.move.to + kNumFiles : prev.move.to - kNumFiles;
+        PutPiece(prev.captured, sq);
+    }
+    else if (GetPieceType(prev.captured) != PieceType::None)
     {
         PutPiece(prev.captured, prev.move.to);
     }
 
+    PutPiece(prev.move.piece, prev.move.from);
+
     // game state
+    enPassantSquare = prev.oldEnPassant;
     castlingRights = prev.oldCastlingRights;
     turn = GetOpponent();
 
-    UpdateZobristMove(prev.move.piece, prev.move.from, prev.move.to, prev.captured, prev.newCastlingRights, prev.oldCastlingRights);
+    UpdateZobristMove(prev.move.piece, prev.move.from, prev.move.to, prev.captured, prev.newEnPassant, prev.newCastlingRights, prev.oldCastlingRights);
 
     redoStack.push_back(prev);
 }
@@ -331,17 +367,30 @@ void Chess::Redo(void)
     auto next = redoStack.back();
     redoStack.pop_back();
 
+    auto isEnPassant = (GetPieceType(next.move.piece) == PieceType::Pawn &&
+                        next.move.to == next.newEnPassant &&
+                        GetPieceType(next.captured) != PieceType::None);
+
     // move pieces
     RemovePiece(next.move.from);
-    RemovePiece(next.move.to);
+    if (isEnPassant)
+    {
+        int sq = (GetPieceColor(next.move.piece) == PieceColor::White) ? next.move.to - kNumFiles : next.move.to + kNumFiles;
+        RemovePiece(sq);
+    }
+    else
+    {
+        RemovePiece(next.move.to);
+    }
     PutPiece(next.move.piece, next.move.to);
 
     // game state
+    enPassantSquare = next.newEnPassant;
     castlingRights = next.newCastlingRights;
     turn = GetOpponent();
 
     // update the hash
-    UpdateZobristMove(next.move.piece, next.move.from, next.move.to, next.captured, next.oldCastlingRights, next.newCastlingRights);
+    UpdateZobristMove(next.move.piece, next.move.from, next.move.to, next.captured, 0x00, next.oldCastlingRights, next.newCastlingRights);
 
     undoStack.push_back(next);
 }
@@ -556,11 +605,23 @@ const Bitboard Chess::GeneratePawnMoves(uint8_t square) const
         push = WhitePawnPushMasks[square];
         double_push = WhitePawnDoublePushMasks[square];
         captures = WhitePawnCaptureMasks[square] & enemy;
+
+        if (enPassantSquare != kNullSquare &&
+            (WhitePawnCaptureMasks[square] & MaskFromSquare(enPassantSquare)))
+        {
+            captures |= MaskFromSquare(enPassantSquare);
+        }
         break;
     case PieceColor::Black:
         push = BlackPawnPushMasks[square];
         double_push = BlackPawnDoublePushMasks[square];
         captures = BlackPawnCaptureMasks[square] & enemy;
+
+        if (enPassantSquare != kNullSquare &&
+            (BlackPawnCaptureMasks[square] & MaskFromSquare(enPassantSquare)))
+        {
+            captures |= MaskFromSquare(enPassantSquare);
+        }
         break;
     }
 
@@ -711,6 +772,7 @@ void Chess::UpdateZobristMove(Piece moving,
                               uint8_t from,
                               uint8_t to,
                               Piece captured,
+                              uint8_t enPassant,
                               CastlingRights prevCastlingRights,
                               CastlingRights newCastlingRights)
 {

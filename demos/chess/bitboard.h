@@ -68,6 +68,40 @@ constexpr Bitboard WhitePawnCaptureMask(int square)
     return mask;
 }
 
+constexpr auto InitWhitePawnPushMasks(void)
+{
+    std::array<Bitboard, kNumSquares> arr{};
+    for (auto i = 0; i < kNumSquares; ++i)
+    {
+        arr[i] = WhitePawnPushMask(i);
+    }
+    return arr;
+}
+
+constexpr auto InitWhitePawnDoublePushMasks(void)
+{
+    std::array<Bitboard, kNumSquares> arr{};
+    for (auto i = 0; i < kNumSquares; ++i)
+    {
+        arr[i] = WhitePawnDoublePushMask(i);
+    }
+    return arr;
+}
+
+constexpr auto InitWhitePawnCaptureMasks(void)
+{
+    std::array<Bitboard, kNumSquares> arr{};
+    for (auto i = 0; i < kNumSquares; ++i)
+    {
+        arr[i] = WhitePawnCaptureMask(i);
+    }
+    return arr;
+}
+
+constexpr auto WhitePawnPushMasks = InitWhitePawnPushMasks();
+constexpr auto WhitePawnDoublePushMasks = InitWhitePawnDoublePushMasks();
+constexpr auto WhitePawnCaptureMasks = InitWhitePawnCaptureMasks();
+
 constexpr Bitboard BlackPawnPushMask(int square)
 {
     int rank = square / kNumRanks;
@@ -108,36 +142,6 @@ constexpr Bitboard BlackPawnCaptureMask(int square)
     return mask;
 }
 
-constexpr auto InitWhitePawnPushMasks(void)
-{
-    std::array<Bitboard, kNumSquares> arr{};
-    for (auto i = 0; i < kNumSquares; ++i)
-    {
-        arr[i] = WhitePawnPushMask(i);
-    }
-    return arr;
-}
-
-constexpr auto InitWhitePawnDoublePushMasks(void)
-{
-    std::array<Bitboard, kNumSquares> arr{};
-    for (auto i = 0; i < kNumSquares; ++i)
-    {
-        arr[i] = WhitePawnDoublePushMask(i);
-    }
-    return arr;
-}
-
-constexpr auto InitWhitePawnCaptureMasks(void)
-{
-    std::array<Bitboard, kNumSquares> arr{};
-    for (auto i = 0; i < kNumSquares; ++i)
-    {
-        arr[i] = WhitePawnCaptureMask(i);
-    }
-    return arr;
-}
-
 constexpr auto InitBlackPawnPushMasks(void)
 {
     std::array<Bitboard, kNumSquares> arr{};
@@ -167,10 +171,6 @@ constexpr auto InitBlackPawnCaptureMasks(void)
     }
     return arr;
 }
-
-constexpr auto WhitePawnPushMasks = InitWhitePawnPushMasks();
-constexpr auto WhitePawnDoublePushMasks = InitWhitePawnDoublePushMasks();
-constexpr auto WhitePawnCaptureMasks = InitWhitePawnCaptureMasks();
 
 constexpr auto BlackPawnPushMasks = InitBlackPawnPushMasks();
 constexpr auto BlackPawnDoublePushMasks = InitBlackPawnDoublePushMasks();
