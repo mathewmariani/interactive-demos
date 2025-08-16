@@ -479,24 +479,25 @@ bool Chess::InCheck(PieceColor turn) const
 
 bool Chess::InCheckmate(void) const
 {
-    if (!InCheck(GetTurn()))
+    auto turn = GetTurn();
+    if (!InCheck(turn))
     {
         return false;
     }
 
-    const auto turn = GetTurn();
-    const auto kingSquare = MoveFromBitboard(GetKings(turn));
-    const Bitboard kingMask = KingMasks[kingSquare] & ~GetOccupied(turn);
-    const Bitboard safeMoves = kingMask & ~GetAttacks(GetOpponent());
+    Bitboard legalMoves = kEmptyBitboard;
+    for (auto i = 0; i < kNumSquares; i++)
+    {
+        auto piece = GetPiece(i);
+        if (GetPieceColor(piece) != turn)
+        {
+            continue;
+        }
 
-    // const Bitboard attackers = GetAttacking(king_square);
+        legalMoves |= GenerateMovesForPieceAt(piece, i);
+    }
 
-    // const auto is_double_check = CountPieces(attackers)
-    // auto num_of_attackers =
-
-    // FIXME: need to know if we can capture the piece checking us
-
-    return safeMoves == kEmptyBitboard;
+    return legalMoves == kEmptyBitboard;
 }
 
 const std::vector<chess::Move> Chess::Moves(void) const
@@ -708,11 +709,11 @@ const Bitboard Chess::GenerateMovesForPieceAt(const Piece piece, uint8_t square)
     const auto color = GetPieceColor(piece);
 
     const auto king = MoveFromBitboard(GetKings(GetTurn()));
-    const auto num_attackers = CountPieces(GetAttacksOnSquare(king, GetOpponent()));
+    const auto numAttackers = CountPieces(GetAttacksOnSquare(king, GetOpponent()));
 
-    if (num_attackers > 0 && type == PieceType::King)
+    if (numAttackers > 0 && type == PieceType::King)
     {
-        if (num_attackers <= 2)
+        if (numAttackers <= 2)
         {
             possibleMoves = GenerateKingMoves(square);
         }

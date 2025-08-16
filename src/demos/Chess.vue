@@ -1,15 +1,5 @@
 <template>
     <figure id="diagram1">
-        <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
-                <button type="button" class="btn btn-primary" @click="onReset">Reset</button>
-                <button type="button" class="btn btn-primary" @click="onClear">Clear</button>
-            </div>
-            <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
-                <button type="button" class="btn btn-primary" @click="onUndo">Undo</button>
-                <button type="button" class="btn btn-primary" @click="onRedo">Redo</button>
-            </div>
-        </div>
         <div class="d-flex flex-column align-items-center">
             <svg ref="svgRef" viewBox="0 0 8 8" width="512" height="512" @pointermove="onPointerMove"
                 @pointerup="onPointerUp" @pointercancel="onPointerUp">
@@ -17,25 +7,6 @@
                 <g v-for="square in squares">
                     <rect :key="square.name" :x="square.x" :y="square.y" width="1" height="1" :class="square.color" />
                 </g>
-
-                <!-- highlights -->
-                <template v-for="square in squares" :key="square.name + '-highlight'">
-                    <!-- Only highlight if toggle is on for piece type -->
-                    <rect v-if="square.isRook" v-show="showRooks" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(84, 160, 255, 0.85)" />
-                    <rect v-if="square.isBishop" v-show="showBishops" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(255, 215, 84, 0.85)" />
-                    <rect v-if="square.isQueen" v-show="showQueens" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(186, 85, 211, 0.85)" />
-                    <rect v-if="square.isKnight" v-show="showKnights" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(50, 205, 50, 0.85)" />
-                    <rect v-if="square.isPawn" v-show="showPawns" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(255, 107, 107, 0.85)" />
-                    <rect v-if="square.isKing" v-show="showKings" :x="square.x" :y="square.y" width="1" height="1"
-                        fill="rgba(255, 140, 0, 0.85)" />
-                    <rect v-if="square.isAttacking" v-show="showAttacking" :x="square.x" :y="square.y" width="1"
-                        height="1" fill="rgba(255, 107, 107, 0.85)" />
-                </template>
 
                 <!-- square name -->
                 <text v-for="square in squares" :key="square.name + '-debug'" :x="square.x + 0.05" :y="square.y + 0.95"
@@ -73,45 +44,27 @@
 
         <!-- New toggle form -->
         <div class="mt-3">
+            <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
+                    <button type="button" class="btn btn-primary" @click="onReset">Reset</button>
+                    <button type="button" class="btn btn-primary" @click="onClear">Clear</button>
+                </div>
+                <div class="btn-group me-2" role="group" aria-label="Reset and Clear">
+                    <button type="button" class="btn btn-primary" @click="onUndo">Undo</button>
+                    <button type="button" class="btn btn-primary" @click="onRedo">Redo</button>
+                </div>
+            </div>
             <div class="input-group mb-3">
                 <button class="btn btn-primary" @click="loadFEN" type="button">Load FEN</button>
                 <input type="text" class="form-control" placeholder="Enter FEN" v-model="fenInput"
                     @keyup.enter="loadFEN" />
             </div>
-            <h2>Bitboards</h2>
+            <h2>Details:</h2>
             <p>Zobrist Hash: {{ getHash() }}</p>
             <p>Castling Rights: {{ getCastlingRights() }}</p>
             <p>Turn: {{ getTurn() }}</p>
             <p>Check: {{ inCheck() }}</p>
             <p>Checkmate: {{ isCheckmate() }}</p>
-            <div class="form-check">
-                <input type="checkbox" id="showRooks" class="form-check-input" v-model="showRooks" />
-                <label for="showRooks" class="form-check-label">Show Rooks</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showBishops" class="form-check-input" v-model="showBishops" />
-                <label for="showBishops" class="form-check-label">Show Bishops</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showQueens" class="form-check-input" v-model="showQueens" />
-                <label for="showQueens" class="form-check-label">Show Queens</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showKnights" class="form-check-input" v-model="showKnights" />
-                <label for="showKnights" class="form-check-label">Show Knights</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showPawns" class="form-check-input" v-model="showPawns" />
-                <label for="showPawns" class="form-check-label">Show Pawns</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showKings" class="form-check-input" v-model="showKings" />
-                <label for="showKings" class="form-check-label">Show Kings</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" id="showAttacking" class="form-check-input" v-model="showAttacking" />
-                <label for="showAttacking" class="form-check-label">Show Attacking</label>
-            </div>
         </div>
 
     </figure>
@@ -215,14 +168,7 @@ export default {
             dragPositions: reactive({}),
             pieceMap,
             boardVersion: 0, // reactive counter
-            showRooks: true,
-            showBishops: true,
-            showQueens: true,
-            showKnights: true,
-            showPawns: true,
-            showKings: true,
-            showAttacking: true,
-            possibleMoves: kEmptyBitboard,
+            possibleMoves: {},
             fenInput: '',
         };
     },
@@ -235,13 +181,6 @@ export default {
             this.boardVersion;
             if (!this.engine) return [];
             const vec = this.engine.get_board();
-            const rookBits = 0;//this.engine.get_rooks();
-            const bishopBits = 0;//this.engine.get_bishops();
-            const queenBits = 0;//this.engine.get_queens();
-            const knightBits = 0;//this.engine.get_knights();
-            const pawnBits = 0;//this.engine.get_pawns();
-            const kingBits = 0;//this.engine.get_kings();
-            const attackingBits = 0;//this.engine.attacking();
             const squares = [];
             for (let rank = 8; rank >= 1; rank--) {
                 for (let file = 0; file < 8; file++) {
@@ -259,15 +198,6 @@ export default {
                         y: 8 - rank,
                         color: (file + rank) % 2 === 0 ? "light" : "dark",
                         piece: pieceKey,
-
-                        // only highlight if corresponding toggle is true
-                        // isRook: this.showRooks && (rookBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isBishop: this.showBishops && (bishopBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isQueen: this.showQueens && (queenBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isKnight: this.showKnights && (knightBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isPawn: this.showPawns && (pawnBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isKing: this.showKings && (kingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
-                        // isAttacking: this.showAttacking && (attackingBits & (1n << BigInt(idx))) !== kEmptyBitboard,
                     });
                 }
             }
@@ -280,22 +210,26 @@ export default {
             return this.draggingSquare === square.name ? 'grabbing' : 'grab';
         },
         loadFEN() {
+            this.onReset();
             this.engine.load(this.fenInput);
             this.boardVersion++;
             this.$forceUpdate();
         },
         onUndo() {
             this.engine.undo();
+            this.possibleMoves = {};
             this.boardVersion++;
             this.$forceUpdate();
         },
         onRedo() {
             this.engine.redo();
+            this.possibleMoves = {};
             this.boardVersion++;
             this.$forceUpdate();
         },
         onReset() {
             this.engine.reset();
+            this.possibleMoves = {};
             this.boardVersion++;
             this.$forceUpdate();
 
@@ -328,13 +262,11 @@ export default {
             const val = this.engine.get_board().get(idx);
 
             if (this.engine.turn().value != getPieceColor(val)) {
-                this.possibleMoves = kEmptyBitboard;
+                this.possibleMoves = {};
                 return;
             }
 
             this.possibleMoves = this.engine.moves({ square: idx });
-
-            const moves = this.engine.moves({ square: idx });
         },
         svgPoint(event) {
             const svg = this.$refs.svgRef;
@@ -384,7 +316,7 @@ export default {
             const newIndex = newY * 8 + newX;
 
             if (this.engine.move(draggingIndex, newIndex)) {
-                this.possibleMoves = kEmptyBitboard;
+                this.possibleMoves = {};
                 this.boardVersion++;
                 this.$forceUpdate();
             }
