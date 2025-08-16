@@ -20,7 +20,7 @@
 
 <script>
 import { shallowReactive } from 'vue';
-import Module from '../modules/demos.js';
+import Module from '@/modules/demos.js';
 const wasmModule = await Module();
 
 let gridWorld = new wasmModule.GridWorld(11, 11);

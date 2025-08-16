@@ -12,7 +12,7 @@ class Bot
   public:
     explicit Bot(Board* board, int symbol) : board(board), symbol(symbol) {}
 
-    void random_move()
+    void RandomMove()
     {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -22,19 +22,19 @@ class Bot
         {
             for (int j = 0; j < 3; ++j)
             {
-                if (board->get(i, j) == TicTacToe::EMPTY && dist(gen) > 0.6)
+                if (board->Get(i, j) == TicTacToe::EMPTY && dist(gen) > 0.6)
                 {
-                    board->set(i, j, symbol);
+                    board->Set(i, j, symbol);
                     return;
                 }
             }
         }
     }
 
-    int minimax(bool is_maximizing, int depth)
+    int MiniMax(bool is_maximizing, int depth)
     {
-        auto who = board->has_winner();
-        if (who != TicTacToe::EMPTY || board->is_complete())
+        auto who = board->HasWinner();
+        if (who != TicTacToe::EMPTY || board->IsComplete())
         {
             return scores[who];
         }
@@ -45,19 +45,19 @@ class Bot
         {
             for (auto j = 0; j < 3; ++j)
             {
-                if (board->get(i, j) == TicTacToe::EMPTY)
+                if (board->Get(i, j) == TicTacToe::EMPTY)
                 {
-                    board->set(i, j, is_maximizing ? TicTacToe::CROSSES : TicTacToe::NOUGHTS);
-                    auto score = minimax(!is_maximizing, depth + 1);
+                    board->Set(i, j, is_maximizing ? TicTacToe::CROSSES : TicTacToe::NOUGHTS);
+                    auto score = MiniMax(!is_maximizing, depth + 1);
                     best_score = is_maximizing ? std::max(score - depth, best_score) : std::min(score + depth, best_score);
-                    board->set(i, j, TicTacToe::EMPTY);
+                    board->Set(i, j, TicTacToe::EMPTY);
                 }
             }
         }
         return best_score;
     }
 
-    void best_move()
+    void BestMove()
     {
         auto is_maximizing = (symbol == TicTacToe::CROSSES);
         auto best_score = is_maximizing ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -67,11 +67,11 @@ class Bot
         {
             for (auto j = 0; j < 3; ++j)
             {
-                if (board->get(i, j) == TicTacToe::EMPTY)
+                if (board->Get(i, j) == TicTacToe::EMPTY)
                 {
-                    board->set(i, j, symbol);
-                    auto score = minimax(!is_maximizing, 0);
-                    board->set(i, j, TicTacToe::EMPTY);
+                    board->Set(i, j, symbol);
+                    auto score = MiniMax(!is_maximizing, 0);
+                    board->Set(i, j, TicTacToe::EMPTY);
 
                     if ((is_maximizing && score > best_score) || (!is_maximizing && score < best_score))
                     {
@@ -83,7 +83,7 @@ class Bot
         }
         if (best_position)
         {
-            board->set(best_position->first, best_position->second, symbol);
+            board->Set(best_position->first, best_position->second, symbol);
         }
     }
 

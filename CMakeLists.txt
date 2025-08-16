@@ -10,10 +10,29 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
 
     add_executable(demos
         demos/bindings.cpp
+
+        # chess
         demos/chess/chess.cpp
         demos/chess/wrap_chess.cpp
+
+        # dungeon
         demos/dungeon/dungeon.cpp
-        demos/life/life.cpp)
+        demos/dungeon/wrap_dungeon.cpp
+
+        # minesweeper
+        demos/minesweeper/minesweeper.cpp
+        demos/minesweeper/wrap_minesweeper.cpp
+
+        # tictactoe
+        demos/tictactoe/tictactoe.cpp
+        demos/tictactoe/wrap_tictactoe.cpp
+
+        # towerdefense
+        demos/towerdefense/wrap_towerdefense.cpp
+
+        # life
+        demos/life/life.cpp
+        demos/life/wrap_life.cpp)
     target_include_directories(demos PUBLIC demos)
 
     target_link_options(demos PRIVATE

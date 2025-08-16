@@ -7,25 +7,12 @@
       <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent>
         <g v-for="loc in locations" @click="explore(loc)" @contextmenu="flag(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
-          <text
-            v-if="isExplored(loc) && !isMine(loc)"
-            text-anchor="middle"
-            :font-size="0.45"
-            :x="loc.x + 0.5"
-            :y="loc.y + 0.5"
-            :dy="0.15"
-            :fill="getNumberColor(getMineCount(loc))"
-            font-weight="bolder"
-          >
+          <text v-if="isExplored(loc) && !isMine(loc)" text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5"
+            :y="loc.y + 0.5" :dy="0.15" :fill="getNumberColor(getMineCount(loc))" font-weight="bolder">
             {{ getMineCount(loc) }}
           </text>
-          <circle
-            v-if="isExplored(loc) && isMine(loc)"
-            :cx="loc.x + 0.5"
-            :cy="loc.y + 0.5"
-            r="0.25"
-            fill="rgb(229, 74, 58)"
-          ></circle>
+          <circle v-if="isExplored(loc) && isMine(loc)" :cx="loc.x + 0.5" :cy="loc.y + 0.5" r="0.25"
+            fill="rgb(229, 74, 58)"></circle>
           <g v-if="isFlag(loc)" stroke="rgb(51, 151, 217)" stroke-width="0.1">
             <line :x1="loc.x + 0.2" :y1="loc.y + 0.2" :x2="loc.x + 0.8" :y2="loc.y + 0.8"></line>
             <line :x1="loc.x + 0.2" :y1="loc.y + 0.8" :x2="loc.x + 0.8" :y2="loc.y + 0.2"></line>
@@ -38,7 +25,7 @@
 
 <script>
 import { shallowReactive } from 'vue';
-import Module from '../modules/demos.js'
+import Module from '@/modules/demos.js'
 const wasmModule = await Module()
 
 let gridWorld = new wasmModule.GridWorld(10, 8)

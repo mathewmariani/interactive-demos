@@ -9,14 +9,8 @@
       <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent>
         <g v-for="loc in locations" @click="toggle(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
-          <text
-            text-anchor="middle"
-            :font-size="0.45"
-            :x="loc.x + 0.5"
-            :y="loc.y + 0.5"
-            :dy="0.15"
-            font-weight="bolder"
-          >
+          <text text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5" :y="loc.y + 0.5" :dy="0.15"
+            font-weight="bolder">
             {{ countNeighbors(loc) }}
           </text>
         </g>
@@ -28,7 +22,7 @@
 
 <script>
 import { shallowReactive } from 'vue';
-import Module from '../modules/demos.js';
+import Module from '@/modules/demos.js';
 const wasmModule = await Module();
 
 let gridWorld = new wasmModule.GridWorld(10, 8);
