@@ -11,5 +11,6 @@ export const ChessLink = (): string => 'chess';
 export const BreadthFirstSearchLink = (): string => 'breadthfirstsearch';
 export const DungeonGeneratorLink = (): string => 'dungeongerator';
 export const JohnConwayLifeLink = (): string => 'johnconwaylife';
+export const MazeGeneratorLink = (): string => 'mazegenerator';
 export const MinesweeperLink = (): string => 'minesweeper';
 export const TicTacToeLink = (): string => 'tictactoe';
