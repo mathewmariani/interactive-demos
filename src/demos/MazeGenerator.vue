@@ -50,13 +50,13 @@ import { getWasm } from "@/composables/wasm.ts";
 
 let wasm = null;
 let maze = null;
+let running = false;
 const generators = [];
 const generatorNames = ref([]);
 const ruleIndex = ref(0);
 const currentSize = ref(20);
 const tickRate = ref(0.1);
 const refreshKey = ref(0);
-let intervalId = null;
 
 // Maze dimensions
 let getWidth = ref(currentSize.value);
@@ -83,22 +83,21 @@ const cellClasses = computed(() => {
         let node = maze.node(loc);
         switch (node.type) {
             case wasm.NodeType.Unvisited:
-                map[`${loc.x},${loc.y}`] = "explored";
+                map[`${loc.x},${loc.y}`] = "unvisited";
                 break;
             case wasm.NodeType.Frontier:
                 map[`${loc.x},${loc.y}`] = "frontier";
                 break;
             case wasm.NodeType.Visited:
-                map[`${loc.x},${loc.y}`] = "wall";
+                map[`${loc.x},${loc.y}`] = "visited";
                 break;
             default:
-                map[`${loc.x},${loc.y}`] = "";
+                map[`${loc.x},${loc.y}`] = "unvisited";
         }
     }
     return map;
 });
 
-// Initialize WASM maze & generators
 onMounted(async () => {
     wasm = await getWasm();
 
@@ -112,7 +111,6 @@ onMounted(async () => {
     generatorNames.value.push("HuntAndKill", "RandomWalk", "RecursiveBacktracker");
 });
 
-// Step the current generator
 function step() {
     if (!maze) return;
     const gen = generators[ruleIndex.value];
@@ -124,32 +122,32 @@ function step() {
     }
 }
 
-// Start / pause loop
+function loop() {
+    if (!running) return;
+    step();
+    setTimeout(loop, tickRate.value * 1000);
+}
+
 function start() {
-    if (intervalId) return;
-    intervalId = setInterval(step, tickRate.value * 1000);
+    if (running) return;
+    running = true;
+    loop();
 }
 
 function pause() {
-    if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-    }
+    running = false;
 }
 
-// Clear maze
 function clear() {
     if (!maze) return;
     const gen = generators[ruleIndex.value];
     gen.clear();
     resize();
-    clearInterval(intervalId);
-    intervalId = null;
+    running = false;
 
     refreshKey.value++;
 }
 
-// Resize maze
 function resize() {
     maze.resize(currentSize.value, currentSize.value);
 }
@@ -174,11 +172,11 @@ function getWest(loc) {
     cursor: pointer;
 }
 
-.wall {
+.unvisited {
     fill: hsl(30, 20%, 40%);
 }
 
-.explored {
+.visited {
     fill: hsl(45, 20%, 70%);
 }
 
