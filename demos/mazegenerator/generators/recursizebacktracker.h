@@ -14,7 +14,7 @@ class RecursiveBacktracker : public MazeGenerator
     std::string GetName() override { return "Recursive Backtracker"; };
 
     bool Step(Maze& maze) override;
-    void Clear(Maze& maze) override;
+    void Clear(void) override;
 
   private:
     std::vector<grid_location<int>> getVisitables(Maze& maze, const grid_location<int>& point);

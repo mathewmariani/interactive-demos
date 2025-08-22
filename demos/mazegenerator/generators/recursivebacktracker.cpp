@@ -48,7 +48,7 @@ bool RecursiveBacktracker::Step(Maze& maze)
     return false;
 }
 
-void RecursiveBacktracker::Clear(Maze& maze)
+void RecursiveBacktracker::Clear(void)
 {
     initialized = false;
     while (!frontier.empty())
@@ -89,4 +89,4 @@ std::vector<grid_location<int>> RecursiveBacktracker::getVisitedNeighbors(Maze& 
     return neighbors;
 }
 
-}
+} // namespace maze

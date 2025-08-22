@@ -20,7 +20,7 @@ class MazeGenerator
     virtual std::string GetName() = 0;
 
     virtual bool Step(Maze& maze) = 0;
-    virtual void Clear(Maze& maze) = 0;
+    virtual void Clear(void) = 0;
 
   protected:
     inline grid_location<int> RandomStartPoint(const Maze& maze) const

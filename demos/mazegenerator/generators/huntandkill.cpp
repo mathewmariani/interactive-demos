@@ -75,7 +75,7 @@ bool HuntAndKill::Step(Maze& maze)
     return false;
 }
 
-void HuntAndKill::Clear(Maze& maze)
+void HuntAndKill::Clear(void)
 {
     initialized = false;
     while (!frontier.empty())

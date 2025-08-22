@@ -51,7 +51,7 @@ bool RandomWalk::Step(Maze& maze)
     return true;
 }
 
-void RandomWalk::Clear(Maze& maze)
+void RandomWalk::Clear(void)
 {
     frontier.clear();
     initialized = false;
@@ -89,4 +89,4 @@ std::vector<grid_location<int>> RandomWalk::getVisitedNeighbors(Maze& maze, cons
     return neighbors;
 }
 
-}
+} // namespace maze

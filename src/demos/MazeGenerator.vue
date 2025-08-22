@@ -17,7 +17,7 @@
 
             <div class="mb-2">
                 <label>Width: {{ currentSize }}</label>
-                <input type="range" min="5" max="49" step="2" v-model.number="currentSize" @change="resizeMaze"
+                <input type="range" min="5" max="49" step="2" v-model.number="currentSize" @change="resize"
                     class="form-range" />
             </div>
 
@@ -33,7 +33,11 @@
         <figure id="diagram1">
             <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" width="512" height="512">
                 <template v-for="loc in locations" :key="`${loc.x},${loc.y}-${refreshKey}`">
-                    <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" :width="1" :height="1" />
+                    <rect class="cell" :class="cellClasses[`${loc.x},${loc.y}`]" :x="loc.x" :y="loc.y" :width="1"
+                        :height="1" />
+
+                    <line v-if="getNorth(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x + 1" :y2="loc.y" />
+                    <line v-if="getWest(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x" :y2="loc.y + 1" />
                 </template>
             </svg>
         </figure>
@@ -69,6 +73,29 @@ const locations = computed(() => {
         }
     }
     return arr;
+});
+
+const cellClasses = computed(() => {
+    refreshKey.value;
+    if (!maze || !wasm) return {};
+    const map = {};
+    for (let loc of locations.value) {
+        let node = maze.node(loc);
+        switch (node.type) {
+            case wasm.NodeType.Unvisited:
+                map[`${loc.x},${loc.y}`] = "explored";
+                break;
+            case wasm.NodeType.Frontier:
+                map[`${loc.x},${loc.y}`] = "frontier";
+                break;
+            case wasm.NodeType.Visited:
+                map[`${loc.x},${loc.y}`] = "wall";
+                break;
+            default:
+                map[`${loc.x},${loc.y}`] = "";
+        }
+    }
+    return map;
 });
 
 // Initialize WASM maze & generators
@@ -115,30 +142,26 @@ function clear() {
     if (!maze) return;
     const gen = generators[ruleIndex.value];
     gen.clear();
-    maze.clear();
+    resize();
+    clearInterval(intervalId);
+    intervalId = null;
+
     refreshKey.value++;
 }
 
 // Resize maze
-function resizeMaze() {
+function resize() {
     maze.resize(currentSize.value, currentSize.value);
 }
 
-// Map type to CSS class
-function classFor(loc) {
-    if (!maze) return;
-    console.log("Hello")
-    let node = maze.node(loc)
-    switch (node.type) {
-        case wasm.NodeType.Unvisited:
-            return "explored";
-        case wasm.NodeType.Frontier:
-            return "frontier";
-        case wasm.NodeType.Visited:
-            return "wall";
-        default:
-            return "";
-    }
+function getNorth(loc) {
+    if (!maze) return false;
+    return maze.getNorth(loc);
+}
+
+function getWest(loc) {
+    if (!maze) return false;
+    return maze.getWest(loc);
 }
 </script>
 
@@ -146,7 +169,7 @@ function classFor(loc) {
 .cell {
     stroke: #ffffff;
     fill: hsl(60, 10%, 90%);
-    stroke-width: 0.02px;
+    stroke-width: 0.01px;
     transition: fill 0.2s ease;
     cursor: pointer;
 }
@@ -161,5 +184,10 @@ function classFor(loc) {
 
 .frontier {
     fill: hsl(220, 50%, 70%);
+}
+
+line {
+    stroke: black;
+    stroke-width: 0.1px;
 }
 </style>
