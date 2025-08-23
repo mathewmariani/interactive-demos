@@ -6,61 +6,80 @@
         <button type="button" class="btn btn-primary" @click="reset">🔄</button>
         <button type="button" class="btn btn-primary" @click="clear">🗑️</button>
       </div>
-      <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent>
-        <g v-for="loc in locations" @click="toggle(loc)">
-          <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
+      <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" @contextmenu.prevent>
+        <g v-for="loc in locations" :key="`${loc.x}-${loc.y}`" @click="toggle(loc)">
+          <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1" />
           <text text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5" :y="loc.y + 0.5" :dy="0.15"
             font-weight="bolder">
             {{ countNeighbors(loc) }}
           </text>
         </g>
-
       </svg>
     </div>
   </figure>
 </template>
 
-<script>
-import { shallowReactive } from 'vue';
-import Module from '@/modules/demos.js';
-const wasmModule = await Module();
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import Module from "@/modules/demos.js";
 
-let gridWorld = new wasmModule.GridWorld(10, 8);
-let life = new wasmModule.Life();
+let life = null;
+const tick = ref(0);
 
-export default {
-  data: () => ({
-    gridWorld: shallowReactive(gridWorld),
-    life: shallowReactive(life),
-  }),
-  computed: {
-    getWidth() {
-      return this.gridWorld?.width_readonly || 0;
-    },
-    getHeight() {
-      return this.gridWorld?.height_readonly || 0;
-    },
-    locations() {
-      if (!this.gridWorld) return [];
-      const keys = this.gridWorld.locations().keys();
-      return Array.from({ length: keys.size() }, (_, i) => keys.get(i));
-    },
-  },
-  methods: {
-    step() { this.life.step(); this.$forceUpdate(); },
-    reset() { this.life.reset(); this.$forceUpdate(); },
-    clear() { this.life.clear(); this.$forceUpdate(); },
-    countNeighbors(location) { return this.life.countNeighbors(location); },
+onMounted(async () => {
+  const wasm = await Module();
+  life = new wasm.Life();
+  tick.value++;
+});
 
-    toggle(location) {
-      this.life.toggle(location);
-      this.$forceUpdate();
-    },
-    classFor(location) {
-      return this.life.isAlive(location) ? "alive" : "dead";
-    },
-  },
-};
+const getWidth = computed(() => 10);
+const getHeight = computed(() => 8);
+
+const locations = computed(() => {
+  const arr = [];
+  const w = getWidth.value;
+  const h = getHeight.value;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      arr.push({ x, y });
+    }
+  }
+  return arr;
+});
+
+function step() {
+  if (!life) return;
+  life.step();
+  tick.value++;
+}
+
+function reset() {
+  if (!life) return;
+  life.reset();
+  tick.value++;
+}
+
+function clear() {
+  if (!life) return;
+  life.clear();
+  tick.value++;
+}
+
+function toggle(location) {
+  if (!life) return;
+  life.toggle(location);
+  tick.value++;
+}
+
+function countNeighbors(location) {
+  tick.value;
+  return life?.countNeighbors(location) ?? "";
+}
+
+function classFor(location) {
+  tick.value;
+  return life?.isAlive(location) ? "alive" : "dead";
+}
 </script>
 
 <style scoped>

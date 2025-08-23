@@ -49,7 +49,6 @@
 import { ref, computed, onMounted } from "vue";
 import { getWasm } from "@/composables/wasm.ts";
 
-let wasm = null;
 let maze = null;
 let running = false;
 const generators = [];
@@ -100,7 +99,7 @@ const cellClasses = computed(() => {
 });
 
 onMounted(async () => {
-    wasm = await getWasm();
+    const wasm = await getWasm();
 
     maze = new wasm.Maze();
     maze.resize(currentSize.value, currentSize.value);

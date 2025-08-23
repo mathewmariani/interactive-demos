@@ -4,7 +4,7 @@
       Reset
     </button>
     <main class="d-flex justify-content-center">
-      <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
+      <svg :viewBox="`0 0 ${getWidth} ${getHeight}`">
         <g v-for="loc in locations" @click="set(loc)">
           <rect class="cell" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
 
@@ -21,63 +21,65 @@
   </figure>
 </template>
 
-<script>
-import { shallowReactive } from 'vue';
-import Module from '@/modules/demos.js'
-const wasmModule = await Module()
+<script setup>
+import { shallowReactive, ref, computed, onMounted } from "vue";
+import { getWasm } from "@/composables/wasm.ts";
 
-let gridWorld = new wasmModule.GridWorld(3, 3)
-let board = new wasmModule.TicTacToe()
-let bot = new wasmModule.Bot(board, 2)
+const state = shallowReactive({
+  tictactoe: null,
+  bot: null,
+});
 
-export default {
-  data: () => ({
-    gridWorld: shallowReactive(gridWorld),
-    board: shallowReactive(board),
-    bot: shallowReactive(bot),
-  }),
-  computed: {
-    getWidth() {
-      return this.gridWorld.width_readonly
-    },
-    getHeight() {
-      return this.gridWorld.height_readonly
-    },
-    locations() {
-      const keys = this.gridWorld.locations().keys()
-      const result = []
-      for (let i = 0; i < keys.size(); i++) {
-        const location = keys.get(i)
-        result.push(location)
-      }
-      return result
-    },
-  },
-  methods: {
-    get(location) {
-      return this.board.get(location.x, location.y)
-    },
-    set(location) {
-      let who = this.board.has_winner();
-      if (who != 0 || this.board.is_complete()) {
-        return;
-      }
+const tick = ref(0);
 
-      let where = this.board.get(location.x, location.y)
-      if (where != 0) {
-        return;
-      }
+onMounted(async () => {
+  const wasm = await getWasm();
+  state.tictactoe = shallowReactive(new wasm.TicTacToe());
+  state.bot = new wasm.Bot(state.tictactoe, 2);
+  tick.value++;
+});
 
-      this.board.set(location.x, location.y, 1)
-      this.bot.best_move()
-      this.$forceUpdate()
-    },
-    reset() {
-      this.board.reset()
-      this.$forceUpdate()
-    },
+const getWidth = computed(() => 3);
+const getHeight = computed(() => 3);
+
+const locations = computed(() => {
+  const arr = [];
+  const w = getWidth.value;
+  const h = getHeight.value;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      arr.push({ x, y });
+    }
   }
-};
+  return arr;
+});
+
+function get(loc) {
+  tick.value;
+  return state.tictactoe?.get(loc.x, loc.y) ?? 0;
+}
+
+function set(loc) {
+  if (!state.tictactoe) return;
+
+  let who = state.tictactoe.has_winner();
+  if (who !== 0 || state.tictactoe.is_complete()) return;
+
+  let where = state.tictactoe.get(loc.x, loc.y);
+  if (where !== 0) return;
+
+  state.tictactoe.set(loc.x, loc.y, 1);
+  state.bot.best_move();
+
+  tick.value++;
+}
+
+function reset() {
+  if (!state.tictactoe) return;
+
+  state.tictactoe.reset();
+  tick.value++;
+}
 </script>
 
 <style scoped>
@@ -91,7 +93,6 @@ svg {
   max-width: 512px;
   max-height: 512px;
   width: 100%;
-  /* Optional: Makes it responsive */
   height: auto;
 }
 </style>
