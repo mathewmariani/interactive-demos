@@ -1,15 +1,15 @@
 #include "dungeon.h"
 #include <random>
 
-namespace Dungeon
+namespace dungeon
 {
 
-World::World()
+Dungeon::Dungeon()
 {
     Clear();
 }
 
-void World::Clear(void)
+void Dungeon::Clear(void)
 {
     rooms = {};
     queue = {};
@@ -20,7 +20,7 @@ void World::Clear(void)
     min = 7;
 }
 
-void World::Generate(void)
+void Dungeon::Generate(void)
 {
     // init:
     started = true;
@@ -39,10 +39,11 @@ void World::Generate(void)
     {
         Clear();
         Generate();
+        return;
     }
 }
 
-bool World::Step(void)
+bool Dungeon::Step(void)
 {
     if (!queue.empty())
     {
@@ -53,7 +54,7 @@ bool World::Step(void)
         for (const auto& dt : location.VonNewmanNeighborhood)
         {
             auto loc = dt + location;
-            if (loc.x < 0 && loc.x > kWidth && loc.y < 0 && loc.y > kHeight)
+            if (loc.x < 0 || loc.x >= kWidth || loc.y < 0 || loc.y >= kHeight)
             {
                 continue;
             }
@@ -76,7 +77,7 @@ bool World::Step(void)
     return false;
 }
 
-bool World::Visit(const grid_location<int>& location, const RoomType type)
+bool Dungeon::Visit(const grid_location<int>& location, const RoomType type)
 {
     if (rooms.contains(location))
     {
@@ -88,8 +89,7 @@ bool World::Visit(const grid_location<int>& location, const RoomType type)
         return false;
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    static thread_local std::mt19937 gen(std::random_device{}());
     std::uniform_real_distribution<float> distFail(0.0f, 1.0f);
 
     if (type != RoomType::Spawn && (distFail(gen) < 0.5f))
@@ -105,7 +105,7 @@ bool World::Visit(const grid_location<int>& location, const RoomType type)
     return true;
 }
 
-int World::CountNeighbors(const grid_location<int>& location) const
+int Dungeon::CountNeighbors(const grid_location<int>& location) const
 {
     auto count = 0;
     for (const auto& dt : location.VonNewmanNeighborhood)
@@ -118,8 +118,13 @@ int World::CountNeighbors(const grid_location<int>& location) const
     return count;
 }
 
-const grid_location<int> World::RandomEndRoom()
+const grid_location<int> Dungeon::RandomEndRoom()
 {
+    if (endings.empty())
+    {
+        return {5, 5};
+    }
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, endings.size() - 1);
@@ -131,39 +136,39 @@ const grid_location<int> World::RandomEndRoom()
     return location;
 }
 
-bool World::IsSpawn(const grid_location<int>& location) const
+bool Dungeon::IsSpawn(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Spawn;
 }
 
-bool World::IsNormal(const grid_location<int>& location) const
+bool Dungeon::IsNormal(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Normal;
 }
 
-bool World::IsItem(const grid_location<int>& location) const
+bool Dungeon::IsItem(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Item;
 }
 
-bool World::IsShop(const grid_location<int>& location) const
+bool Dungeon::IsShop(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Shop;
 }
 
-bool World::IsSecret(const grid_location<int>& location) const
+bool Dungeon::IsSecret(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Secret;
 }
 
-bool World::IsSuperSecret(const grid_location<int>& location) const
+bool Dungeon::IsSuperSecret(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::SuperSecret;
 }
 
-bool World::IsBoss(const grid_location<int>& location) const
+bool Dungeon::IsBoss(const grid_location<int>& location) const
 {
     return rooms.contains(location) && rooms.at(location) == RoomType::Boss;
 }
 
-} // namespace Dungeon
+} // namespace dungeon

@@ -4,74 +4,103 @@
       <div class="btn-group mb-3" role="group" aria-label="Game of Life Controls">
         <button type="button" class="btn btn-primary" @click="generate">Generate 🎲</button>
       </div>
-      <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent>
-        <g v-for="loc in locations" @click="toggle(loc)">
-          <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1"></rect>
+      <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" @contextmenu.prevent>
+        <g v-for="loc in locations" :key="`${loc.x}-${loc.y}-${tick.value}`">
+          <rect :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y" width="1" height="1" />
           <text text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5" :y="loc.y + 0.5" :dy="0.15"
             font-weight="bolder">
             {{ hasIconography(loc) }}
           </text>
         </g>
-
       </svg>
     </div>
   </figure>
 </template>
 
-<script>
-import { shallowReactive } from 'vue';
-import Module from '@/modules/demos.js';
-const wasmModule = await Module();
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import Module from "@/modules/demos.js";
 
-let gridWorld = new wasmModule.GridWorld(11, 11);
-let dungeon = new wasmModule.DungeonGenerator();
+let dungeon = null;
+const tick = ref(0);
 
-export default {
-  data: () => ({
-    gridWorld: shallowReactive(gridWorld),
-    dungeon: shallowReactive(dungeon),
-  }),
-  computed: {
-    getWidth() {
-      return this.gridWorld?.width_readonly || 0;
-    },
-    getHeight() {
-      return this.gridWorld?.height_readonly || 0;
-    },
-    locations() {
-      if (!this.gridWorld) return [];
-      const keys = this.gridWorld.locations().keys();
-      return Array.from({ length: keys.size() }, (_, i) => keys.get(i));
-    },
-  },
-  methods: {
-    classFor(location) {
-      let isRoom = this.isSpawn(location) || this.isItem(location) || this.isShop(location) || this.isSecret(location) || this.isBoss(location) || this.isNormal(location);
-      return isRoom ? "room" : "empty";
-    },
-    hasIconography(location) {
-      if (this.isSpawn(location)) return "👼";
-      if (this.isItem(location)) return "👑";
-      if (this.isShop(location)) return "🪙";
-      if (this.isSecret(location)) return "❓";
-      if (this.isSuperSecret(location)) return "⁉️";
-      if (this.isBoss(location)) return "💀";
-      return "";
-    },
-    generate() {
-      this.dungeon.clear();
-      this.dungeon.generate();
-      this.$forceUpdate();
-    },
-    isSpawn(location) { return this.dungeon.isSpawn(location); },
-    isNormal(location) { return this.dungeon.isNormal(location); },
-    isItem(location) { return this.dungeon.isItem(location); },
-    isShop(location) { return this.dungeon.isShop(location); },
-    isSecret(location) { return this.dungeon.isSecret(location); },
-    isSuperSecret(location) { return this.dungeon.isSuperSecret(location); },
-    isBoss(location) { return this.dungeon.isBoss(location); },
-  },
-};
+onMounted(async () => {
+  let wasm = await Module();
+  dungeon = new wasm.DungeonGenerator();
+});
+
+const getWidth = computed(() => 11);
+const getHeight = computed(() => 11);
+
+const locations = computed(() => {
+  const arr = [];
+  const w = getWidth.value;
+  const h = getHeight.value;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      arr.push({ x, y });
+    }
+  }
+  return arr;
+});
+
+// methods
+function generate() {
+  if (!dungeon) return;
+  console.log("here")
+  dungeon.clear();
+  dungeon.generate();
+  tick.value++;
+}
+
+function classFor(location) {
+  let isRoom =
+    isSpawn(location) ||
+    isItem(location) ||
+    isShop(location) ||
+    isSecret(location) ||
+    isBoss(location) ||
+    isNormal(location);
+  return isRoom ? "room" : "empty";
+}
+
+function hasIconography(location) {
+  if (isSpawn(location)) return "👼";
+  if (isItem(location)) return "👑";
+  if (isShop(location)) return "🪙";
+  if (isSecret(location)) return "❓";
+  if (isSuperSecret(location)) return "⁉️";
+  if (isBoss(location)) return "💀";
+  return "";
+}
+
+function isSpawn(loc) {
+  return dungeon?.isSpawn(loc) || false;
+}
+
+function isNormal(loc) {
+  return dungeon?.isNormal(loc) || false;
+}
+
+function isItem(loc) {
+  return dungeon?.isItem(loc) || false;
+}
+
+function isShop(loc) {
+  return dungeon?.isShop(loc) || false;
+}
+
+function isSecret(loc) {
+  return dungeon?.isSecret(loc) || false;
+}
+
+function isSuperSecret(loc) {
+  return dungeon?.isSuperSecret(loc) || false;
+}
+
+function isBoss(loc) {
+  return dungeon?.isBoss(loc) || false;
+}
 </script>
 
 <style scoped>
