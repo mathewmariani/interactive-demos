@@ -1,47 +1,48 @@
 <template>
-    <div class="container py-3">
-        <!-- Controls -->
-        <div class="mb-3">
-            <h5>Maze Simulation</h5>
-            <div class="btn-group mb-2">
-                <button class="btn btn-primary" @click="step">Step</button>
-                <button class="btn btn-success" @click="start">Start</button>
-                <button class="btn btn-warning" @click="pause">Pause</button>
-                <button class="btn btn-danger" @click="clear">Clear</button>
+    <figure id="diagram1">
+        <div class="container py-3">
+            <!-- Controls -->
+            <div class="mb-3">
+                <div class="btn-group mb-2">
+                    <button class="btn btn-primary" @click="step">Step</button>
+                    <button class="btn btn-success" @click="start">Start</button>
+                    <button class="btn btn-warning" @click="pause">Pause</button>
+                    <button class="btn btn-danger" @click="clear">Clear</button>
+                </div>
+
+                <div class="mb-2">
+                    <label>Tick Rate: {{ tickRate.toFixed(2) }}s</label>
+                    <input type="range" min="0.05" max="1" step="0.01" v-model.number="tickRate" class="form-range" />
+                </div>
+
+                <div class="mb-2">
+                    <label>Width: {{ currentSize }}</label>
+                    <input type="range" min="5" max="20" v-model.number="currentSize" @change="resize"
+                        class="form-range" />
+                </div>
+
+                <div class="mb-2">
+                    <label>Generator</label>
+                    <select v-model="ruleIndex" class="form-select">
+                        <option v-for="(name, idx) in generatorNames" :key="idx" :value="idx">{{ name }}</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="mb-2">
-                <label>Tick Rate: {{ tickRate.toFixed(2) }}s</label>
-                <input type="range" min="0.05" max="1" step="0.01" v-model.number="tickRate" class="form-range" />
-            </div>
+            <!-- Maze SVG -->
 
-            <div class="mb-2">
-                <label>Width: {{ currentSize }}</label>
-                <input type="range" min="5" max="49" step="2" v-model.number="currentSize" @change="resize"
-                    class="form-range" />
-            </div>
-
-            <div class="mb-2">
-                <label>Generator</label>
-                <select v-model="ruleIndex" class="form-select">
-                    <option v-for="(name, idx) in generatorNames" :key="idx" :value="idx">{{ name }}</option>
-                </select>
+            <div class="d-flex flex-column align-items-center">
+                <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" width="512" height="512">
+                    <template v-for="loc in locations" :key="`${loc.x},${loc.y}-${refreshKey}`">
+                        <rect class="cell" :class="cellClasses[`${loc.x},${loc.y}`]" :x="loc.x" :y="loc.y" :width="1"
+                            :height="1" />
+                        <line v-if="getNorth(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x + 1" :y2="loc.y" />
+                        <line v-if="getWest(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x" :y2="loc.y + 1" />
+                    </template>
+                </svg>
             </div>
         </div>
-
-        <!-- Maze SVG -->
-        <figure id="diagram1">
-            <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" width="512" height="512">
-                <template v-for="loc in locations" :key="`${loc.x},${loc.y}-${refreshKey}`">
-                    <rect class="cell" :class="cellClasses[`${loc.x},${loc.y}`]" :x="loc.x" :y="loc.y" :width="1"
-                        :height="1" />
-
-                    <line v-if="getNorth(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x + 1" :y2="loc.y" />
-                    <line v-if="getWest(loc)" :x1="loc.x" :y1="loc.y" :x2="loc.x" :y2="loc.y + 1" />
-                </template>
-            </svg>
-        </figure>
-    </div>
+    </figure>
 </template>
 
 <script setup>
