@@ -32,7 +32,7 @@
             <!-- Maze SVG -->
 
             <div class="d-flex flex-column align-items-center">
-                <svg :viewBox="`0 0 ${getWidth} ${getHeight}`" width="512" height="512">
+                <svg :viewBox="`0 0 ${getWidth} ${getHeight}`">
                     <template v-for="loc in locations" :key="`${loc.x},${loc.y}-${refreshKey}`">
                         <rect class="cell" :class="cellClasses[`${loc.x},${loc.y}`]" :x="loc.x" :y="loc.y" :width="1"
                             :height="1" />
@@ -49,6 +49,7 @@
 import { ref, computed, onMounted } from "vue";
 import { getWasm } from "@/composables/wasm.ts";
 
+let wasm = null;
 let maze = null;
 let running = false;
 const generators = [];
@@ -99,7 +100,7 @@ const cellClasses = computed(() => {
 });
 
 onMounted(async () => {
-    const wasm = await getWasm();
+    wasm = await getWasm();
 
     maze = new wasm.Maze();
     maze.resize(currentSize.value, currentSize.value);
@@ -187,5 +188,12 @@ function getWest(loc) {
 line {
     stroke: black;
     stroke-width: 0.1px;
+}
+
+svg {
+    max-width: 512px;
+    max-height: 512px;
+    width: 100%;
+    height: auto;
 }
 </style>
