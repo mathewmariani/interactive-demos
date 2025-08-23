@@ -2,23 +2,23 @@
 
 #include "dungeon.h"
 
-namespace Dungeon
+namespace dungeon
 {
 
 EMSCRIPTEN_BINDINGS(dungeon_module)
 {
-    emscripten::class_<Dungeon::World>("DungeonGenerator")
+    emscripten::class_<Dungeon>("DungeonGenerator")
         .constructor<>()
-        .function("clear", &Dungeon::World::Clear)
-        .function("generate", &Dungeon::World::Generate)
-        .function("isSpawn", &Dungeon::World::IsSpawn)
-        .function("isNormal", &Dungeon::World::IsNormal)
-        .function("isItem", &Dungeon::World::IsItem)
-        .function("isShop", &Dungeon::World::IsShop)
-        .function("isSecret", &Dungeon::World::IsSecret)
-        .function("isSuperSecret", &Dungeon::World::IsSuperSecret)
-        .function("isBoss", &Dungeon::World::IsBoss)
-        .function("countNeighbors", &Dungeon::World::CountNeighbors);
+        .function("clear", &Dungeon::Clear)
+        .function("generate", &Dungeon::Generate)
+        .function("isSpawn", &Dungeon::IsSpawn)
+        .function("isNormal", &Dungeon::IsNormal)
+        .function("isItem", &Dungeon::IsItem)
+        .function("isShop", &Dungeon::IsShop)
+        .function("isSecret", &Dungeon::IsSecret)
+        .function("isSuperSecret", &Dungeon::IsSuperSecret)
+        .function("isBoss", &Dungeon::IsBoss)
+        .function("countNeighbors", &Dungeon::CountNeighbors);
 }
 
-} // namespace Dungeon
+} // namespace dungeon

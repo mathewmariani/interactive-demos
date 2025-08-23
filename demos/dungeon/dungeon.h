@@ -4,7 +4,7 @@
 
 #include "datastructures/grid_location.h"
 
-namespace Dungeon
+namespace dungeon
 {
 
 static constexpr int kWidth = 11;
@@ -25,11 +25,11 @@ enum class RoomType : uint8_t
     Null = 255
 };
 
-class World
+class Dungeon
 {
   public:
-    World();
-    ~World() = default;
+    Dungeon();
+    ~Dungeon() = default;
 
     void Clear(void);
     void Generate(void);
@@ -61,4 +61,4 @@ class World
     int min = 7;
 };
 
-} // namespace Dungeon
+} // namespace dungeon

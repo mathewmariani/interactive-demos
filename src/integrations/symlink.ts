@@ -1,15 +1,13 @@
-import { SYMLINK_SRC, SYMLINK_DST } from "../consts";
-import type { AstroIntegration } from "astro";
+import { SYMLINK_SRC, SYMLINK_DST } from '../consts';
+import type { AstroIntegration } from 'astro';
 import fs from 'fs';
 import path from 'path';
 
 export const symlinkIntegration = () => {
-  const symlinks = [
-    { source: SYMLINK_SRC, target: SYMLINK_DST },
-  ] as const;
+  const symlinks = [{ source: SYMLINK_SRC, target: SYMLINK_DST }] as const;
 
   let integration: AstroIntegration = {
-    name: "astro-lifecycle-logs",
+    name: 'astro-lifecycle-logs',
     hooks: {
       'astro:build:setup': async () => {
         try {
