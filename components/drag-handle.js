@@ -10,7 +10,7 @@ function eventToSvgCoordinates(event) {
 }
 
 export default defineComponent({
-  name: "DragHandle",
+  name: 'DragHandle',
   props: ['modelValue', 'color', 'size'],
   template: `<circle
               :fill="color" :r="size" :cx="modelValue.x + 0.5" :cy="modelValue.y + 0.5"
