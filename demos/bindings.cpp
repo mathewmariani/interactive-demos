@@ -13,10 +13,9 @@ EMSCRIPTEN_BINDINGS(my_module)
     emscripten::register_map<grid_location<int>, int>("std::map<grid_location<int>, int>");
     emscripten::register_map<grid_location<int>, grid_location<int>>("std::map<grid_location<int>, grid_location<int>>");
 
-    emscripten::class_<grid_location<int>>("GridLocation")
-        .constructor<int, int>()
-        .property("x", &grid_location<int>::x)
-        .property("y", &grid_location<int>::y);
+    emscripten::value_object<grid_location<int>>("GridLocation")
+        .field("x", &grid_location<int>::x)
+        .field("y", &grid_location<int>::y);
 
     emscripten::class_<grid_world>("GridWorld")
         .constructor<>()

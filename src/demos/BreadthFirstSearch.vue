@@ -25,7 +25,7 @@ import Module from '@/modules/demos.js'
 const wasmModule = await Module()
 
 let gridWorld = new wasmModule.GridWorld(23, 9)
-let startId = new wasmModule.GridLocation(5, 2)
+let startId = { x: 5, y: 2 }
 
 export default {
   data: () => ({
@@ -54,7 +54,7 @@ export default {
       return result
     },
     goalToGrid() {
-      return new wasmModule.GridLocation(this.center.x, this.center.y)
+      return { x: this.center.x, y: this.center.y }
     },
     bfsResults() {
       const ref = wasmModule.BreadthFirstSearch(this.gridWorld, this.goalToGrid, this.stepLimit)
