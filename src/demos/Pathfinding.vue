@@ -49,17 +49,17 @@ const generators = [];
 const generatorNames = ref([]);
 const ruleIndex = ref(0);
 
-generators.push(new wasmModule.HuntAndKill());
-generators.push(new wasmModule.RandomWalk());
-generators.push(new wasmModule.RecursiveBacktracker());
+generators.push(wasmModule.BreadthFirstSearch);
+generators.push(wasmModule.AStarSearch);
+generators.push(wasmModule.DijkstraSearch);
+generators.push(wasmModule.GreedySearch);
 
 generatorNames.value.push(
-  'AStar Search',
-  'Breadth First Search',
-  'Dijkstra Search',
-  'Greedy Search',
+  "Breadth First Search",
+  "AStar Search",
+  "Dijkstra Search",
+  "Greedy Search",
 );
-
 
 const stepLimit = ref(0);
 const center = ref({ x: 5, y: 2 });
@@ -87,7 +87,8 @@ const goalToGrid = computed(() => ({
 }));
 
 const bfsResults = computed(() => {
-  return wasmModule.BreadthFirstSearch(gridWorld, goalToGrid.value, stepLimit.value);
+  renderKey.value;
+  return generators[ruleIndex.value](gridWorld, goalToGrid.value, stepLimit.value);
 });
 
 const centerPosition = computed({

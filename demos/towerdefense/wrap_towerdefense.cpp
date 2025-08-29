@@ -28,6 +28,36 @@ auto w_BreadthFirstSearch(const grid_world& world, const grid_location<int>& goa
     };
 }
 
+auto w_DijkstraSearch(const grid_world& world, const grid_location<int>& goal, int stepLimit)
+{
+    auto [frontier, came_from] = DijkstraSearch(world, goal, stepLimit);
+
+    std::unordered_map<grid_location<int>, grid_location<int>> map;
+    for (auto& kv : came_from)
+    {
+        map[kv.first] = kv.second;
+    }
+    return (BFSResult){
+        .frontier = frontier,
+        .came_from = map,
+    };
+}
+
+auto w_GreedySearch(const grid_world& world, const grid_location<int>& goal, int stepLimit)
+{
+    auto [frontier, came_from] = GreedySearch(world, goal, stepLimit);
+
+    std::unordered_map<grid_location<int>, grid_location<int>> map;
+    for (auto& kv : came_from)
+    {
+        map[kv.first] = kv.second;
+    }
+    return (BFSResult){
+        .frontier = frontier,
+        .came_from = map,
+    };
+}
+
 EMSCRIPTEN_BINDINGS(towerdefense_module)
 {
     emscripten::value_object<BFSResult>("BFSResult")
@@ -36,6 +66,6 @@ EMSCRIPTEN_BINDINGS(towerdefense_module)
 
     emscripten::function("BreadthFirstSearch", &w_BreadthFirstSearch);
     emscripten::function("AStarSearch", &AStarSearch);
-    emscripten::function("DijkstraSearch", &DijkstraSearch);
-    emscripten::function("GreedySearch", &GreedySearch);
+    emscripten::function("DijkstraSearch", &w_DijkstraSearch);
+    emscripten::function("GreedySearch", &w_GreedySearch);
 }

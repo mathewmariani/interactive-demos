@@ -8,7 +8,7 @@ export const HomeLink = (): string => '/';
 
 // demo links
 export const ChessLink = (): string => 'chess';
-export const BreadthFirstSearchLink = (): string => 'breadthfirstsearch';
+export const PathfindingLink = (): string => 'pathfinding';
 export const DungeonGeneratorLink = (): string => 'dungeongerator';
 export const JohnConwayLifeLink = (): string => 'johnconwaylife';
 export const MazeGeneratorLink = (): string => 'mazegenerator';
