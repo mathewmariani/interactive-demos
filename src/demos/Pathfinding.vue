@@ -43,31 +43,31 @@ function clamp(value, lo, hi) {
 }
 
 const wasmModule = await Module();
-const gridWorld = new wasmModule.GridWorld(23, 9);
+const gridWorld = new wasmModule.GridWorld(23, 23);
 
 const generators = [];
 const generatorNames = ref([]);
 const ruleIndex = ref(0);
 
 generators.push(wasmModule.BreadthFirstSearch);
-generators.push(wasmModule.AStarSearch);
+// generators.push(wasmModule.AStarSearch);
 generators.push(wasmModule.DijkstraSearch);
 generators.push(wasmModule.GreedySearch);
 
 generatorNames.value.push(
   "Breadth First Search",
-  "AStar Search",
+  // "AStar Search",
   "Dijkstra Search",
   "Greedy Search",
 );
 
 const stepLimit = ref(0);
-const center = ref({ x: 5, y: 2 });
+const center = ref({ x: 11, y: 11 });
 const goal = ref({ x: 16, y: 2 });
 const renderKey = ref(0);
 
 const getWidth = computed(() => 23);
-const getHeight = computed(() => 9);
+const getHeight = computed(() => 23);
 
 const locations = computed(() => {
   const arr = [];

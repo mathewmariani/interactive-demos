@@ -16,6 +16,9 @@ std::pair<Frontier, CameFrom> GreedySearch(const grid_world& grid, const grid_lo
     Frontier frontier;
     CameFrom came_from;
 
+    frontier.push_back(start);
+    came_from[start] = start;
+
     auto i = 0;
     while (!frontier.empty() && i++ < step_limit)
     {
