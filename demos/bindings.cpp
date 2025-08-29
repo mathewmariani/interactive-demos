@@ -6,13 +6,13 @@
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
 
+using Location = grid_location<int>;
+using LocationVector = std::vector<Location>;
+using LocationMap = std::unordered_map<Location, Location>;
+
 // mantra: I would rather write bindings in c++ than confusing javascript
 EMSCRIPTEN_BINDINGS(my_module)
 {
-    emscripten::register_vector<grid_location<int>>("std::vector<grid_location<int>>");
-    emscripten::register_map<grid_location<int>, int>("std::map<grid_location<int>, int>");
-    emscripten::register_map<grid_location<int>, grid_location<int>>("std::map<grid_location<int>, grid_location<int>>");
-
     emscripten::value_object<grid_location<int>>("GridLocation")
         .field("x", &grid_location<int>::x)
         .field("y", &grid_location<int>::y);
@@ -25,4 +25,40 @@ EMSCRIPTEN_BINDINGS(my_module)
         .function("locations", &grid_world::locations)
         .function("toggleWall", &grid_world::toggleWall)
         .function("isWall", &grid_world::isWall);
+
+    // clang-format off
+    emscripten::class_<LocationVector>("LocationVector")
+        .constructor<>()
+        .function("has", emscripten::optional_override([](LocationVector& self, const Location& loc) {
+            return std::find(self.begin(), self.end(), loc) != self.end();
+        }));
+    // clang-format on
+
+    // clang-format off
+    emscripten::class_<LocationMap>("LocationMap")
+        .constructor<>()
+        .function("set", emscripten::optional_override([](LocationMap& self, const Location& key, const Location& val) {
+            self[key] = val;
+        }))
+        .function("get", emscripten::optional_override([](LocationMap& self, const Location& key) -> Location {
+            auto it = self.find(key);
+            if (it != self.end()) return it->second;
+            return Location{ -1, -1 };
+        }))
+        .function("has", emscripten::optional_override([](LocationMap& self, const Location& key) {
+            return self.find(key) != self.end();
+        }))
+        .function("keys", emscripten::optional_override([](LocationMap& self) {
+            std::vector<Location> keys;
+            keys.reserve(self.size());
+            for (auto& kv : self) keys.push_back(kv.first);
+            return keys;
+        }))
+        .function("values", emscripten::optional_override([](LocationMap& self) {
+            std::vector<Location> vals;
+            vals.reserve(self.size());
+            for (auto& kv : self) vals.push_back(kv.second);
+            return vals;
+        }));
+    // clang-format on
 }

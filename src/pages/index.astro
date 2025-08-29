@@ -1,18 +1,18 @@
 ---
-import Layout from "../layouts/Page.astro";
+import Layout from '@/layouts/Page.astro';
 import {
 	ChessLink,
 	DungeonGeneratorLink,
-	BreadthFirstSearchLink,
+	PathfindingLink,
 	JohnConwayLifeLink,
 	MazeGeneratorLink,
 	MinesweeperLink,
 	TicTacToeLink,
-} from "../consts";
+} from '@/consts';
 
-const AstroLink = "https://astro.build/";
-const VueJSLink = "https://vuejs.org/";
-const WebAssemblyLink = "https://webassembly.org/";
+const AstroLink = 'https://astro.build/';
+const VueJSLink = 'https://vuejs.org/';
+const WebAssemblyLink = 'https://webassembly.org/';
 ---
 
 <Layout>
@@ -41,7 +41,7 @@ const WebAssemblyLink = "https://webassembly.org/";
 		<li><a href={JohnConwayLifeLink()}>John Conway's Life</a></li>
 		<li><a href={MinesweeperLink()}>Minesweeper</a></li>
 		<li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>
-		<li><a href={BreadthFirstSearchLink()}>Breadth First Search</a></li>
+		<li><a href={PathfindingLink()}>Pathfinding</a></li>
 	</ul>
 </Layout>
 

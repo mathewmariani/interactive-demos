@@ -8,13 +8,16 @@
 #include <utility>
 #include <vector>
 
-std::unordered_map<grid_location<int>, grid_location<int>> DijkstraSearch(const grid_world& grid, const grid_location<int>& start, int step_limit)
-{
-    std::vector<grid_location<int>> frontier;
-    frontier.push_back(start);
+using Frontier = std::vector<grid_location<int>>;
+using CameFrom = std::map<grid_location<int>, grid_location<int>>;
 
-    std::unordered_map<grid_location<int>, grid_location<int>> came_from;
-    came_from.insert({start, start});
+std::pair<Frontier, CameFrom> DijkstraSearch(const grid_world& grid, const grid_location<int>& start, int step_limit)
+{
+    Frontier frontier;
+    CameFrom came_from;
+
+    frontier.push_back(start);
+    came_from[start] = start;
 
     auto i = 0;
     while (!frontier.empty() && i++ < step_limit)
@@ -34,5 +37,5 @@ std::unordered_map<grid_location<int>, grid_location<int>> DijkstraSearch(const 
         frontier.erase(frontier.begin());
     }
 
-    return came_from;
+    return {frontier, came_from};
 }
