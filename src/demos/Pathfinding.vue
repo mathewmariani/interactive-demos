@@ -4,8 +4,10 @@
       <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
         <rect v-for="loc in locations" :key="`${loc.x}-${loc.y}`" :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y"
           :width="1" :height="1" @click="toggleWall(loc)" />
+        <polyline v-if="path.length" :points="path.map(p => `${p.x},${p.y}`).join(' ')" stroke="red" stroke-width="0.2"
+          fill="none" />
         <DragHandle v-model="centerPosition" color="yellow" :size="0.5" />
-        <!-- <DragHandle v-model="goalPosition" color="red" :size="0.5" /> -->
+        <DragHandle v-model="goalPosition" color="red" :size="0.5" />
       </svg>
     </main>
     <div class="container py-3">
@@ -110,6 +112,25 @@ const goalPosition = computed({
     goal.value.y = clamp(r, 0, getHeight.value - 1);
   },
 });
+
+const path = computed(() => {
+  const bfs = bfsResults.value;
+  const map = bfs.came_from;
+
+  if (!map.has(goal.value)) return [];
+
+  const result = [];
+  let current = goal.value;
+
+  while (current.x !== center.value.x || current.y !== center.value.y) {
+    result.push({ x: current.x + 0.5, y: current.y + 0.5 });
+    current = map.get(current);
+  }
+
+  result.push({ x: center.value.x + 0.5, y: center.value.y + 0.5 });
+  return result.reverse();
+});
+
 
 function toggleWall(location) {
   gridWorld.toggleWall(location);
