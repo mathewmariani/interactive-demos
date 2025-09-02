@@ -1,0 +1,27 @@
+---
+import Layout from '@/layouts/Page.astro';
+import DemoView from '@/views/DemoView.vue';
+
+export async function getStaticPaths() {
+    const slugs = [
+        'chess',
+        'dungeon-generator',
+        'john-conway-life',
+        'maze-generator',
+        'minesweeper',
+        'pathfinding',
+        'tic-tac-toe',
+    ];
+
+    return slugs.map((slug) => ({
+        params: { slug },
+        props: { slug },
+    }));
+}
+
+const { slug } = Astro.props;
+---
+
+<Layout>
+    <DemoView slug={slug} client:only="vue" />
+</Layout>

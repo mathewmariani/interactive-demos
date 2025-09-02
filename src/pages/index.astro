@@ -1,13 +1,13 @@
 ---
 import Layout from '@/layouts/Page.astro';
 import {
-	ChessLink,
-	DungeonGeneratorLink,
-	PathfindingLink,
-	JohnConwayLifeLink,
-	MazeGeneratorLink,
-	MinesweeperLink,
-	TicTacToeLink,
+    ChessLink,
+    DungeonGeneratorLink,
+    PathfindingLink,
+    JohnConwayLifeLink,
+    MazeGeneratorLink,
+    MinesweeperLink,
+    TicTacToeLink,
 } from '@/consts';
 
 const AstroLink = 'https://astro.build/';
@@ -16,33 +16,33 @@ const WebAssemblyLink = 'https://webassembly.org/';
 ---
 
 <Layout>
-	<h1 class="display-2">Hey! 👋</h1>
-	<div class="highlight"></div>
-	<p class="lead">
-		A collection of small demos I created over the years as a teacher. They
-		weren’t originally made for the web, so I've been experimenting with new
-		technologies.
-	</p>
-	<p class="lead">
-		It's a work in progress — adapting them into interactive online versions
-		takes time!
-	</p>
-	<p class="lead">Wondering how these are built ? 🛠️</p>
-	<p class="lead">
-		It's C++ compiled to <a href={WebAssemblyLink}>WebAssembly</a>
-		, with <a href={VueJSLink}>VueJS</a> for interfacing, and statically-generated
-		using <a href={AstroLink}>Astro</a>.
-	</p>
+    <h1 class="display-2">Hey! 👋</h1>
+    <div class="highlight"></div>
+    <p class="lead">
+        A collection of small demos I created over the years as a teacher. They
+        weren’t originally made for the web, so I've been experimenting with new
+        technologies.
+    </p>
+    <p class="lead">
+        It's a work in progress — adapting them into interactive online versions
+        takes time!
+    </p>
+    <p class="lead">Wondering how these are built ? 🛠️</p>
+    <p class="lead">
+        It's C++ compiled to <a href={WebAssemblyLink}>WebAssembly</a>
+        , with <a href={VueJSLink}>VueJS</a> for interfacing, and statically-generated
+        using <a href={AstroLink}>Astro</a>.
+    </p>
 
-	<ul>
-		<li><a href={MazeGeneratorLink()}>Maze Generator</a></li>
-		<li><a href={ChessLink()}>Chess</a></li>
-		<li><a href={DungeonGeneratorLink()}>Dungeon Generator</a></li>
-		<li><a href={JohnConwayLifeLink()}>John Conway's Life</a></li>
-		<li><a href={MinesweeperLink()}>Minesweeper</a></li>
-		<li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>
-		<li><a href={PathfindingLink()}>Pathfinding</a></li>
-	</ul>
+    <ul>
+        <li><a href={MazeGeneratorLink()}>Maze Generator</a></li>
+        <li><a href={ChessLink()}>Chess</a></li>
+        <li><a href={DungeonGeneratorLink()}>Dungeon Generator</a></li>
+        <li><a href={JohnConwayLifeLink()}>John Conway's Life</a></li>
+        <li><a href={MinesweeperLink()}>Minesweeper</a></li>
+        <li><a href={TicTacToeLink()}>TicTacToe Bot (MiniMax)</a></li>
+        <li><a href={PathfindingLink()}>Pathfinding</a></li>
+    </ul>
 </Layout>
 
 <style></style>

@@ -9,8 +9,8 @@ export const HomeLink = (): string => '/';
 // demo links
 export const ChessLink = (): string => 'chess';
 export const PathfindingLink = (): string => 'pathfinding';
-export const DungeonGeneratorLink = (): string => 'dungeongerator';
-export const JohnConwayLifeLink = (): string => 'johnconwaylife';
-export const MazeGeneratorLink = (): string => 'mazegenerator';
+export const DungeonGeneratorLink = (): string => 'dungeon-generator';
+export const JohnConwayLifeLink = (): string => 'john-conway-life';
+export const MazeGeneratorLink = (): string => 'maze-generator';
 export const MinesweeperLink = (): string => 'minesweeper';
-export const TicTacToeLink = (): string => 'tictactoe';
+export const TicTacToeLink = (): string => 'tic-tac-toe';
