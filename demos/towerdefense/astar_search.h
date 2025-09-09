@@ -1,6 +1,7 @@
 #pragma once
 
 #include "datastructures/grid_world.h"
+#include "typedefs.h"
 
 #include <map>
 #include <queue>
@@ -8,44 +9,42 @@
 #include <utility>
 #include <vector>
 
-struct GridNode
-{
-    int cost;
-    grid_location<int> location;
+using CameFrom = std::map<grid_location<int>, grid_location<int>>;
 
-    bool operator<(const GridNode& other) const
-    {
-        return cost < other.cost;
-    }
-};
-
-std::unordered_map<grid_location<int>, grid_location<int>> AStarSearch(const grid_world& grid, const grid_location<int>& start, int step_limit)
+std::pair<std::priority_queue<GridNode>, CameFrom> AStarSearch(const grid_world& grid, const grid_location<int>& start, const grid_location<int>& goal, int step_limit)
 {
+    std::unordered_map<grid_location<int>, int> cost_so_far;
     std::priority_queue<GridNode> frontier;
-    frontier.push((GridNode){.cost = 0, .location = start});
+    CameFrom came_from;
 
-    std::unordered_map<grid_location<int>, grid_location<int>> came_from;
-    came_from.insert({start, start});
+    frontier.push((GridNode){.priority = 0, .location = start});
+    came_from[start] = start;
+    cost_so_far[start] = 0;
 
     auto i = 0;
     while (!frontier.empty() && i++ < step_limit)
     {
-        /* check for visitable neighbors */
-        auto current = frontier.top().location;
+        auto current = frontier.top();
+        frontier.pop();
 
-        auto priority = 0;
-        for (const auto& next : grid.neighbors(current))
+        if (current.location == goal)
         {
-            if (!came_from.contains(next))
-            {
-                // priority = ManhattanDistance(goal, next)
-                frontier.push((GridNode){.cost = priority, .location = next});
-                came_from.insert({next, current});
-            };
+            break;
         }
 
-        frontier.pop();
+        /* check for visitable neighbors */
+        for (const auto& next : grid.neighbors(current.location))
+        {
+            auto new_cost = cost_so_far[current.location] + 1;
+            if (!came_from.contains(next) || new_cost < cost_so_far[next])
+            {
+                auto priority = new_cost + ManhattanDistance(goal, next);
+                cost_so_far[next] = new_cost;
+                frontier.push((GridNode){.priority = priority, .location = next});
+                came_from.insert({next, current.location});
+            };
+        }
     }
 
-    return came_from;
+    return {frontier, came_from};
 }
