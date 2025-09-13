@@ -11,12 +11,14 @@ constexpr int ManhattanDistance(const grid_location<int>& a,
 
 struct GridNode
 {
-    int priority;
+    int cost = 0;
+    int h = 0;
+    int g = 0;
     grid_location<int> location;
 
     bool operator<(const GridNode& other) const
     {
-        return priority > other.priority;
+        return cost > other.cost;
     }
 
     bool operator==(const GridNode& other) const

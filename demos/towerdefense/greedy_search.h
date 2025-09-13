@@ -16,8 +16,8 @@ std::pair<std::priority_queue<GridNode>, CameFrom> GreedySearch(const grid_world
     std::priority_queue<GridNode> frontier;
     CameFrom came_from;
 
-    frontier.push((GridNode){.priority = 0, .location = start});
-    came_from[start] = start;
+    frontier.push((GridNode){.cost = 0, .location = start});
+    came_from[start] = {};
 
     auto i = 0;
     while (!frontier.empty() && i++ < step_limit)
@@ -35,9 +35,9 @@ std::pair<std::priority_queue<GridNode>, CameFrom> GreedySearch(const grid_world
         {
             if (!came_from.contains(next))
             {
-                auto priority = ManhattanDistance(goal, next);
-                frontier.push((GridNode){.priority = priority, .location = next});
-                came_from.insert({next, current.location});
+                auto cost = ManhattanDistance(goal, next);
+                frontier.push((GridNode){.cost = cost, .location = next});
+                came_from[next] = current.location;
             };
         }
     }

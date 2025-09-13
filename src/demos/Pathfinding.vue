@@ -4,6 +4,11 @@
       <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
         <rect v-for="loc in locations" :key="`${loc.x}-${loc.y}`" :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y"
           :width="1" :height="1" @click="toggleWall(loc)" />
+
+        <text v-for="loc in locations" :key="`${loc.x}-${loc.y}`" :x="loc.x + 0.35" :y="loc.y + 0.75" font-size="0.5"
+          fill="black">
+          {{ heuristicFor(loc) }}
+        </text>
         <polyline v-if="path.length" :points="path.map(p => `${p.x},${p.y}`).join(' ')" stroke="ghostwhite"
           stroke-width="0.35" fill="none" stroke-linejoin="round" />
         <DragHandle v-model="startPosition" color="yellow" :size="0.5" />
@@ -149,6 +154,14 @@ function classFor(location) {
     return "explored";
 
   return "";
+}
+
+function heuristicFor(location) {
+  renderKey.value;
+  const bfs = bfsResults.value;
+
+  if (bfs.frontier.has(location))
+    return bfs.frontier.get(location).cost;
 }
 </script>
 

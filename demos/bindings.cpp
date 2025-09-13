@@ -2,6 +2,7 @@
 
 #include "datastructures/grid_location.h"
 #include "datastructures/grid_world.h"
+#include "towerdefense/typedefs.h"
 
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
@@ -27,10 +28,20 @@ EMSCRIPTEN_BINDINGS(my_module)
         .function("isWall", &grid_world::isWall);
 
     // clang-format off
-    emscripten::class_<LocationVector>("LocationVector")
-        .constructor<>()
+    emscripten::register_vector<Location>("LocationVector")
         .function("has", emscripten::optional_override([](LocationVector& self, const Location& loc) {
             return std::find(self.begin(), self.end(), loc) != self.end();
+        }))
+        .function("get", emscripten::optional_override([](LocationVector& self, const Location& loc) {
+            auto it = std::find_if(self.begin(), self.end(),
+                [&](const Location& l) {
+                    return l == loc;
+                });
+            if (it != self.end())
+            {
+                return emscripten::val(*it); // wrap and return the GridNode
+            }
+            return emscripten::val::undefined(); // not found
         }));
     // clang-format on
 

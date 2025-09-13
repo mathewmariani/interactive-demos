@@ -131,7 +131,7 @@ SearchResult w_AStarSearch(const grid_world& world, emscripten::val opts)
         stepLimit = opts["stepLimit"].as<int>();
     }
 
-    auto [frontier, came_from_native] = GreedySearch(world, start, goal, stepLimit);
+    auto [frontier, came_from_native] = AStarSearch(world, start, goal, stepLimit);
 
     std::vector<GridNode> frontierVec;
     frontierVec.reserve(frontier.size());
@@ -208,15 +208,27 @@ EMSCRIPTEN_BINDINGS(towerdefense_module)
 
     emscripten::value_object<GridNode>("GridNode")
         .field("location", &GridNode::location)
-        .field("priority", &GridNode::priority);
+        .field("h", &GridNode::h)
+        .field("g", &GridNode::g)
+        .field("cost", &GridNode::cost);
 
     // clang-format off
-    emscripten::class_<std::vector<GridNode>>("GridNodeVector")
-        .constructor<>()
+    emscripten::register_vector<GridNode>("GridNodeVector")
         .function("has", emscripten::optional_override([](std::vector<GridNode>& self, const grid_location<int>& loc) {
             return std::find_if(self.begin(), self.end(), [&](const GridNode& n) {
                 return n.location == loc;
             }) != self.end();
+        }))
+        .function("get", emscripten::optional_override([](std::vector<GridNode>& self, const grid_location<int>& loc) {
+            auto it = std::find_if(self.begin(), self.end(),
+                [&](const GridNode& n) {
+                    return n.location == loc;
+                });
+            if (it != self.end())
+            {
+                return emscripten::val(*it); // wrap and return the GridNode
+            }
+            return emscripten::val::undefined(); // not found
         }));
     // clang-format on
 

@@ -17,8 +17,8 @@ std::pair<std::priority_queue<GridNode>, CameFrom> AStarSearch(const grid_world&
     std::priority_queue<GridNode> frontier;
     CameFrom came_from;
 
-    frontier.push((GridNode){.priority = 0, .location = start});
-    came_from[start] = start;
+    frontier.push((GridNode){.cost = 0, .location = start});
+    came_from[start] = {};
     cost_so_far[start] = 0;
 
     auto i = 0;
@@ -36,12 +36,14 @@ std::pair<std::priority_queue<GridNode>, CameFrom> AStarSearch(const grid_world&
         for (const auto& next : grid.neighbors(current.location))
         {
             auto new_cost = cost_so_far[current.location] + 1;
-            if (!came_from.contains(next) || new_cost < cost_so_far[next])
+            if (!cost_so_far.contains(next) || new_cost < cost_so_far[next])
             {
-                auto priority = new_cost + ManhattanDistance(goal, next);
+                auto h = ManhattanDistance(next, goal);
+                auto f = new_cost + h;
+                auto cost = new_cost + ManhattanDistance(next, goal);
                 cost_so_far[next] = new_cost;
-                frontier.push((GridNode){.priority = priority, .location = next});
-                came_from.insert({next, current.location});
+                frontier.push((GridNode){.cost = f, .location = next, .g = new_cost, .h = h});
+                came_from[next] = current.location;
             };
         }
     }
