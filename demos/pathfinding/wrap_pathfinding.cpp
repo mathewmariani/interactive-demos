@@ -1,10 +1,7 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
-#include "astar_search.h"
-#include "breadth_first_search.h"
-#include "dijkstra_search.h"
-#include "greedy_search.h"
+#include "pathfinding.h"
 
 #include "datastructures/grid_world.h"
 

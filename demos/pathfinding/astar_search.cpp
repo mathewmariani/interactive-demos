@@ -1,19 +1,8 @@
-#pragma once
-
-#include "datastructures/grid_world.h"
-#include "typedefs.h"
-
+#include "pathfinding.h"
 #include <algorithm>
-#include <map>
-#include <queue>
-#include <set>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
-using CameFrom = std::map<grid_location<int>, grid_location<int>>;
-
-std::pair<std::vector<GridNode>, CameFrom> AStarSearch(
+std::pair<std::vector<GridNode>, std::map<grid_location<int>, grid_location<int>>>
+AStarSearch(
     const grid_world& grid,
     const grid_location<int>& start,
     const grid_location<int>& goal,
@@ -21,7 +10,7 @@ std::pair<std::vector<GridNode>, CameFrom> AStarSearch(
 {
     std::vector<GridNode> frontier;
     std::unordered_map<grid_location<int>, int> g_score;
-    CameFrom came_from;
+    std::map<grid_location<int>, grid_location<int>> came_from;
 
     auto h = [&](const grid_location<int>& a)
     { return ManhattanDistance(a, goal); };

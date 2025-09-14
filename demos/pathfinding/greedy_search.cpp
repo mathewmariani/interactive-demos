@@ -1,23 +1,15 @@
-#pragma once
+#include "pathfinding.h"
+#include <algorithm>
 
-#include "typedefs.h"
-
-#include <map>
-#include <queue>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
-using FrontierVec = std::vector<GridNode>;
-using CameFrom = std::map<grid_location<int>, grid_location<int>>;
-
-std::pair<FrontierVec, CameFrom> GreedySearch(const grid_world& grid,
-                                              const grid_location<int>& start,
-                                              const grid_location<int>& goal,
-                                              int step_limit)
+std::pair<std::vector<GridNode>, std::map<grid_location<int>, grid_location<int>>>
+GreedySearch(
+    const grid_world& grid,
+    const grid_location<int>& start,
+    const grid_location<int>& goal,
+    int step_limit)
 {
-    FrontierVec frontier;
-    CameFrom came_from;
+    std::vector<GridNode> frontier;
+    std::map<grid_location<int>, grid_location<int>> came_from;
     std::unordered_map<grid_location<int>, int> visited; // track if node is already in frontier
 
     // push start node

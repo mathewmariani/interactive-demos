@@ -28,6 +28,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
         demos/tictactoe/wrap_tictactoe.cpp
 
         # pathfinding
+        demos/pathfinding/astar_search.cpp
+        demos/pathfinding/breadth_first_search.cpp
+        demos/pathfinding/dijkstra_search.cpp
+        demos/pathfinding/greedy_search.cpp
         demos/pathfinding/wrap_pathfinding.cpp
 
         # life
