@@ -178,7 +178,7 @@ SearchResult w_GreedySearch(const grid_world& world, emscripten::val opts)
     return SearchResult{frontier, came_from};
 }
 
-EMSCRIPTEN_BINDINGS(towerdefense_module)
+EMSCRIPTEN_BINDINGS(pathfinding_module)
 {
     emscripten::value_object<BFSResult>("BFSResult")
         .field("frontier", &BFSResult::frontier)

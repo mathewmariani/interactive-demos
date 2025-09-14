@@ -27,8 +27,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
         demos/tictactoe/tictactoe.cpp
         demos/tictactoe/wrap_tictactoe.cpp
 
-        # towerdefense
-        demos/towerdefense/wrap_towerdefense.cpp
+        # pathfinding
+        demos/pathfinding/wrap_pathfinding.cpp
 
         # life
         demos/life/life.cpp

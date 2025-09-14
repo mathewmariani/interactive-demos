@@ -2,7 +2,6 @@
 
 #include "datastructures/grid_location.h"
 #include "datastructures/grid_world.h"
-#include "towerdefense/typedefs.h"
 
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 // The functions register the class, its constructor(), member function(), class_function() (static) and property().
