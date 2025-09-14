@@ -133,22 +133,13 @@ SearchResult w_AStarSearch(const grid_world& world, emscripten::val opts)
 
     auto [frontier, came_from_native] = AStarSearch(world, start, goal, stepLimit);
 
-    std::vector<GridNode> frontierVec;
-    frontierVec.reserve(frontier.size());
-
-    while (!frontier.empty())
-    {
-        frontierVec.push_back(frontier.top());
-        frontier.pop();
-    }
-
     std::unordered_map<grid_location<int>, grid_location<int>> came_from;
     for (auto& kv : came_from_native)
     {
         came_from[kv.first] = kv.second;
     }
 
-    return SearchResult{frontierVec, came_from};
+    return SearchResult{frontier, came_from};
 }
 
 SearchResult w_GreedySearch(const grid_world& world, emscripten::val opts)
@@ -178,22 +169,13 @@ SearchResult w_GreedySearch(const grid_world& world, emscripten::val opts)
 
     auto [frontier, came_from_native] = GreedySearch(world, start, goal, stepLimit);
 
-    std::vector<GridNode> frontierVec;
-    frontierVec.reserve(frontier.size());
-
-    while (!frontier.empty())
-    {
-        frontierVec.push_back(frontier.top());
-        frontier.pop();
-    }
-
     std::unordered_map<grid_location<int>, grid_location<int>> came_from;
     for (auto& kv : came_from_native)
     {
         came_from[kv.first] = kv.second;
     }
 
-    return SearchResult{frontierVec, came_from};
+    return SearchResult{frontier, came_from};
 }
 
 EMSCRIPTEN_BINDINGS(towerdefense_module)

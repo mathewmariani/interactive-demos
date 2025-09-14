@@ -5,8 +5,7 @@
 constexpr int ManhattanDistance(const grid_location<int>& a,
                                 const grid_location<int>& b) noexcept
 {
-    return (a.x > b.x ? a.x - b.x : b.x - a.x) +
-           (a.y > b.y ? a.y - b.y : b.y - a.y);
+    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
 struct GridNode
@@ -18,7 +17,11 @@ struct GridNode
 
     bool operator<(const GridNode& other) const
     {
-        return cost > other.cost;
+        if (cost == other.cost)
+        {
+            return g > other.g;
+        }
+        return cost < other.cost;
     }
 
     bool operator==(const GridNode& other) const

@@ -8,37 +8,48 @@
 #include <utility>
 #include <vector>
 
-using Frontier = std::vector<grid_location<int>>;
+using FrontierVec = std::vector<GridNode>;
 using CameFrom = std::map<grid_location<int>, grid_location<int>>;
 
-std::pair<std::priority_queue<GridNode>, CameFrom> GreedySearch(const grid_world& grid, const grid_location<int>& start, const grid_location<int>& goal, int step_limit)
+std::pair<FrontierVec, CameFrom> GreedySearch(const grid_world& grid,
+                                              const grid_location<int>& start,
+                                              const grid_location<int>& goal,
+                                              int step_limit)
 {
-    std::priority_queue<GridNode> frontier;
+    FrontierVec frontier;
     CameFrom came_from;
+    std::unordered_map<grid_location<int>, int> visited; // track if node is already in frontier
 
-    frontier.push((GridNode){.cost = 0, .location = start});
+    // push start node
+    frontier.push_back(GridNode{.location = start, .cost = 0});
     came_from[start] = {};
+    visited[start] = 0;
 
-    auto i = 0;
-    while (!frontier.empty() && i++ < step_limit)
+    int steps = 0;
+    while (!frontier.empty() && steps++ < step_limit)
     {
-        auto current = frontier.top();
-        frontier.pop();
+        // sort frontier by cost (heuristic only)
+        std::sort(frontier.begin(), frontier.end(),
+                  [](const GridNode& a, const GridNode& b)
+                  { return a.cost < b.cost; });
+
+        // pop lowest cost node
+        GridNode current = frontier.front();
+        frontier.erase(frontier.begin());
 
         if (current.location == goal)
-        {
             break;
-        }
 
-        /* check for visitable neighbors */
+        // expand neighbors
         for (const auto& next : grid.neighbors(current.location))
         {
-            if (!came_from.contains(next))
+            if (!visited.contains(next))
             {
-                auto cost = ManhattanDistance(goal, next);
-                frontier.push((GridNode){.cost = cost, .location = next});
+                int cost = ManhattanDistance(goal, next);
+                frontier.push_back(GridNode{.location = next, .cost = cost});
                 came_from[next] = current.location;
-            };
+                visited[next] = cost;
+            }
         }
     }
 
