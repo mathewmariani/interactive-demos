@@ -4,9 +4,14 @@
       <svg :view-box.camel="`0 0 ${getWidth} ${getHeight}`">
         <rect v-for="loc in locations" :key="`${loc.x}-${loc.y}`" :class="'cell ' + classFor(loc)" :x="loc.x" :y="loc.y"
           :width="1" :height="1" @click="toggleWall(loc)" />
-        <polyline v-if="path.length" :points="path.map(p => `${p.x},${p.y}`).join(' ')" stroke="red" stroke-width="0.2"
-          fill="none" />
-        <DragHandle v-model="centerPosition" color="yellow" :size="0.5" />
+
+        <text v-for="loc in locations" :key="`${loc.x}-${loc.y}`" :x="loc.x + 0.35" :y="loc.y + 0.75" font-size="0.5"
+          fill="black">
+          {{ heuristicFor(loc) }}
+        </text>
+        <polyline v-if="path.length" :points="path.map(p => `${p.x},${p.y}`).join(' ')" stroke="ghostwhite"
+          stroke-width="0.35" fill="none" stroke-linejoin="round" />
+        <DragHandle v-model="startPosition" color="yellow" :size="0.5" />
         <DragHandle v-model="goalPosition" color="red" :size="0.5" />
       </svg>
     </main>
@@ -52,19 +57,19 @@ const generatorNames = ref([]);
 const ruleIndex = ref(0);
 
 generators.push(wasmModule.BreadthFirstSearch);
-// generators.push(wasmModule.AStarSearch);
+generators.push(wasmModule.AStarSearch);
 generators.push(wasmModule.DijkstraSearch);
 generators.push(wasmModule.GreedySearch);
 
 generatorNames.value.push(
   "Breadth First Search",
-  // "AStar Search",
+  "AStar Search",
   "Dijkstra Search",
   "Greedy Search",
 );
 
 const stepLimit = ref(0);
-const center = ref({ x: 11, y: 11 });
+const start = ref({ x: 11, y: 11 });
 const goal = ref({ x: 16, y: 2 });
 const renderKey = ref(0);
 
@@ -83,28 +88,27 @@ const locations = computed(() => {
   return arr;
 });
 
-const goalToGrid = computed(() => ({
-  x: center.value.x,
-  y: center.value.y,
-}));
-
 const bfsResults = computed(() => {
   renderKey.value;
-  return generators[ruleIndex.value](gridWorld, goalToGrid.value, stepLimit.value);
+  return generators[ruleIndex.value](gridWorld, {
+    start: start.value,
+    goal: goal.value,
+    stepLimit: stepLimit.value
+  });
 });
 
-const centerPosition = computed({
-  get: () => ({ x: center.value.x, y: center.value.y }),
+const startPosition = computed({
+  get: () => (start.value),
   set: ({ x, y }) => {
     const q = Math.round(x - 0.5);
     const r = Math.round(y - 0.5);
-    center.value.x = clamp(q, 0, getWidth.value - 1);
-    center.value.y = clamp(r, 0, getHeight.value - 1);
+    start.value.x = clamp(q, 0, getWidth.value - 1);
+    start.value.y = clamp(r, 0, getHeight.value - 1);
   },
 });
 
 const goalPosition = computed({
-  get: () => ({ x: goal.value.x, y: goal.value.y }),
+  get: () => (goal.value),
   set: ({ x, y }) => {
     const q = Math.round(x - 0.5);
     const r = Math.round(y - 0.5);
@@ -122,12 +126,12 @@ const path = computed(() => {
   const result = [];
   let current = goal.value;
 
-  while (current.x !== center.value.x || current.y !== center.value.y) {
+  while (current.x !== start.value.x || current.y !== start.value.y) {
     result.push({ x: current.x + 0.5, y: current.y + 0.5 });
     current = map.get(current);
   }
 
-  result.push({ x: center.value.x + 0.5, y: center.value.y + 0.5 });
+  result.push({ x: start.value.x + 0.5, y: start.value.y + 0.5 });
   return result.reverse();
 });
 
@@ -150,6 +154,14 @@ function classFor(location) {
     return "explored";
 
   return "";
+}
+
+function heuristicFor(location) {
+  renderKey.value;
+  const bfs = bfsResults.value;
+
+  if (bfs.frontier.has(location))
+    return bfs.frontier.get(location).cost;
 }
 </script>
 

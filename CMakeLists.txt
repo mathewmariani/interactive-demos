@@ -27,8 +27,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
         demos/tictactoe/tictactoe.cpp
         demos/tictactoe/wrap_tictactoe.cpp
 
-        # towerdefense
-        demos/towerdefense/wrap_towerdefense.cpp
+        # pathfinding
+        demos/pathfinding/astar_search.cpp
+        demos/pathfinding/breadth_first_search.cpp
+        demos/pathfinding/dijkstra_search.cpp
+        demos/pathfinding/greedy_search.cpp
+        demos/pathfinding/wrap_pathfinding.cpp
 
         # life
         demos/life/life.cpp
@@ -49,6 +53,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Emscripten)
         -sEXPORT_NAME="Module"
         -sALLOW_MEMORY_GROWTH=1
         -sBINARYEN_ASYNC_COMPILATION=0
+        -sDISABLE_EXCEPTION_CATCHING=0
         -sENVIRONMENT=web
         -sSINGLE_FILE=1
         -sMODULARIZE=1

@@ -1,20 +1,18 @@
-#pragma once
-
-#include "datastructures/grid_world.h"
-
-#include <map>
-#include <queue>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#include "pathfinding.h"
+#include <algorithm>
 
 using Frontier = std::vector<grid_location<int>>;
 using CameFrom = std::map<grid_location<int>, grid_location<int>>;
 
-std::pair<Frontier, CameFrom> DijkstraSearch(const grid_world& grid, const grid_location<int>& start, int step_limit)
+std::pair<std::vector<grid_location<int>>, std::map<grid_location<int>, grid_location<int>>>
+DijkstraSearch(
+    const grid_world& grid,
+    const grid_location<int>& start,
+    const grid_location<int>& goal,
+    int step_limit)
 {
-    Frontier frontier;
-    CameFrom came_from;
+    std::vector<grid_location<int>> frontier;
+    std::map<grid_location<int>, grid_location<int>> came_from;
 
     frontier.push_back(start);
     came_from[start] = start;
@@ -24,6 +22,12 @@ std::pair<Frontier, CameFrom> DijkstraSearch(const grid_world& grid, const grid_
     {
         /* check for visitable neighbors */
         auto current = frontier.front();
+        frontier.erase(frontier.begin());
+
+        if (current == goal)
+        {
+            break;
+        }
 
         for (const auto& next : grid.neighbors(current))
         {
@@ -33,8 +37,6 @@ std::pair<Frontier, CameFrom> DijkstraSearch(const grid_world& grid, const grid_
                 came_from.insert({next, current});
             };
         }
-
-        frontier.erase(frontier.begin());
     }
 
     return {frontier, came_from};
