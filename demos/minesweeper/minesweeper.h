@@ -64,7 +64,8 @@ class Board
 
     void Explore(const grid_location<int>& location);
 
-    uint8_t GetMineCount(const grid_location<int>& location) const;
+    int GetMineCount(const grid_location<int>& location) const;
+    int GetFlagCount() const;
 
     bool IsMine(const grid_location<int>& location) const;
     bool IsExplored(const grid_location<int>& location) const;
@@ -73,6 +74,7 @@ class Board
     bool CheckWin() const;
 
   private:
+    int flagCount = 0;
     std::map<grid_location<int>, CellType> grid;
 };
 

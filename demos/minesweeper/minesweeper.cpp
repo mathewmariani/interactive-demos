@@ -21,6 +21,8 @@ void Board::Reset()
         }
     }
 
+    flagCount = 0;
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distX(0, kWidth - 1);
@@ -42,7 +44,14 @@ void Board::Reset()
 
 void Board::ToggleFlag(const grid_location<int>& location)
 {
+    const auto isFlag = IsFlag(location);
+    if (GetFlagCount() == 0 && !isFlag)
+    {
+        return;
+    }
+
     grid.at(location) ^= CellType::Flag;
+    flagCount = isFlag ? flagCount + 1 : flagCount - 1;
 }
 
 void Board::Explore(const grid_location<int>& location)
@@ -67,7 +76,7 @@ void Board::Explore(const grid_location<int>& location)
     }
 }
 
-uint8_t Board::GetMineCount(const grid_location<int>& location) const
+int Board::GetMineCount(const grid_location<int>& location) const
 {
     auto count = 0;
     for (const auto& t : location.MooresNeighborhood)
@@ -79,6 +88,11 @@ uint8_t Board::GetMineCount(const grid_location<int>& location) const
         }
     }
     return count;
+}
+
+int Board::GetFlagCount() const
+{
+    return kMines - flagCount;
 }
 
 bool Board::IsMine(const grid_location<int>& location) const { return (grid.at(location) & CellType::Mine) != CellType::None; }
