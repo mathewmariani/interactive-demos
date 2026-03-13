@@ -7,9 +7,15 @@ namespace Minesweeper
 
 EMSCRIPTEN_BINDINGS(minesweeper_module)
 {
+    emscripten::value_object<Config>("Config")
+        .field("width", &Config::width)
+        .field("height", &Config::height)
+        .field("mines", &Config::mines);
+
     emscripten::class_<Minesweeper::Board>("Minesweeper")
         .constructor<>()
         .function("reset", &Minesweeper::Board::Reset)
+        .function("setConfig", &Minesweeper::Board::SetConfig)
         .function("getMineCount", &Minesweeper::Board::GetMineCount)
         .function("getFlagCount", &Minesweeper::Board::GetFlagCount)
         .function("explore", &Minesweeper::Board::Explore)

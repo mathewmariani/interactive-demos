@@ -5,9 +5,17 @@
         <button type="button" class="btn btn-dark btn-lg btn-block" @click="reset">
           {{ getStatus }}
         </button>
-        <button type="button" class="btn btn-dark btn-lg btn-block">
-          <i class="bi bi-gear-fill"></i>
-        </button>
+        <div class="dropdown">
+          <button class="btn btn-dark btn-lg btn-block dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-gear-fill"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" @click="setDifficulty('easy')">Easy</a></li>
+            <li><a class="dropdown-item" @click="setDifficulty('medium')">Medium</a></li>
+            <li><a class="dropdown-item" @click="setDifficulty('hard')">Hard</a></li>
+          </ul>
+        </div>
         <button type="button" class="btn btn-dark btn-lg btn-block ms-auto">
           <i class="bi bi-stopwatch"></i> : {{ timer.display }}
         </button>
@@ -17,7 +25,7 @@
       </div>
     </div>
     <div class="vstack align-items-center">
-      <svg :viewBox="`${0} ${0} ${getWidth} ${getHeight}`" @contextmenu.prevent>
+      <svg :viewBox="`${0} ${0} ${width} ${height}`" @contextmenu.prevent>
         <g v-for="loc in locations" @click="explore(loc)" @contextmenu="flag(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x + 0.05" :y="loc.y + 0.05" width="0.9" height="0.9"></rect>
           <text v-if="isExplored(loc) && !isMine(loc)" text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5"
@@ -43,10 +51,21 @@ import Module from '@/modules/demos.js';
 import { useTimer } from "@/composables/useTimer"
 const timer = useTimer();
 
+const difficulties = {
+  easy: { width: 10, height: 8, mines: 10 },
+  medium: { width: 18, height: 14, mines: 40 },
+  hard: { width: 24, height: 20, mines: 99 }
+}
+
 let board = null;
 const gameover = ref(false);
 const hasWon = ref(false);
+const difficulty = ref("easy")
 const tick = ref(0);
+
+const config = computed(() => difficulties[difficulty.value])
+const width = computed(() => config.value.width)
+const height = computed(() => config.value.height)
 
 onMounted(async () => {
   const wasm = await Module();
@@ -54,13 +73,10 @@ onMounted(async () => {
   tick.value++;
 });
 
-const getWidth = computed(() => 10);
-const getHeight = computed(() => 8);
-
 const locations = computed(() => {
   const arr = [];
-  const w = getWidth.value;
-  const h = getHeight.value;
+  const w = width.value;
+  const h = height.value;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       arr.push({ x, y });
@@ -80,6 +96,12 @@ function reset() {
   gameover.value = false;
   hasWon.value = false;
   tick.value++;
+}
+
+function setDifficulty(level) {
+  difficulty.value = level;
+  this.board.setConfig(config.value);
+  reset();
 }
 
 function flag(location) {
@@ -184,9 +206,9 @@ function getNumberColor(count) {
 }
 
 svg {
-  max-width: 512px;
-  max-height: 512px;
-  width: 100%;
-  height: auto;
+  /* max-width: 100%;
+  max-height: 100%; */
+  width: 540px;
+  height: 420px;
 }
 </style>

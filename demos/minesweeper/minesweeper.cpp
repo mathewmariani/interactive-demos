@@ -4,31 +4,37 @@
 namespace Minesweeper
 {
 
-Board::Board() { Reset(); }
+Board::Board()
+{
+    config = {
+        .width = kWidth,
+        .height = kHeight,
+        .mines = kMines,
+    };
+    Reset();
+}
 
 auto Board::InRange(const grid_location<int>& location) const
 {
-    return 0 <= location.x && location.x < kWidth && 0 <= location.y && location.y < kHeight;
+    return 0 <= location.x && location.x < config.width && 0 <= location.y && location.y < config.height;
 }
 
 void Board::Reset()
 {
-    for (auto y = 0; y < kHeight; ++y)
+    for (auto y = 0; y < config.height; ++y)
     {
-        for (auto x = 0; x < kWidth; ++x)
+        for (auto x = 0; x < config.width; ++x)
         {
             grid[grid_location<int>{x, y}] = CellType::None;
         }
     }
 
-    flagCount = 0;
-
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> distX(0, kWidth - 1);
-    std::uniform_int_distribution<int> distY(0, kHeight - 1);
+    std::uniform_int_distribution<int> distX(0, config.width - 1);
+    std::uniform_int_distribution<int> distY(0, config.height - 1);
 
-    for (auto i = 0; i < kMines; i++)
+    for (auto i = 0; i < config.mines; i++)
     {
         while (true)
         {
@@ -42,6 +48,12 @@ void Board::Reset()
     }
 }
 
+void Board::SetConfig(const Config& config)
+{
+    this->config = config;
+    Reset();
+}
+
 void Board::ToggleFlag(const grid_location<int>& location)
 {
     const auto isFlag = IsFlag(location);
@@ -51,7 +63,7 @@ void Board::ToggleFlag(const grid_location<int>& location)
     }
 
     grid.at(location) ^= CellType::Flag;
-    flagCount = isFlag ? flagCount + 1 : flagCount - 1;
+    flagCount = isFlag ? flagCount - 1 : flagCount + 1;
 }
 
 void Board::Explore(const grid_location<int>& location)
@@ -92,7 +104,7 @@ int Board::GetMineCount(const grid_location<int>& location) const
 
 int Board::GetFlagCount() const
 {
-    return kMines - flagCount;
+    return config.mines - flagCount;
 }
 
 bool Board::IsMine(const grid_location<int>& location) const { return (grid.at(location) & CellType::Mine) != CellType::None; }
@@ -101,9 +113,9 @@ bool Board::IsFlag(const grid_location<int>& location) const { return (grid.at(l
 
 bool Board::CheckWin() const
 {
-    for (auto x = 0; x < kWidth; ++x)
+    for (auto x = 0; x < config.width; ++x)
     {
-        for (auto y = 0; y < kHeight; ++y)
+        for (auto y = 0; y < config.height; ++y)
         {
             const grid_location<int>& location{x, y};
             if (IsMine(location) && !IsFlag(location))

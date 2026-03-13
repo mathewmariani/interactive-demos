@@ -11,6 +11,13 @@ static constexpr int kWidth = 10;
 static constexpr int kHeight = 8;
 static constexpr int kMines = 10;
 
+struct Config
+{
+    int width = kWidth;
+    int height = kHeight;
+    int mines = kMines;
+};
+
 enum class CellType : uint8_t
 {
     None = 0,            // 0b0000
@@ -59,6 +66,7 @@ class Board
 
   public:
     void Reset();
+    void SetConfig(const Config& config);
 
     void ToggleFlag(const grid_location<int>& location);
 
@@ -74,8 +82,10 @@ class Board
     bool CheckWin() const;
 
   private:
-    int flagCount = 0;
     std::map<grid_location<int>, CellType> grid;
+    Config config;
+
+    int flagCount = 0;
 };
 
 } // namespace Minesweeper
