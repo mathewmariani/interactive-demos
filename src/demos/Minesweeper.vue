@@ -1,31 +1,21 @@
 <template>
+
   <figure id="diagram1" class="card">
     <div class="card-header">
-      <div class="hstack gap-3">
-        <button type="button" class="btn btn-dark btn-lg btn-block" @click="reset">
+      <div class="hstack justify-content-between">
+        <span class="badge text-bg-danger">
+          <i class="bi bi-stopwatch"></i> : {{ timer.display }}
+        </span>
+        <button type="button" class="btn btn-dark" @click="reset">
           {{ getStatus }}
         </button>
-        <div class="dropdown">
-          <button class="btn btn-dark btn-lg btn-block dropdown-toggle" type="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <i class="bi bi-gear-fill"></i>
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" @click="setDifficulty('easy')">Easy</a></li>
-            <li><a class="dropdown-item" @click="setDifficulty('medium')">Medium</a></li>
-            <li><a class="dropdown-item" @click="setDifficulty('hard')">Hard</a></li>
-          </ul>
-        </div>
-        <button type="button" class="btn btn-dark btn-lg btn-block ms-auto">
-          <i class="bi bi-stopwatch"></i> : {{ timer.display }}
-        </button>
-        <button type="button" class="btn btn-dark btn-lg btn-block">
+        <span class="badge text-bg-danger">
           <i class="bi bi-flag-fill"></i> x {{ board?.getFlagCount() }}
-        </button>
+        </span>
       </div>
     </div>
     <div class="vstack align-items-center">
-      <svg :viewBox="`${0} ${0} ${width} ${height}`" @contextmenu.prevent>
+      <svg :viewBox="viewBox" :style="svgStyle" @contextmenu.prevent>
         <g v-for="loc in locations" @click="explore(loc)" @contextmenu="flag(loc)">
           <rect :class="'cell ' + classFor(loc)" :x="loc.x + 0.05" :y="loc.y + 0.05" width="0.9" height="0.9"></rect>
           <text v-if="isExplored(loc) && !isMine(loc)" text-anchor="middle" :font-size="0.45" :x="loc.x + 0.5"
@@ -41,12 +31,24 @@
         </g>
       </svg>
     </div>
+    <div class="card-footer">
+      <div class="dropdown">
+        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-gear-fill"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" @click="setDifficulty('easy')">Easy</a></li>
+          <li><a class="dropdown-item" @click="setDifficulty('medium')">Medium</a></li>
+          <li><a class="dropdown-item" @click="setDifficulty('hard')">Hard</a></li>
+        </ul>
+      </div>
+    </div>
   </figure>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import Module from '@/modules/demos.js';
+import { getWasm } from '@/composables/wasm.ts';
 
 import { useTimer } from "@/composables/useTimer"
 const timer = useTimer();
@@ -67,8 +69,17 @@ const config = computed(() => difficulties[difficulty.value])
 const width = computed(() => config.value.width)
 const height = computed(() => config.value.height)
 
+const cellSize = 32
+const viewBox = computed(() => `0 0 ${width.value} ${height.value}`)
+const svgWidth = computed(() => width.value * cellSize)
+const svgHeight = computed(() => height.value * cellSize)
+const svgStyle = computed(() => ({
+  width: `${svgWidth.value}px`,
+  height: `${svgHeight.value}px`
+}))
+
 onMounted(async () => {
-  const wasm = await Module();
+  const wasm = await getWasm();
   board = new wasm.Minesweeper();
   tick.value++;
 });
@@ -203,12 +214,5 @@ function getNumberColor(count) {
 .cell:hover:not(.explored) {
   fill: #b8e663;
   cursor: pointer;
-}
-
-svg {
-  /* max-width: 100%;
-  max-height: 100%; */
-  width: 540px;
-  height: 420px;
 }
 </style>
