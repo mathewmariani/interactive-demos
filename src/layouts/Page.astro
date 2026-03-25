@@ -1,18 +1,24 @@
 ---
 import Footer from '@/components/astro/Footer.astro';
 import Meta from '@/components/astro/Meta.astro';
+import Header from '@/components/astro/Header.astro';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@mathewmariani/sugar/css/sugar.css';
 ---
 
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 	<head>
 		<Meta />
 	</head>
 
-	<body class="container" id="top">
+	<body>
+		<Header />
 		<main>
-			<slot />
+			<div class="container">
+				<slot />
+			</div>
 		</main>
 		<Footer />
 	</body>
 </html>
-<style></style>

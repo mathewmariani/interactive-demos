@@ -17,6 +17,7 @@
     "vue": "^3.5.22"
   },
   "dependencies": {
+    "@mathewmariani/sugar": "github:mathewmariani/sugar",
     "bootstrap": "^5.3.8"
   }
 }
