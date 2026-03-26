@@ -1,10 +1,17 @@
 ---
-import Footer from '@/components/astro/Footer.astro';
+import { PROJECT_NAME } from '@/consts';
+
+import Footer from '@mathewmariani/sugar/astro/components/Footer.astro';
+import Header from '@mathewmariani/sugar/astro/components/Header.astro';
+
 import Meta from '@/components/astro/Meta.astro';
-import Header from '@/components/astro/Header.astro';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 import '@mathewmariani/sugar/css/sugar.css';
+
+const links = [{ href: '/projects', label: 'Other Projects' }];
 ---
 
 <html lang="en">
@@ -13,12 +20,16 @@ import '@mathewmariani/sugar/css/sugar.css';
 	</head>
 
 	<body>
-		<Header />
+		<Header name={PROJECT_NAME} />
 		<main>
 			<div class="container">
 				<slot />
 			</div>
 		</main>
-		<Footer />
+		<Footer links={links} />
+
+		<script>
+			import '@mathewmariani/sugar/js/sugar.js';
+		</script>
 	</body>
 </html>

@@ -1,11 +1,9 @@
 ---
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/styles/global.css';
 import { SITE_TITLE, SITE_DESCRIPTION } from '@/consts';
 ---
 
 <base href="/interactive-demos/" />
-<script src="/interactive-demos/sugar.js" is:inline></script>
 
 <!-- global -->
 <meta charset="utf-8" />
@@ -32,11 +30,3 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '@/consts';
 <meta property="twitter:title" content={SITE_TITLE} />
 <meta property="twitter:description" content={SITE_DESCRIPTION} />
 <!-- <meta property="twitter:image" content={new URL(image, Astro.url)} /> -->
-
-<!-- fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-	href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
-	rel="stylesheet"
-/>

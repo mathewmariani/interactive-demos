@@ -1,4 +1,4 @@
-export const SITE_TITLE = 'Interactive Demos';
+export const PROJECT_NAME = 'Interactive Demos';
 export const SITE_DESCRIPTION = '';
 
 export const SYMLINK_SRC = 'build/Release';
