@@ -6,7 +6,7 @@
         <span class="badge text-bg-danger">
           <i class="bi bi-stopwatch"></i> : {{ timer.display }}
         </span>
-        <button type="button" class="btn btn-dark" @click="reset">
+        <button type="button" class="btn btn-light" @click="reset">
           {{ getStatus }}
         </button>
         <span class="badge text-bg-danger">
@@ -33,7 +33,7 @@
     </div>
     <div class="card-footer">
       <div class="dropdown">
-        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="bi bi-gear-fill"></i>
         </button>
         <ul class="dropdown-menu">
